@@ -54,8 +54,6 @@ public class Generator {
             user.setFirstName(fio[1]);
             user.setMiddleName(fio[2]);
             user.setLocation(getOne(cityList));
-            user.setSexualPreference(SexualPreferenceType.valueOf(getOne(sexualPrefeneceList)));
-            user.setGender(GenderType.valueOf(male));
 
             int id = userRepository.save(user);
 
@@ -77,6 +75,9 @@ public class Generator {
             card.setTags(tags);
             card.setRating(getDoubleOfRange(1.0, 4.7));
             card.setYearsOld(getIntOfRange(18, 45));
+            card.setSexualPreference(SexualPreferenceType.valueOf(getOne(sexualPrefeneceList)));
+            card.setGender(GenderType.valueOf(male));
+
 
             userCardRepository.save(card);
         }

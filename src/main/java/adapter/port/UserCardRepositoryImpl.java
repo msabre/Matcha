@@ -2,7 +2,10 @@ package adapter.port;
 
 import adapter.port.model.DBConfiguration;
 import domain.entity.Link;
-import domain.entity.UserCard;import usecase.port.UserCardRepository;
+import domain.entity.UserCard;
+import domain.entity.model.types.GenderType;
+import domain.entity.model.types.SexualPreferenceType;
+import usecase.port.UserCardRepository;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -30,7 +33,7 @@ public class UserCardRepositoryImpl implements UserCardRepository {
     @Override
     public UserCard save(UserCard card) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
-             PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user_card SET BIOGRAPHY = ?, WORKPLACE = ?, POSITION = ?, EDUCATION = ?, TAGS = ?, RATING = ? WHERE ID = ?", Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user_card SET BIOGRAPHY = ?, WORKPLACE = ?, POSITION = ?, EDUCATION = ?, GENDER = ?, SEXUAL_PREFERENCE = ?, TAGS = ?, RATING = ? WHERE ID = ?", Statement.RETURN_GENERATED_KEYS)) {
 
             int i = 0;
 
@@ -38,6 +41,8 @@ public class UserCardRepositoryImpl implements UserCardRepository {
             statement.setString(++i, card.getWorkPlace());
             statement.setString(++i, card.getPosition());
             statement.setString(++i, card.getEducation());
+            statement.setString(++i, card.getGender().getValue());
+            statement.setString(++i, card.getSexualPreference().getValue());
 
             StringBuilder tags = new StringBuilder();
             for (String tag : card.getTags())
@@ -76,6 +81,8 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                     card.setWorkPlace(resultSet.getString(++i));
                     card.setPosition(resultSet.getString(++i));
                     card.setEducation(resultSet.getString(++i));
+                    card.setGender(GenderType.fromStr(resultSet.getString(++i)));
+                    card.setSexualPreference(SexualPreferenceType.fromStr(resultSet.getString(++i)));
 
                     String[] arrayTags = Optional.ofNullable(resultSet.getString(++i)).
                             map(regex -> regex.split(";")).orElse(new String[0]);

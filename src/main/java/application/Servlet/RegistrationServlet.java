@@ -22,9 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.*;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 
 import static config.MyConfiguration.*;
@@ -68,15 +66,15 @@ public class RegistrationServlet extends HttpServlet {
 
         user.setLocation(location);
 
+        UserCard userCard = (UserCard) JsonService.getObject(UserCard.class, json);
+        user.setCard(userCard);
+
         int userId = userController.createUser(user);
         if (userId < 0)
             HttpService.putBody(resp, "WRONG");
 
         user.setId(userId);
-
-        UserCard userCard = (UserCard) JsonService.getObject(UserCard.class, json);
         userCard.setUserId(userId);
-        user.setCard(userCard);
 
         req.getSession().setAttribute("email", user.getEmail());
 
@@ -93,7 +91,6 @@ public class RegistrationServlet extends HttpServlet {
                 .toLocalDate();
 
         return Period.between(birthDate, now).getYears();
-
     }
 
     private void sendConfirmMail (User user) {

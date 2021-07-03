@@ -1,6 +1,8 @@
 package domain.entity;
 
 import com.google.gson.annotations.Expose;
+import domain.entity.model.types.GenderType;
+import domain.entity.model.types.SexualPreferenceType;
 
 import java.io.File;
 import java.util.List;
@@ -15,6 +17,8 @@ public class UserCard {
     @Expose private String education;
     @Expose private int yearsOld;
     @Expose private double rating;
+    @Expose private GenderType gender;
+    @Expose private SexualPreferenceType sexualPreference;
     @Expose private List<String> tags;
 
     private List<File> photos;
@@ -37,6 +41,21 @@ public class UserCard {
         this.userId = userId;
     }
 
+    public GenderType getGender() {
+        return gender;
+    }
+
+    public void setGender(GenderType gender) {
+        this.gender = gender;
+    }
+
+    public SexualPreferenceType getSexualPreference() {
+        return sexualPreference;
+    }
+
+    public void setSexualPreference(SexualPreferenceType sexualPreference) {
+        this.sexualPreference = sexualPreference;
+    }
 
     public String getBiography() {
         return biography;

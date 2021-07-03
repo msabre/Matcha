@@ -5,8 +5,6 @@ import config.MyConfiguration;
 import domain.entity.FilterParams;
 import domain.entity.User;
 import domain.entity.UserCard;
-import domain.entity.model.types.GenderType;
-import domain.entity.model.types.SexualPreferenceType;
 import usecase.port.FilterParamsRepository;
 import usecase.port.UserCardRepository;
 import usecase.port.UserRepository;
@@ -45,7 +43,7 @@ public class UserRepositoryImpl implements UserRepository {
 
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword()))
         {
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO matcha.user(CONFIRM, NAME, LASTNAME, MIDDLENAME, BIRTHDAY, YEARS_OLD, GENDER, SEXUAL_PREFERENSE, EMAIL, PASSWORD, LOCATION) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO matcha.user(CONFIRM, NAME, LASTNAME, MIDDLENAME, BIRTHDAY, YEARS_OLD, EMAIL, PASSWORD, LOCATION) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS);
             int i = 0;
 
@@ -57,8 +55,6 @@ public class UserRepositoryImpl implements UserRepository {
             Date date = new Date(user.getBirthday().getTime());
             statement.setDate(++i, date);
             statement.setInt(++i, user.getYearsOld());
-            statement.setString(++i, user.getGender().getValue());
-            statement.setString(++i, user.getSexualPreference().getValue());
             statement.setString(++i, user.getEmail());
             statement.setString(++i, user.getPassword());
             statement.setString(++i, user.getLocation());
@@ -73,9 +69,13 @@ public class UserRepositoryImpl implements UserRepository {
                 return userId;
 
             int cardId = -1;
-            try (Statement newUserCardLine = connection.createStatement()) {
-                newUserCardLine.execute("INSERT INTO matcha.user_card(BIOGRAPHY, WORKPLACE, POSITION, EDUCATION, TAGS, RATING, YEARS_OLD, USER_ID) " +
-                        "VALUES(NULL, NULL, NULL, NULL, NULL, NULL, NULL, " + userId + ")", Statement.RETURN_GENERATED_KEYS);
+            try (PreparedStatement newUserCardLine = connection.prepareStatement("INSERT INTO matcha.user_card(BIOGRAPHY, WORKPLACE, POSITION, EDUCATION, GENDER,SEXUAL_PREFERENCE, TAGS, RATING, USER_ID) " +
+                    "VALUES(NULL, NULL, NULL, NULL, ?, ?, NULL, NULL, ?)", Statement.RETURN_GENERATED_KEYS)) {
+                newUserCardLine.setString(1, user.getCard().getGender().getValue());
+                newUserCardLine.setString(2, user.getCard().getSexualPreference().getValue());
+                newUserCardLine.setInt(3, userId);
+
+                newUserCardLine.execute();
 
                 ResultSet rsId = newUserCardLine.getGeneratedKeys();
 
@@ -192,8 +192,8 @@ public class UserRepositoryImpl implements UserRepository {
                 while (resultSet.next()) {
                     int i = 0;
 
-                    user.setId(resultSet.getInt(1));
-                    user.setTokenConfirm(resultSet.getString(2));
+                    user.setId(resultSet.getInt(++i));
+                    user.setTokenConfirm(resultSet.getString(++i));
 
                     if (user.getTokenConfirm() == null)
                         user.setConfirm(true);
@@ -205,8 +205,6 @@ public class UserRepositoryImpl implements UserRepository {
                     user.setMiddleName(resultSet.getString(++i));
                     user.setBirthday(resultSet.getDate(++i));
                     user.setYearsOld(resultSet.getInt(++i));
-                    user.setGender(GenderType.valueOf(resultSet.getString(++i)));
-                    user.setSexualPreference(SexualPreferenceType.valueOf(resultSet.getString(++i)));
                     user.setEmail(resultSet.getString(++i));
                     user.setPassword(resultSet.getString(++i));
                     user.setLocation(resultSet.getString(++i));

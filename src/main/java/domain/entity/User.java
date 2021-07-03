@@ -21,10 +21,6 @@ public class User {
     @Expose
     private Integer yearsOld;
     @Expose
-    private GenderType gender;
-    @Expose
-    private SexualPreferenceType sexualPreference;
-    @Expose
     private String location;
     @Expose
     private UserCard card;
@@ -39,22 +35,6 @@ public class User {
 
     private FilterParams filter;
     private boolean authorized;
-
-    public GenderType getGender() {
-        return gender;
-    }
-
-    public void setGender(GenderType gender) {
-        this.gender = gender;
-    }
-
-    public SexualPreferenceType getSexualPreference() {
-        return sexualPreference;
-    }
-
-    public void setSexualPreference(SexualPreferenceType sexualPreference) {
-        this.sexualPreference = sexualPreference;
-    }
 
     public Date getBirthday() {
         return birthday;

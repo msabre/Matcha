@@ -80,10 +80,10 @@ public class RecommendUsersList {
 
         // Фильтруем по ориентации
         List<String> avalibalePreference = sexualConformity
-                .get(user.getGender() + ";" + user.getSexualPreference());
+                .get(user.getCard().getGender() + ";" + user.getCard().getSexualPreference());
 
         userList = userList.stream().filter((userObj) -> {
-            String preferences = userObj.getGender() + ";" + userObj.getSexualPreference();
+            String preferences = userObj.getCard().getGender() + ";" + userObj.getCard().getSexualPreference();
             return avalibalePreference.contains(preferences);
 
         }).collect(Collectors.toList());

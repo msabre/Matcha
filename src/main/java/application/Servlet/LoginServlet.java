@@ -37,9 +37,6 @@ public class LoginServlet extends HttpServlet {
 
         req.setCharacterEncoding("UTF-8");
 
-//        String email = req.getParameter("email");
-//        String password = req.getParameter("password");
-
         String body = HttpService.getBody(req);
         JsonObject object = JsonParser.parseString(body).getAsJsonObject();
 
@@ -61,7 +58,6 @@ public class LoginServlet extends HttpServlet {
                 HttpService.putBody(resp, "SUCCESS");
                 return;
             }
-
         }
 
         HttpService.putBody(resp, "WRONG");
