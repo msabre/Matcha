@@ -12,4 +12,6 @@ public interface JwtRepository {
     void dropTokenById(Integer id);
 
     void dropTokenById(String token);
+
+    void dropTokenByUserId(Integer id);
 }

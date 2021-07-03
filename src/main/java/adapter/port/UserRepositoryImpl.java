@@ -3,9 +3,10 @@ package adapter.port;
 import adapter.port.model.DBConfiguration;
 import config.MyConfiguration;
 import domain.entity.FilterParams;
-import domain.entity.Link;
 import domain.entity.User;
-import domain.entity.UserCard;import usecase.JDBC_lessons.third_lesson.PrepareStatement;
+import domain.entity.UserCard;
+import domain.entity.model.types.GenderType;
+import domain.entity.model.types.SexualPreferenceType;
 import usecase.port.FilterParamsRepository;
 import usecase.port.UserCardRepository;
 import usecase.port.UserRepository;
@@ -44,15 +45,23 @@ public class UserRepositoryImpl implements UserRepository {
 
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword()))
         {
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO matcha.user(CONFIRM, NAME, LASTNAME, MIDDLENAME, EMAIL, PASSWORD, LOCATION) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO matcha.user(CONFIRM, NAME, LASTNAME, MIDDLENAME, BIRTHDAY, YEARS_OLD, GENDER, SEXUAL_PREFERENSE, EMAIL, PASSWORD, LOCATION) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS);
-            statement.setString(1, user.getTokenConfirm());
-            statement.setString(2, user.getFirstName());
-            statement.setString(3, user.getLastName());
-            statement.setString(4, user.getMiddleName());
-            statement.setString(5, user.getEmail());
-            statement.setString(6, user.getPassword());
-            statement.setString(7, user.getLocation());
+            int i = 0;
+
+            statement.setString(++i, user.getTokenConfirm());
+            statement.setString(++i, user.getFirstName());
+            statement.setString(++i, user.getLastName());
+            statement.setString(++i, user.getMiddleName());
+
+            Date date = new Date(user.getBirthday().getTime());
+            statement.setDate(++i, date);
+            statement.setInt(++i, user.getYearsOld());
+            statement.setString(++i, user.getGender().getValue());
+            statement.setString(++i, user.getSexualPreference().getValue());
+            statement.setString(++i, user.getEmail());
+            statement.setString(++i, user.getPassword());
+            statement.setString(++i, user.getLocation());
 
             statement.execute();
 
@@ -65,8 +74,8 @@ public class UserRepositoryImpl implements UserRepository {
 
             int cardId = -1;
             try (Statement newUserCardLine = connection.createStatement()) {
-                newUserCardLine.execute("INSERT INTO matcha.user_card(GENDER, SEXUAL_PREFERENCE, BIOGRAPHY, WORKPLACE, POSITION, EDUCATION, TAGS, RATING, YEARS_OLD, USER_ID) " +
-                        "VALUES(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, " + userId + ")", Statement.RETURN_GENERATED_KEYS);
+                newUserCardLine.execute("INSERT INTO matcha.user_card(BIOGRAPHY, WORKPLACE, POSITION, EDUCATION, TAGS, RATING, YEARS_OLD, USER_ID) " +
+                        "VALUES(NULL, NULL, NULL, NULL, NULL, NULL, NULL, " + userId + ")", Statement.RETURN_GENERATED_KEYS);
 
                 ResultSet rsId = newUserCardLine.getGeneratedKeys();
 
@@ -181,6 +190,8 @@ public class UserRepositoryImpl implements UserRepository {
                 resultSet = state.getResultSet();
                 User user = new User();
                 while (resultSet.next()) {
+                    int i = 0;
+
                     user.setId(resultSet.getInt(1));
                     user.setTokenConfirm(resultSet.getString(2));
 
@@ -189,17 +200,21 @@ public class UserRepositoryImpl implements UserRepository {
                     else
                         user.setConfirm(false);
 
-                    user.setFirstName(resultSet.getString(4));
-                    user.setLastName(resultSet.getString(5));
-                    user.setMiddleName(resultSet.getString(6));
-                    user.setEmail(resultSet.getString(7));
-                    user.setPassword(resultSet.getString(8));
-                    user.setLocation(resultSet.getString(9));
+                    user.setFirstName(resultSet.getString(++i));
+                    user.setLastName(resultSet.getString(++i));
+                    user.setMiddleName(resultSet.getString(++i));
+                    user.setBirthday(resultSet.getDate(++i));
+                    user.setYearsOld(resultSet.getInt(++i));
+                    user.setGender(GenderType.valueOf(resultSet.getString(++i)));
+                    user.setSexualPreference(SexualPreferenceType.valueOf(resultSet.getString(++i)));
+                    user.setEmail(resultSet.getString(++i));
+                    user.setPassword(resultSet.getString(++i));
+                    user.setLocation(resultSet.getString(++i));
 
-                    UserCard userCard = userCardRepository.findById(resultSet.getInt(10));
+                    UserCard userCard = userCardRepository.findById(resultSet.getInt(++i));
                     user.setCard(userCard);
 
-                    FilterParams filter = filterParamsRepository.findById(resultSet.getInt(11));
+                    FilterParams filter = filterParamsRepository.findById(resultSet.getInt(++i));
                     user.setFilter(filter);
 
                     return user;
@@ -288,6 +303,35 @@ public class UserRepositoryImpl implements UserRepository {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public void createChatBetweenTwoUsers(int usr1, int usr2) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement("INSERT INTO matcha.CHAT_AFFILIATION(?, ?)",
+                     Statement.RETURN_GENERATED_KEYS)) {
+            statement.setInt(1, usr1);
+            statement.setInt(2, usr2);
+            statement.execute();
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void getUsersChatList(int userId) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement("SELECT CHAT_ID FROM ",
+                     Statement.RETURN_GENERATED_KEYS)) {
+
+            statement.execute();
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
 

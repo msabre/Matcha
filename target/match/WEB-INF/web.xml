@@ -147,7 +147,7 @@
 
   <servlet-mapping>
     <servlet-name>AddProfileInfoServlet</servlet-name>
-    <url-pattern>/main/profile</url-pattern>
+    <url-pattern>/main/account</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

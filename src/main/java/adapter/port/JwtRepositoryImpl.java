@@ -96,4 +96,19 @@ public class JwtRepositoryImpl implements JwtRepository {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void dropTokenByUserId(Integer id) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement putToken = connection.prepareStatement("DELETE FROM matcha.JWT WHERE USER_ID = ?")) {
+
+            putToken.setInt(1, id);
+            putToken.execute();
+
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
 }

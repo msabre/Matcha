@@ -10,6 +10,10 @@ public class RemoveTokenJWS {
         this.repository = jwtRepository;
     }
 
+    public void removeByUserId(Integer id) {
+        repository.dropTokenByUserId(id);
+    }
+
     public void remove(Integer id) {
            repository.dropTokenById(id);
     }

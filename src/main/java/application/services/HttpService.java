@@ -1,10 +1,14 @@
 package application.services;
 
+import org.apache.http.protocol.HTTP;
+import org.apache.tomcat.util.buf.Utf8Encoder;
+
 import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -41,8 +45,7 @@ public class HttpService {
         }
     }
 
-    public static String getBody(HttpServletRequest request)  {
-
+    public static String getBody(HttpServletRequest request) throws UnsupportedEncodingException {
         String body = null;
         StringBuilder stringBuilder = new StringBuilder();
         BufferedReader bufferedReader = null;
@@ -50,7 +53,7 @@ public class HttpService {
         try {
             InputStream inputStream = request.getInputStream();
             if (inputStream != null) {
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
                 char[] charBuffer = new char[128];
                 int bytesRead = -1;
                 while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {

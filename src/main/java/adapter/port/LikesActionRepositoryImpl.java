@@ -1,7 +1,7 @@
 package adapter.port;
 
 import adapter.port.model.DBConfiguration;
-import domain.entity.model.Action;
+import domain.entity.model.types.Action;
 import usecase.port.LikesActionRepository;
 
 import java.sql.*;

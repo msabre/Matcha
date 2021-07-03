@@ -6,6 +6,7 @@ import adapter.controller.UserController;
 
 import application.services.HttpService;
 import application.services.MailService;
+import com.google.gson.JsonParser;
 import config.MyProperties;
 import domain.entity.User;
 import usecase.port.PasswordEncoder;
@@ -39,11 +40,14 @@ public class ResetPasswordSendServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
-        String email = req.getParameter("email");
+
+        String body = HttpService.getBody(req);
+        String email = JsonParser.parseString(body).getAsJsonObject().get("email").getAsString();
         User user = userController.findUser(email);
 
         if (isNull(user)) {
-            req.getRequestDispatcher("views/resetPassError.jsp").forward(req, resp);
+            HttpService.putBody(resp, "WEONG");
+            return;
         }
 
         String token = passwordEncoder.getToken(user.getEmail() + user.getFirstName() + user.getId());
@@ -62,6 +66,6 @@ public class ResetPasswordSendServlet extends HttpServlet {
             e.printStackTrace();
         }
 
-        HttpService.putBody(resp, "OK");
+        HttpService.putBody(resp, "SUCCESS");
     }
 }

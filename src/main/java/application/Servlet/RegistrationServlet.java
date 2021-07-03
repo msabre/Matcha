@@ -21,6 +21,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 
 import static config.MyConfiguration.*;
@@ -47,6 +51,8 @@ public class RegistrationServlet extends HttpServlet {
         String json = HttpService.getBody(req);
         User user = (User) JsonService.getObject(User.class, json);
 
+        user.setYearsOld(getYearsOld(user.getBirthday()));
+
         String hashPassword = passwordEncoder.encrypt(user.getPassword(), null);
         user.setPassword(hashPassword);
         user.setConfirm(false);
@@ -63,6 +69,9 @@ public class RegistrationServlet extends HttpServlet {
         user.setLocation(location);
 
         int userId = userController.createUser(user);
+        if (userId < 0)
+            HttpService.putBody(resp, "WRONG");
+
         user.setId(userId);
 
         UserCard userCard = (UserCard) JsonService.getObject(UserCard.class, json);
@@ -71,9 +80,20 @@ public class RegistrationServlet extends HttpServlet {
 
         req.getSession().setAttribute("email", user.getEmail());
 
-        HttpService.putBody(resp, JsonService.getJson(user));
-
         // sendConfirmMail(userWeb);
+        HttpService.putBody(resp, "SUCCESS");
+    }
+
+    private int getYearsOld(Date birthDay) {
+        LocalDate birthDate = birthDay.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+        LocalDate now = new Date().toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        return Period.between(birthDate, now).getYears();
+
     }
 
     private void sendConfirmMail (User user) {
@@ -94,9 +114,5 @@ public class RegistrationServlet extends HttpServlet {
         } catch (MessagingException e) {
             e.printStackTrace();
         }
-    }
-
-    private String[] getFIO(String fio) {
-        return fio.split(" ");
     }
 }

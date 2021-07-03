@@ -10,6 +10,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static config.MyConfiguration.jwtController;
@@ -34,7 +35,7 @@ public class JwtFilter implements Filter {
                 return ;
             }
             else {
-                req.getRequestDispatcher("views/index.jsp").forward(req, resp);
+                HttpService.putBody((HttpServletResponse) resp, "Error JWT");
                 return ;
             }
         }
@@ -45,12 +46,12 @@ public class JwtFilter implements Filter {
         } catch (ExpiredJwtException expiredJwtException) {
             if (!jwtController.refreshToken(req, resp)) {
                 checkUserLocation((HttpServletRequest) req);
-                req.getRequestDispatcher("views/index.jsp").forward(req, resp);
+                HttpService.putBody((HttpServletResponse) resp, "Error JWT");
                 return;
             }
 
         } catch (Exception e) {
-            req.getRequestDispatcher("views/index.jsp").forward(req, resp);
+            HttpService.putBody((HttpServletResponse) resp, "Error JWT");
             return ;
 
         }

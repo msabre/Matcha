@@ -1,13 +1,16 @@
 package domain.entity;
 
 import com.google.gson.annotations.Expose;
+import domain.entity.model.types.GenderType;
+import domain.entity.model.types.SexualPreferenceType;
+
+import java.util.Date;
 
 public class User {
     private int id;
 
     @Expose
     private String userId;
-
     @Expose
     private String firstName;
     @Expose
@@ -15,11 +18,12 @@ public class User {
     @Expose
     private String middleName;
 
-    private String email;
-    private String password;
-    private String tokenConfirm;
-    private boolean confirm;
-
+    @Expose
+    private Integer yearsOld;
+    @Expose
+    private GenderType gender;
+    @Expose
+    private SexualPreferenceType sexualPreference;
     @Expose
     private String location;
     @Expose
@@ -27,8 +31,46 @@ public class User {
     @Expose
     private boolean match;
 
+    private String email;
+    private String password;
+    private String tokenConfirm;
+    private boolean confirm;
+    private Date birthday;
+
     private FilterParams filter;
     private boolean authorized;
+
+    public GenderType getGender() {
+        return gender;
+    }
+
+    public void setGender(GenderType gender) {
+        this.gender = gender;
+    }
+
+    public SexualPreferenceType getSexualPreference() {
+        return sexualPreference;
+    }
+
+    public void setSexualPreference(SexualPreferenceType sexualPreference) {
+        this.sexualPreference = sexualPreference;
+    }
+
+    public Date getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
+    }
+
+    public Integer getYearsOld() {
+        return yearsOld;
+    }
+
+    public void setYearsOld(Integer yearsOld) {
+        this.yearsOld = yearsOld;
+    }
 
     public Boolean getMatch() {
         return match;

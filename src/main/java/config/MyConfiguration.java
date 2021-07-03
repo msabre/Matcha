@@ -40,7 +40,7 @@ public class MyConfiguration {
     }
 
     public static PutLikeAction putLikeAction() {
-        return new PutLikeAction(likesActionRepository());
+        return new PutLikeAction(likesActionRepository(), userRepository());
     }
 
 

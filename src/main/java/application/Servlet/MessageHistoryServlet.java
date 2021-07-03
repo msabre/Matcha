@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class MessageHistoryServlet extends HttpServlet {
-    MessageController messageController;
+    private MessageController messageController;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

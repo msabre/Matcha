@@ -9,8 +9,6 @@ public class UserCard {
     private int id;
     private int userId;
 
-    @Expose private String gender;
-    @Expose private String sexual_preference;
     @Expose private String biography;
     @Expose private String workPlace;
     @Expose private String position;
@@ -39,21 +37,6 @@ public class UserCard {
         this.userId = userId;
     }
 
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public String getSexual_preference() {
-        return sexual_preference;
-    }
-
-    public void setSexual_preference(String sexual_preference) {
-        this.sexual_preference = sexual_preference;
-    }
 
     public String getBiography() {
         return biography;

@@ -105,7 +105,7 @@
 
   <servlet>
     <servlet-name>LikeServlet</servlet-name>
-    <servlet-class>application. servlets.LikeServlet</servlet-class>
+    <servlet-class>application.Servlet.LikeServlet</servlet-class>
   </servlet>
 
 
@@ -147,7 +147,7 @@
 
   <servlet-mapping>
     <servlet-name>AddProfileInfoServlet</servlet-name>
-    <url-pattern>/main/profile</url-pattern>
+    <url-pattern>/main/account</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

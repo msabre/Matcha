@@ -30,24 +30,22 @@ public class UserCardRepositoryImpl implements UserCardRepository {
     @Override
     public UserCard save(UserCard card) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
-             PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user_card SET GENDER = ?, SEXUAL_PREFERENCE = ?, " +
-                     "BIOGRAPHY = ?, WORKPLACE = ?, POSITION = ?, EDUCATION = ?, TAGS = ?, RATING = ?, YEARS_OLD = ? WHERE ID = ?", Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user_card SET BIOGRAPHY = ?, WORKPLACE = ?, POSITION = ?, EDUCATION = ?, TAGS = ?, RATING = ? WHERE ID = ?", Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setString(1, card.getGender());
-            statement.setString(2, card.getSexual_preference());
-            statement.setString(3, card.getBiography());
-            statement.setString(4, card.getWorkPlace());
-            statement.setString(5, card.getPosition());
-            statement.setString(6, card.getEducation());
+            int i = 0;
+
+            statement.setString(++i, card.getBiography());
+            statement.setString(++i, card.getWorkPlace());
+            statement.setString(++i, card.getPosition());
+            statement.setString(++i, card.getEducation());
 
             StringBuilder tags = new StringBuilder();
             for (String tag : card.getTags())
                 tags.append(tag).append(";");
 
-            statement.setString(7, tags.toString());
-            statement.setDouble(8, card.getRating());
-            statement.setInt(9, card.getYearsOld());
-            statement.setInt(10, card.getId());
+            statement.setString(++i, tags.toString());
+            statement.setDouble(++i, card.getRating());
+            statement.setInt(++i, card.getId());
             statement.execute();
 
             return findById(card.getId());
@@ -71,24 +69,22 @@ public class UserCardRepositoryImpl implements UserCardRepository {
             try {
                 resultSet = state.getResultSet();
                 while (resultSet.next()) {
+                    int i = 0;
                     UserCard card = new UserCard();
-                    card.setId(resultSet.getInt(1));
-                    card.setGender(resultSet.getString(2));
-                    card.setSexual_preference(resultSet.getString(3));
-                    card.setBiography(resultSet.getString(4));
-                    card.setWorkPlace(resultSet.getString(5));
-                    card.setPosition(resultSet.getString(6));
-                    card.setEducation(resultSet.getString(7));
+                    card.setId(resultSet.getInt(++i));
+                    card.setBiography(resultSet.getString(++i));
+                    card.setWorkPlace(resultSet.getString(++i));
+                    card.setPosition(resultSet.getString(++i));
+                    card.setEducation(resultSet.getString(++i));
 
-                    String[] arrayTags = Optional.ofNullable(resultSet.getString(8)).
+                    String[] arrayTags = Optional.ofNullable(resultSet.getString(++i)).
                             map(regex -> regex.split(";")).orElse(new String[0]);
 
                     List<String> tags = Arrays.asList(arrayTags);
                     card.setTags(tags);
-                    card.setRating(resultSet.getDouble(9));
-                    card.setYearsOld(resultSet.getInt(10));
+                    card.setRating(resultSet.getDouble(++i));
 
-                    Integer user_id = resultSet.getInt(11);
+                    Integer user_id = resultSet.getInt(++i);
                     card.setLikes(getUserLikesAction(user_id, "like"));
                     card.setDislikes(getUserLikesAction(user_id, "dislike"));
 

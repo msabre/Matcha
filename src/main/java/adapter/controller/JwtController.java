@@ -173,6 +173,10 @@ public class JwtController {
         return issueTokensPair((HttpServletRequest) req, (HttpServletResponse) resp, user, claims);
     }
 
+    public void removeTokenByUserId(Integer id) {
+        removeTokenJWS.remove(id);
+    }
+
     public void removeToken(Integer id) {
         removeTokenJWS.remove(id);
     }

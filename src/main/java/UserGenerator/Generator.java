@@ -3,7 +3,10 @@ package UserGenerator;
 import config.MyConfiguration;
 import domain.entity.Link;
 import domain.entity.User;
-import domain.entity.UserCard;import usecase.port.UserCardRepository;
+import domain.entity.UserCard;
+import domain.entity.model.types.GenderType;
+import domain.entity.model.types.SexualPreferenceType;
+import usecase.port.UserCardRepository;
 import usecase.port.UserRepository;
 
 import java.io.*;
@@ -51,6 +54,8 @@ public class Generator {
             user.setFirstName(fio[1]);
             user.setMiddleName(fio[2]);
             user.setLocation(getOne(cityList));
+            user.setSexualPreference(SexualPreferenceType.valueOf(getOne(sexualPrefeneceList)));
+            user.setGender(GenderType.valueOf(male));
 
             int id = userRepository.save(user);
 
@@ -70,9 +75,6 @@ public class Generator {
                 }
             }
             card.setTags(tags);
-
-            card.setSexual_preference(getOne(sexualPrefeneceList));
-            card.setGender(male);
             card.setRating(getDoubleOfRange(1.0, 4.7));
             card.setYearsOld(getIntOfRange(18, 45));
 

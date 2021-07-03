@@ -1,11 +1,15 @@
 package application.services.json;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
+import application.services.json.typeAdapters.DateTypeDeserializer;
+import application.services.json.typeAdapters.GenderTypeDeserializer;
+import application.services.json.typeAdapters.SexualPreferenceTypeDeserializer;
+import com.google.gson.*;
 
 import domain.entity.User;
+import domain.entity.model.types.GenderType;
+import domain.entity.model.types.SexualPreferenceType;
 
+import java.util.Date;
 import java.util.List;
 
 public class JsonService {
@@ -56,7 +60,12 @@ public class JsonService {
         if (json == null)
             return null;
 
-        Gson gson = new Gson();
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(GenderType.class, new GenderTypeDeserializer());
+        gsonBuilder.registerTypeAdapter(SexualPreferenceType.class, new SexualPreferenceTypeDeserializer());
+        gsonBuilder.registerTypeAdapter(Date.class, new DateTypeDeserializer());
+
+        Gson gson = gsonBuilder.create();
 
         return gson.fromJson(json, clazz);
     }
