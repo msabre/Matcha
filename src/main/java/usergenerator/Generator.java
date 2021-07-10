@@ -1,7 +1,6 @@
-package UserGenerator;
+package usergenerator;
 
 import config.MyConfiguration;
-import domain.entity.Link;
 import domain.entity.User;
 import domain.entity.UserCard;
 import domain.entity.model.types.GenderType;

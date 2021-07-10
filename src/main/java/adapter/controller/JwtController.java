@@ -25,6 +25,7 @@ import java.util.Optional;
 
 import static application.services.HttpService.getCookie;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public class JwtController {
     private static JwtController instance;
@@ -35,6 +36,11 @@ public class JwtController {
     private VerifyTokenJWS verifyTokenJWS;
     private GetTokenId getTokenId;
     private RemoveTokenJWS removeTokenJWS;
+
+    private final String ACCESS_TOKEN = "acTokenAA";
+    private final String REFRESH_TOKEN = "rsTokenAA";
+    private final String FINGERPRINT_ACCESS = "fingerprintAcAA";
+    private final String FINGERPRINT_REFRESH = "fingerprintRsAA";
 
     private JwtController() {
     }
@@ -53,75 +59,66 @@ public class JwtController {
         return instance;
     }
 
-    public boolean issueTokensPair(HttpServletRequest req, HttpServletResponse resp,
-                                   User user, Map<String, Object> claims) {
+    public int checkJwt(ServletRequest req, ServletResponse resp) {
+        JsonWebToken jws = getJwsFromCookies(req);
 
-        Pair<JsonWebToken, JsonWebToken> pairToken = createJwsPair(user, claims);
-        if (isNull(pairToken)) {
-            user.setAuthorized(false);
-            return false;
+        if (isNull(jws)) {
+            JsonWebToken newToken = refreshToken(req, resp);
+            return (newToken == null) ? -1 : newToken.getUserId();
         }
-
-        user.setAuthorized(true);
-        req.getSession().setAttribute("user", user);
-        req.getSession().setAttribute("jws", pairToken.getKey());
-
-        Cookie refreshCookie = Optional.ofNullable(getCookie(req, "rsTokenAA")).orElse(null);
-        Cookie fingerprintCookie = Optional.ofNullable(getCookie(req, "fingerprintAA")).orElse(null);
-
-        if (refreshCookie == null)
-            refreshCookie = new Cookie("rsTokenAA", "");
-
-        if (fingerprintCookie == null)
-            fingerprintCookie = new Cookie("fingerprintAA", "");
-
-        refreshCookie.setValue(pairToken.getValue().getToken());
-        fingerprintCookie.setValue(pairToken.getValue().getUserFingerprint());
-
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(true);
-        refreshCookie.setMaxAge(60 * 60 * 24 * 30);
-        // refreshCookie.setDomain("localhost");
-        refreshCookie.setPath("/");
-
-
-        fingerprintCookie.setHttpOnly(true);
-        fingerprintCookie.setSecure(true);
-        fingerprintCookie.setMaxAge(60 * 60 * 24 * 30);
-        // fingerprintCookie.setDomain("localhost");
-        fingerprintCookie.setPath("/");
-
-
-        resp.addCookie(refreshCookie);
-        resp.addCookie(fingerprintCookie);
-
-        return true;
-    }
-
-    public Pair<JsonWebToken, JsonWebToken> createJwsPair(User user, Map<String, Object> claims) {
 
         try {
-            return createToken.create(user, claims);
+            verifyJWT(jws.getToken(), jws.getUserFingerprint());
+
+        } catch (ExpiredJwtException expiredJwtException) {
+            if (refreshToken(req, resp) == null)
+                return -1;
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            return -1;
         }
+
+        return jws.getUserId();
     }
 
-    public JsonWebToken verifyJWT(String jws, String require) throws ExpiredJwtException, InvalidClaimException,
-            NoSuchAlgorithmException, UnsupportedEncodingException {
+    private JsonWebToken getJwsFromCookies(ServletRequest req) {
+        String accessJws = Optional.ofNullable(getCookie(req, ACCESS_TOKEN)).map(Cookie::getValue).orElse(null);
+        String rsFing = Optional.ofNullable(getCookie(req, FINGERPRINT_ACCESS)).map(Cookie::getValue).orElse(null);
 
-        Map<String, Object> claims = verifyTokenJWS.verify(jws, require);
-
-        if (claims == null)
+        if (isNull(accessJws) || isNull(rsFing))
             return null;
 
-        JsonWebToken token = new JsonWebToken();
-        token.setToken(jws);
-        token.setUserFingerprint((String) claims.get("userFingerprint"));
-        token.setUserId((Integer) claims.get("userId"));
+        JsonWebToken jws = new JsonWebToken();
+        jws.setToken(accessJws);
+        jws.setUserFingerprint(rsFing);
 
-        return token;
+        return jws;
+    }
+
+    private JsonWebToken refreshToken(ServletRequest req, ServletResponse resp) {
+        String rsJws = Optional.ofNullable(getCookie(req, REFRESH_TOKEN)).map(Cookie::getValue).orElse(null);
+        String rsFing = Optional.ofNullable(getCookie(req, FINGERPRINT_REFRESH)).map(Cookie::getValue).orElse(null);
+
+        JsonWebToken oldRefToken = checkRsToken(rsJws, rsFing);
+        if (isNull(oldRefToken)) {
+            return null;
+        }
+
+        removeToken(oldRefToken.getId());
+
+        User user = (User) ((HttpServletRequest) req).getSession().getAttribute("user");
+        if (user == null)
+            user = userController.findUser(oldRefToken.getUserId());
+
+        if(isNull(user))
+            return null;
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user.getId());
+
+        Pair<JsonWebToken, JsonWebToken> tokens = issueTokensPair((HttpServletRequest) req, (HttpServletResponse) resp, user, claims);
+        return Optional.ofNullable(tokens)
+                .map(Pair::getKey)
+                .orElse(null);
     }
 
     private JsonWebToken checkRsToken(String token, String fingerprint) {
@@ -129,7 +126,6 @@ public class JwtController {
             return null;
 
         Integer id = getTokenId.get(token);
-
         if (isNull(id))
             return null;
 
@@ -140,37 +136,75 @@ public class JwtController {
 
         } catch (ExpiredJwtException expr) {
             removeTokenJWS.remove(id);
-            expr.printStackTrace();
 
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
 
         return jws;
     }
 
-    public boolean refreshToken(ServletRequest req, ServletResponse resp) {
-        String rsJws = Optional.ofNullable(getCookie(req, "rsTokenAA")).map(Cookie::getValue).orElse(null);
-        String rsFing = Optional.ofNullable(getCookie(req, "fingerprintAA")).map(Cookie::getValue).orElse(null);
+    public Pair<JsonWebToken, JsonWebToken> issueTokensPair(HttpServletRequest req, HttpServletResponse resp,
+                                   User user, Map<String, Object> claims) {
 
-        JsonWebToken oldRefToken = checkRsToken(rsJws, rsFing);
-        if (isNull(oldRefToken)) {
-            return false;
+        Pair<JsonWebToken, JsonWebToken> pairToken = createJwsPair(user, claims);
+        if (isNull(pairToken)) {
+            user.setAuthorized(false);
+            return null;
         }
 
-        removeToken(oldRefToken.getId());
+        user.setAuthorized(true);
+        req.getSession().setAttribute("user", user);
 
-        User user = (User) ((HttpServletRequest) req).getSession().getAttribute("user");
-        if (user == null)
-            user = userController.findUser(oldRefToken.getUserId());
+        Cookie accessCookie = createHttpOnlyCookie(req, ACCESS_TOKEN, pairToken.getKey().getToken());
+        Cookie refreshCookie = createHttpOnlyCookie(req, REFRESH_TOKEN, pairToken.getValue().getToken());
+        Cookie fingerprintRsCookie = createHttpOnlyCookie(req, FINGERPRINT_ACCESS, pairToken.getKey().getUserFingerprint());
+        Cookie fingerprintAcCookie = createHttpOnlyCookie(req, FINGERPRINT_REFRESH, pairToken.getValue().getUserFingerprint());
 
-        if(isNull(user))
-            return false;
+        resp.addCookie(accessCookie);
+        resp.addCookie(refreshCookie);
+        resp.addCookie(fingerprintAcCookie);
+        resp.addCookie(fingerprintRsCookie);
 
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", user.getId());
+        return pairToken;
+    }
 
-        return issueTokensPair((HttpServletRequest) req, (HttpServletResponse) resp, user, claims);
+    private Cookie createHttpOnlyCookie(HttpServletRequest req, String name, String value) {
+        Cookie cookie = Optional.ofNullable(getCookie(req, name)).orElse(null);
+        if (cookie == null)
+            cookie = new Cookie(name, "");
+
+        cookie.setValue(value);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+
+        return cookie;
+
+    }
+
+    private Pair<JsonWebToken, JsonWebToken> createJwsPair(User user, Map<String, Object> claims) {
+
+        try {
+            return createToken.create(user, claims);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private JsonWebToken verifyJWT(String jws, String require) throws ExpiredJwtException, InvalidClaimException,
+            NoSuchAlgorithmException, UnsupportedEncodingException {
+
+        Map<String, Object> claims = verifyTokenJWS.verify(jws, require);
+
+        JsonWebToken token = new JsonWebToken();
+        token.setToken(jws);
+        token.setUserFingerprint((String) claims.get("userFingerprint"));
+        token.setUserId((Integer) claims.get("userId"));
+
+        return token;
     }
 
     public void removeTokenByUserId(Integer id) {

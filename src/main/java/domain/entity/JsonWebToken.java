@@ -1,13 +1,10 @@
 package domain.entity;
 
-import javax.crypto.SecretKey;
-
 public class JsonWebToken {
 
     private int id;
     private String token;
     private String userFingerprint;
-    private SecretKey key;
     private int userId;
 
     public String getUserFingerprint() {
@@ -40,13 +37,5 @@ public class JsonWebToken {
 
     public void setUserId(int userId) {
         this.userId = userId;
-    }
-
-    public SecretKey getKey() {
-        return key;
-    }
-
-    public void setKey(SecretKey key) {
-        this.key = key;
     }
 }

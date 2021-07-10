@@ -46,13 +46,13 @@ public class ResetPasswordSendServlet extends HttpServlet {
         User user = userController.findUser(email);
 
         if (isNull(user)) {
-            HttpService.putBody(resp, "WEONG");
+            HttpService.putBody(resp, "WRONG");
             return;
         }
 
         String token = passwordEncoder.getToken(user.getEmail() + user.getFirstName() + user.getId());
 
-        String link = "http://localhost:8080/resetpasschange?id=" + user.getId() + "&passtoken=" + token + "&linkId=";
+        String link = "http://localhost:3000/resetpasschange?id=" + user.getId() + "&passtoken=" + token + "&linkId=";
         link += operationController.addLink(link);
 
         MailService mailService = new MailService(MyProperties.ADMIN_LOGIN, MyProperties.ADMIN_PASSWORD);

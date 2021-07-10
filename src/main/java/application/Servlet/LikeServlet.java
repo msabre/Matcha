@@ -15,7 +15,7 @@ public class LikeServlet extends HttpServlet {
     private UserController userController;
 
     @Override
-    public void init() throws ServletException {
+    public void init() {
         userController = MyConfiguration.userController();
     }
 

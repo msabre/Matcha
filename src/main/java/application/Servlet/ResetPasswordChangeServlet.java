@@ -50,7 +50,7 @@ public class ResetPasswordChangeServlet extends HttpServlet {
         req.getSession().setAttribute("id", id);
         req.getSession().setAttribute("linkId", linkId);
 
-        HttpService.putBody(resp, "OK");
+        HttpService.putBody(resp, "SUCCESS");
     }
 
     private String getUrl(HttpServletRequest request) {

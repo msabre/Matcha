@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static config.MyConfiguration.jwtController;
-import static java.util.Objects.isNull;
 
 public class JwtFilter implements Filter {
 
@@ -25,36 +24,11 @@ public class JwtFilter implements Filter {
 
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
 
-        JsonWebToken jws = (JsonWebToken) ((HttpServletRequest)req).getSession().getAttribute("jws");
-
-        if (isNull(jws)) {
-
-            if (jwtController.refreshToken(req, resp)) {
-                checkUserLocation((HttpServletRequest) req);
-                chain.doFilter(req, resp);
-                return ;
-            }
-            else {
-                HttpService.putBody((HttpServletResponse) resp, "Error JWT");
-                return ;
-            }
-        }
-
-        try {
-            jwtController.verifyJWT(jws.getToken(), jws.getUserFingerprint());
-
-        } catch (ExpiredJwtException expiredJwtException) {
-            if (!jwtController.refreshToken(req, resp)) {
-                checkUserLocation((HttpServletRequest) req);
-                HttpService.putBody((HttpServletResponse) resp, "Error JWT");
-                return;
-            }
-
-        } catch (Exception e) {
+        if (jwtController.checkJwt(req, resp) < 0) {
             HttpService.putBody((HttpServletResponse) resp, "Error JWT");
-            return ;
-
+            return;
         }
+        checkUserLocation((HttpServletRequest) req);
 
         chain.doFilter(req, resp);
     }
@@ -69,8 +43,6 @@ public class JwtFilter implements Filter {
             String location = LocationService.getPosition("188.255.7.63");
             user.setLocation(location);
 
-            User userWeb2 = (User) request.getSession().getAttribute("user");
-            System.out.println(userWeb2);
         } catch (IOException | GeoIp2Exception e) {
             e.printStackTrace();
         }

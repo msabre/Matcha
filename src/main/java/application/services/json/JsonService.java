@@ -1,8 +1,6 @@
 package application.services.json;
 
-import application.services.json.typeAdapters.DateTypeDeserializer;
-import application.services.json.typeAdapters.GenderTypeDeserializer;
-import application.services.json.typeAdapters.SexualPreferenceTypeDeserializer;
+import application.services.json.typeAdapters.*;
 import com.google.gson.*;
 
 import domain.entity.User;
@@ -74,8 +72,13 @@ public class JsonService {
         if (o == null)
             return null;
 
-        Gson gson = new GsonBuilder()
-                .excludeFieldsWithoutExposeAnnotation().create();
+
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
+                .registerTypeAdapter(GenderType.class, new GenderTypeSerializer())
+                .registerTypeAdapter(SexualPreferenceType.class, new SexualPreferenceTypeSerializer());
+
+        Gson gson = gsonBuilder.create();
 
         return gson.toJson(o);
     }

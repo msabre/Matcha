@@ -14,7 +14,6 @@ public class PutLikeAction {
 
     public void like(int from, int to) {
         likesActionRepository.like(from, to);
-        userRepository.createChatBetweenTwoUsers(from, to);
     }
 
     public void dislike(int from, int to) {
@@ -23,5 +22,6 @@ public class PutLikeAction {
 
     public void match(int from, int to) {
         likesActionRepository.match(from, to);
+        userRepository.createChatBetweenTwoUsers(from, to);
     }
 }

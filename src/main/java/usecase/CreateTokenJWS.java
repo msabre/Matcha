@@ -71,13 +71,10 @@ public class CreateTokenJWS {
         // Получаем хэш отпечатка
         String userFingerprintHash = encoder.getSHA256(userFingerprint);
         claims.put("userFingerprint", userFingerprintHash);
+        claims.put("userId", user.getId());
 
         Calendar c = Calendar.getInstance();
         Date now = c.getTime();
-
-        SecretKey eee = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-        String eeee = Base64.getEncoder().encodeToString(eee.getEncoded());
-
 
         System.out.println("token.getUserFingerprint =" + userFingerprintHash);
         String encodeJws = Jwts.builder().
@@ -85,8 +82,6 @@ public class CreateTokenJWS {
                 setNotBefore(now).
                 setExpiration(expirationDate).
                 addClaims(claims).
-//                claim("userId", user.getId()).
-//                claim("userFingerprint", userFingerprintHash).
                 signWith(MyProperties.JWT_KEY).
                 compact();
 

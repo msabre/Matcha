@@ -1,14 +1,12 @@
 package application.services;
 
-import org.apache.http.protocol.HTTP;
-import org.apache.tomcat.util.buf.Utf8Encoder;
 
 import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
