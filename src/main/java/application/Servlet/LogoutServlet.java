@@ -18,7 +18,7 @@ public class LogoutServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         req.setCharacterEncoding("UTF-8");
 
-        Integer id = Integer.parseInt(req.getParameter("id"));
+        int id = Integer.parseInt(req.getParameter("id"));
 
         if (id < 0) {
             jwtController.removeTokenByUserId(id);

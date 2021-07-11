@@ -94,6 +94,11 @@
   </servlet>
 
   <servlet>
+    <servlet-name>CheckUserAuthorizationServlet</servlet-name>
+    <servlet-class>application.Servlet.CheckUserAuthorizationServlet</servlet-class>
+  </servlet>
+
+  <servlet>
     <servlet-name>MainServlet</servlet-name>
     <servlet-class>application.Servlet.MainServlet</servlet-class>
   </servlet>
@@ -119,6 +124,12 @@
     <servlet-name>RegistrationFormServlet</servlet-name>
     <url-pattern>/registration</url-pattern>
   </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>CheckUserAuthorizationServlet</servlet-name>
+    <url-pattern>/getauthuser</url-pattern>
+  </servlet-mapping>
+
 
   <servlet-mapping>
     <servlet-name>LoginServlet</servlet-name>
