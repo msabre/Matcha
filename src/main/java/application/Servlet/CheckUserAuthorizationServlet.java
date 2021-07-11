@@ -32,7 +32,7 @@ public class CheckUserAuthorizationServlet extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
 
         int userId = jwtController.checkJwt(req, resp);
-        if (userId < 0) {
+        if (userId >= 0) {
             User user = (User) req.getSession().getAttribute("user");
             if (user == null)
                 user = userController.findUser(userId);
