@@ -157,10 +157,13 @@ public class JwtController {
         user.setAuthorized(true);
         req.getSession().setAttribute("user", user);
 
-        Cookie accessCookie = createHttpOnlyCookie(req, ACCESS_TOKEN, pairToken.getKey().getToken());
-        Cookie refreshCookie = createHttpOnlyCookie(req, REFRESH_TOKEN, pairToken.getValue().getToken());
-        Cookie fingerprintRsCookie = createHttpOnlyCookie(req, FINGERPRINT_ACCESS, pairToken.getKey().getUserFingerprint());
-        Cookie fingerprintAcCookie = createHttpOnlyCookie(req, FINGERPRINT_REFRESH, pairToken.getValue().getUserFingerprint());
+        int cookiesRsExpires = 60 * 15;
+        int cookiesAcExpires = 60 * 60 * 24 * 45;
+
+        Cookie accessCookie = createHttpOnlyCookie(req, ACCESS_TOKEN, pairToken.getKey().getToken(), cookiesAcExpires);
+        Cookie refreshCookie = createHttpOnlyCookie(req, REFRESH_TOKEN, pairToken.getValue().getToken(), cookiesAcExpires);
+        Cookie fingerprintRsCookie = createHttpOnlyCookie(req, FINGERPRINT_ACCESS, pairToken.getKey().getUserFingerprint(), cookiesRsExpires);
+        Cookie fingerprintAcCookie = createHttpOnlyCookie(req, FINGERPRINT_REFRESH, pairToken.getValue().getUserFingerprint(), cookiesRsExpires);
 
         resp.addCookie(accessCookie);
         resp.addCookie(refreshCookie);
@@ -170,18 +173,19 @@ public class JwtController {
         return pairToken;
     }
 
-    private Cookie createHttpOnlyCookie(HttpServletRequest req, String name, String value) {
+    private Cookie createHttpOnlyCookie(HttpServletRequest req, String name, String value, int maxAge) {
         Cookie cookie = Optional.ofNullable(getCookie(req, name)).orElse(null);
         if (cookie == null)
             cookie = new Cookie(name, "");
 
         cookie.setValue(value);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+        //cookie.setSecure(true);
+        cookie.setDomain("localhost");
         cookie.setPath("/");
+        cookie.setMaxAge(maxAge);
 
         return cookie;
-
     }
 
     private Pair<JsonWebToken, JsonWebToken> createJwsPair(User user, Map<String, Object> claims) {
