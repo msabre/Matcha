@@ -15,6 +15,10 @@ import java.util.List;
 public class MessageHistoryServlet extends HttpServlet {
     private MessageController messageController;
 
+    public MessageHistoryServlet() {
+        // this.messageController = messageController();
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");

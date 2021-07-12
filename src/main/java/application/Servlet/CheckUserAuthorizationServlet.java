@@ -37,8 +37,9 @@ public class CheckUserAuthorizationServlet extends HttpServlet {
             if (user == null)
                 user = userController.findUser(userId);
             String body = JsonService.getJson(user);
-
             HttpService.putBody(resp, body);
+
+            return;
         }
 
         HttpService.putBody(resp, "WRONG");
