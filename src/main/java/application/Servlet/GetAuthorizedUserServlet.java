@@ -16,7 +16,7 @@ import java.io.IOException;
 import static config.MyConfiguration.jwtController;
 import static config.MyConfiguration.userController;
 
-public class CheckUserAuthorizationServlet extends HttpServlet {
+public class GetAuthorizedUserServlet extends HttpServlet {
 
     private UserController userController;
     private JwtController jwtController;

@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class VerifyTokenJWS {
-    private PasswordEncoder encoder;
+    private final PasswordEncoder encoder;
 
     public VerifyTokenJWS(PasswordEncoder passwordEncoder) {
         this.encoder = passwordEncoder;

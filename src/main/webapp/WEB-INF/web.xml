@@ -95,7 +95,7 @@
 
   <servlet>
     <servlet-name>CheckUserAuthorizationServlet</servlet-name>
-    <servlet-class>application.Servlet.CheckUserAuthorizationServlet</servlet-class>
+    <servlet-class>application.Servlet.GetAuthorizedUserServlet</servlet-class>
   </servlet>
 
   <servlet>

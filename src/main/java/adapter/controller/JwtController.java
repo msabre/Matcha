@@ -1,5 +1,6 @@
 package adapter.controller;
 
+import application.services.HttpService;
 import config.MyConfiguration;
 import domain.entity.JsonWebToken;
 import domain.entity.User;
@@ -71,30 +72,51 @@ public class JwtController {
         try {
             jws = verifyJWT(tokenStr.getKey(), tokenStr.getValue());
         } catch (ExpiredJwtException expiredJwtException) {
-            jws = refreshToken(req, resp);
+            if ((jws = refreshToken(req, resp)) == null)
+                return -1;
         } catch (Exception e) {
             return -1;
         }
 
-        return (jws == null) ? -1 : jws.getUserId();
+        return jws.getUserId();
     }
 
-    private Pair<String, String> getJwsFromCookies(ServletRequest req) {
+    public Pair<String, String> getJwsFromCookies(ServletRequest req) {
         String accessJws = Optional.ofNullable(getCookie(req, ACCESS_TOKEN)).map(Cookie::getValue).orElse(null);
-        String rsFing = Optional.ofNullable(getCookie(req, FINGERPRINT_ACCESS)).map(Cookie::getValue).orElse(null);
+        String rsFingerprint = Optional.ofNullable(getCookie(req, FINGERPRINT_ACCESS)).map(Cookie::getValue).orElse(null);
 
-        if (isNull(accessJws) || isNull(rsFing))
+        if (isNull(accessJws) || isNull(rsFingerprint))
             return null;
 
-        return new Pair<>(accessJws, rsFing);
+        return new Pair<>(accessJws, rsFingerprint);
+    }
+
+    public void deleteJwtCookies(ServletRequest req, ServletResponse resp) {
+        Cookie accessCookie = deleteCookie(HttpService.getCookie(req, ACCESS_TOKEN));
+        Cookie fingerprintAcCookie = deleteCookie(HttpService.getCookie(req, FINGERPRINT_REFRESH));
+        Cookie refreshCookie = deleteCookie(HttpService.getCookie(req, REFRESH_TOKEN));
+        Cookie fingerprintRsCookie = deleteCookie(HttpService.getCookie(req, FINGERPRINT_ACCESS));
+
+        ((HttpServletResponse) resp).addCookie(refreshCookie);
+        ((HttpServletResponse) resp).addCookie(fingerprintRsCookie);
+        ((HttpServletResponse) resp).addCookie(accessCookie);
+        ((HttpServletResponse) resp).addCookie(fingerprintAcCookie);
+    }
+
+
+    private Cookie deleteCookie(Cookie cookie) {
+        if (cookie != null)
+            cookie.setMaxAge(0);
+        return cookie;
     }
 
     private JsonWebToken refreshToken(ServletRequest req, ServletResponse resp) {
         String rsJws = Optional.ofNullable(getCookie(req, REFRESH_TOKEN)).map(Cookie::getValue).orElse(null);
-        String rsFing = Optional.ofNullable(getCookie(req, FINGERPRINT_REFRESH)).map(Cookie::getValue).orElse(null);
+        String rsFingerprint = Optional.ofNullable(getCookie(req, FINGERPRINT_REFRESH)).map(Cookie::getValue).orElse(null);
 
-        JsonWebToken oldRefToken = checkRsToken(rsJws, rsFing);
+        JsonWebToken oldRefToken = checkRsToken(rsJws, rsFingerprint);
         if (isNull(oldRefToken)) {
+            deleteJwtCookies(req, resp);
             return null;
         }
 
@@ -104,8 +126,10 @@ public class JwtController {
         if (user == null)
             user = userController.findUser(oldRefToken.getUserId());
 
-        if(isNull(user))
+        if(isNull(user)) {
+            deleteJwtCookies(req, resp);
             return null;
+        }
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId());
@@ -131,6 +155,7 @@ public class JwtController {
 
         } catch (ExpiredJwtException expr) {
             removeTokenJWS.remove(id);
+            throw expr;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -152,7 +177,7 @@ public class JwtController {
         user.setAuthorized(true);
         req.getSession().setAttribute("user", user);
 
-        int cookiesRsExpires = 60 * 15;
+        int cookiesRsExpires = 60 * 3;
         int cookiesAcExpires = 60 * 60 * 24 * 45;
 
         Cookie accessCookie = createHttpOnlyCookie(req, ACCESS_TOKEN, pairToken.getKey().getToken(), cookiesAcExpires);

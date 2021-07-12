@@ -4,9 +4,7 @@ import adapter.controller.JwtController;
 import application.services.HttpService;
 import application.services.LocationService;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
-import domain.entity.JsonWebToken;
 import domain.entity.User;
-import io.jsonwebtoken.ExpiredJwtException;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;

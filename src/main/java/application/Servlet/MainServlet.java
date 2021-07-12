@@ -36,8 +36,8 @@ public class MainServlet extends HttpServlet {
         if (isNull(act) || !act.equals("getList"))
             return;
 
-        // String filters = HttpService.getBody(req);
-        String filters = "{\"ageBy\":\"18\", \"ageTo\":\"45\"}";
+        String filters = HttpService.getBody(req);
+        // String filters = "{\"ageBy\":\"18\", \"ageTo\":\"45\"}";
         FilterParams filterParams = (FilterParams) JsonService.getObject(FilterParams.class, filters);
 
         User user = (User) req.getSession().getAttribute("user");

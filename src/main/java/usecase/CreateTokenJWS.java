@@ -34,7 +34,7 @@ public class CreateTokenJWS {
 
         Calendar c = Calendar.getInstance();
 
-        c.add(Calendar.MINUTE, 15);
+        c.add(Calendar.MINUTE, 3);
         Date accessDate = c.getTime();
 
         c.add(Calendar.DAY_OF_YEAR, 30);
