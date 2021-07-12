@@ -97,10 +97,11 @@ public class JwtController {
         Cookie refreshCookie = deleteCookie(HttpService.getCookie(req, REFRESH_TOKEN));
         Cookie fingerprintRsCookie = deleteCookie(HttpService.getCookie(req, FINGERPRINT_ACCESS));
 
-        ((HttpServletResponse) resp).addCookie(refreshCookie);
-        ((HttpServletResponse) resp).addCookie(fingerprintRsCookie);
-        ((HttpServletResponse) resp).addCookie(accessCookie);
-        ((HttpServletResponse) resp).addCookie(fingerprintAcCookie);
+        HttpServletResponse response = (HttpServletResponse) resp;
+        addCookie(refreshCookie, response);
+        addCookie(accessCookie, response);
+        addCookie(fingerprintAcCookie, response);
+        addCookie(fingerprintRsCookie, response);
     }
 
 
@@ -108,6 +109,11 @@ public class JwtController {
         if (cookie != null)
             cookie.setMaxAge(0);
         return cookie;
+    }
+
+    private void addCookie(Cookie cookie, HttpServletResponse response) {
+        if (cookie != null)
+            response.addCookie(cookie);
     }
 
     private JsonWebToken refreshToken(ServletRequest req, ServletResponse resp) {
