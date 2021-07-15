@@ -65,57 +65,57 @@
 
 <!--  <servlet>-->
 <!--    <servlet-name>WelcomeServlet</servlet-name>-->
-<!--    <servlet-class>application.Servlet.WelcomeServlet</servlet-class>-->
+<!--    <servlet-class>application.servlet.WelcomeServlet</servlet-class>-->
 <!--  </servlet>-->
 
   <servlet>
     <servlet-name>RegistrationFormServlet</servlet-name>
-    <servlet-class>application.Servlet.RegistrationServlet</servlet-class>
+    <servlet-class>application.servlet.RegistrationServlet</servlet-class>
   </servlet>
 
   <servlet>
     <servlet-name>LoginServlet</servlet-name>
-    <servlet-class>application.Servlet.LoginServlet</servlet-class>
+    <servlet-class>application.servlet.LoginServlet</servlet-class>
   </servlet>
 
   <servlet>
     <servlet-name>LogoutServlet</servlet-name>
-    <servlet-class>application.Servlet.LogoutServlet</servlet-class>
+    <servlet-class>application.servlet.LogoutServlet</servlet-class>
   </servlet>
 
   <servlet>
     <servlet-name>ConfirmServlet</servlet-name>
-    <servlet-class>application.Servlet.ConfirmAccountServlet</servlet-class>
+    <servlet-class>application.servlet.ConfirmAccountServlet</servlet-class>
   </servlet>
 
   <servlet>
     <servlet-name>ResetPasswordSend</servlet-name>
-    <servlet-class>application.Servlet.ResetPasswordSendServlet</servlet-class>
+    <servlet-class>application.servlet.ResetPasswordSendServlet</servlet-class>
   </servlet>
 
   <servlet>
     <servlet-name>ResetPasswordChange</servlet-name>
-    <servlet-class>application.Servlet.ResetPasswordChangeServlet</servlet-class>
+    <servlet-class>application.servlet.ResetPasswordChangeServlet</servlet-class>
   </servlet>
 
   <servlet>
     <servlet-name>CheckUserAuthorizationServlet</servlet-name>
-    <servlet-class>application.Servlet.GetAuthorizedUserServlet</servlet-class>
+    <servlet-class>application.servlet.GetAuthorizedUserServlet</servlet-class>
   </servlet>
 
   <servlet>
     <servlet-name>MainServlet</servlet-name>
-    <servlet-class>application.Servlet.MainServlet</servlet-class>
+    <servlet-class>application.servlet.MainServlet</servlet-class>
   </servlet>
 
   <servlet>
     <servlet-name>AddProfileInfoServlet</servlet-name>
-    <servlet-class>application.Servlet.AddProfileInfoServlet</servlet-class>
+    <servlet-class>application.servlet.AddProfileInfoServlet</servlet-class>
   </servlet>
 
   <servlet>
     <servlet-name>LikeServlet</servlet-name>
-    <servlet-class>application.Servlet.LikeServlet</servlet-class>
+    <servlet-class>application.servlet.LikeServlet</servlet-class>
   </servlet>
 
 

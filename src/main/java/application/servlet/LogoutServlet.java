@@ -1,10 +1,9 @@
-package application.Servlet;
+package application.servlet;
 
 import adapter.controller.JwtController;
 import config.MyConfiguration;
 import domain.entity.User;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

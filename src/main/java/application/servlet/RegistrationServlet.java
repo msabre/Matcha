@@ -1,4 +1,4 @@
-package application.Servlet;
+package application.servlet;
 
 
 import adapter.controller.*;
