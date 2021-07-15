@@ -19,13 +19,16 @@ public class LogoutServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         req.setCharacterEncoding("UTF-8");
 
+        // Если юзера нет значит юзер не в сети
         User user = (User) req.getSession().getAttribute("user");
+        if (user == null)
+            return ;
         jwtController.removeTokenByUserId(user.getId());
         jwtController.deleteJwtCookies(req, resp);
     }
 
     @Override
-    public void init() throws ServletException {
+    public void init() {
         jwtController = MyConfiguration.jwtController();
     }
 }

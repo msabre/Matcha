@@ -82,12 +82,12 @@ public class JwtController {
 
     public Pair<String, String> getJwsFromCookies(ServletRequest req) {
         String accessJws = Optional.ofNullable(getCookie(req, ACCESS_TOKEN)).map(Cookie::getValue).orElse(null);
-        String rsFingerprint = Optional.ofNullable(getCookie(req, FINGERPRINT_ACCESS)).map(Cookie::getValue).orElse(null);
+        String acFingerprint = Optional.ofNullable(getCookie(req, FINGERPRINT_ACCESS)).map(Cookie::getValue).orElse(null);
 
-        if (isNull(accessJws) || isNull(rsFingerprint))
+        if (isNull(accessJws) || isNull(acFingerprint))
             return null;
 
-        return new Pair<>(accessJws, rsFingerprint);
+        return new Pair<>(accessJws, acFingerprint);
     }
 
     public void deleteJwtCookies(ServletRequest req, ServletResponse resp) {
@@ -180,13 +180,14 @@ public class JwtController {
         user.setAuthorized(true);
         req.getSession().setAttribute("user", user);
 
-        int cookiesRsExpires = 60 * 3;
-        int cookiesAcExpires = 60 * 60 * 24 * 45;
+        int cookiesAcExpires = 30;
+        int cookiesRsExpires = 60 * 60 * 24 * 45;
 
         Cookie accessCookie = createHttpOnlyCookie(req, ACCESS_TOKEN, pairToken.getKey().getToken(), cookiesAcExpires);
-        Cookie refreshCookie = createHttpOnlyCookie(req, REFRESH_TOKEN, pairToken.getValue().getToken(), cookiesAcExpires);
-        Cookie fingerprintRsCookie = createHttpOnlyCookie(req, FINGERPRINT_ACCESS, pairToken.getKey().getUserFingerprint(), cookiesRsExpires);
-        Cookie fingerprintAcCookie = createHttpOnlyCookie(req, FINGERPRINT_REFRESH, pairToken.getValue().getUserFingerprint(), cookiesRsExpires);
+        Cookie fingerprintAcCookie = createHttpOnlyCookie(req, FINGERPRINT_ACCESS, pairToken.getKey().getUserFingerprint(), cookiesAcExpires);
+
+        Cookie refreshCookie = createHttpOnlyCookie(req, REFRESH_TOKEN, pairToken.getValue().getToken(), cookiesRsExpires);
+        Cookie fingerprintRsCookie = createHttpOnlyCookie(req, FINGERPRINT_REFRESH, pairToken.getValue().getUserFingerprint(), cookiesRsExpires);
 
         resp.addCookie(accessCookie);
         resp.addCookie(refreshCookie);

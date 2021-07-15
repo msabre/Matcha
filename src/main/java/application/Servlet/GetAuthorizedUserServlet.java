@@ -42,6 +42,6 @@ public class GetAuthorizedUserServlet extends HttpServlet {
             return;
         }
 
-        HttpService.putBody(resp, "WRONG");
+        HttpService.putBody(resp, "ERROR JWT");
     }
 }
