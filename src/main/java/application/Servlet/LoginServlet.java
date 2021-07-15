@@ -8,7 +8,6 @@ import application.services.json.JsonService;
 import com.google.gson.*;
 import domain.entity.User;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.*;
 import java.io.IOException;
 import java.util.HashMap;

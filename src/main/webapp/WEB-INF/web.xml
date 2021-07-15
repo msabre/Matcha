@@ -79,6 +79,11 @@
   </servlet>
 
   <servlet>
+    <servlet-name>LogoutServlet</servlet-name>
+    <servlet-class>application.Servlet.LogoutServlet</servlet-class>
+  </servlet>
+
+  <servlet>
     <servlet-name>ConfirmServlet</servlet-name>
     <servlet-class>application.Servlet.ConfirmAccountServlet</servlet-class>
   </servlet>
@@ -119,7 +124,6 @@
 <!--    <servlet-name>WelcomeServlet</servlet-name>-->
 <!--    <url-pattern></url-pattern>-->
 <!--  </servlet-mapping>-->
-
   <servlet-mapping>
     <servlet-name>RegistrationFormServlet</servlet-name>
     <url-pattern>/registration</url-pattern>
@@ -134,6 +138,11 @@
   <servlet-mapping>
     <servlet-name>LoginServlet</servlet-name>
     <url-pattern>/login</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>LogoutServlet</servlet-name>
+    <url-pattern>/main/logout</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

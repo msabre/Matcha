@@ -26,7 +26,6 @@ import java.util.Optional;
 
 import static application.services.HttpService.getCookie;
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 public class JwtController {
     private static JwtController instance;
@@ -122,7 +121,6 @@ public class JwtController {
 
         JsonWebToken oldRefToken = checkRsToken(rsJws, rsFingerprint);
         if (isNull(oldRefToken)) {
-            deleteJwtCookies(req, resp);
             return null;
         }
 
@@ -133,7 +131,6 @@ public class JwtController {
             user = userController.findUser(oldRefToken.getUserId());
 
         if(isNull(user)) {
-            deleteJwtCookies(req, resp);
             return null;
         }
 
