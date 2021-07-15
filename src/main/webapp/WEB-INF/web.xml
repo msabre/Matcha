@@ -142,7 +142,7 @@
 
   <servlet-mapping>
     <servlet-name>LogoutServlet</servlet-name>
-    <url-pattern>/main/logout</url-pattern>
+    <url-pattern>/logout</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
