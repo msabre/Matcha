@@ -21,8 +21,9 @@ public class JsonService {
 
         JsonArray array = new JsonArray();
         for (Object obj : objectList) {
-            String json = gson.toJson(obj);
-            array.add(json);
+            JsonObject o = JsonParser.parseString(gson.toJson(obj)).getAsJsonObject();
+//            String json = gson.toJson(obj);
+            array.add(o);
         }
 
         return array.toString();

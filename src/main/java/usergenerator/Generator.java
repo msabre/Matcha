@@ -33,11 +33,11 @@ public class Generator {
         interestsList = readFile(Generator.class.getResource("/generator/interestsList.txt").getPath());
 
         switch (male) {
-            case "man":
+            case "male":
                 namesList = readFile(Generator.class.getResource("/generator/namesListMale.txt").getPath());
                 sexualPrefeneceList = readFile(Generator.class.getResource("/generator/sexualPreferenseMale.txt").getPath());
                 break;
-            case "woman":
+            case "female":
                 namesList = readFile(Generator.class.getResource("/generator/namesListFemale.txt").getPath());
                 sexualPrefeneceList = readFile(Generator.class.getResource("/generator/sexualPreferenseFemale.txt").getPath());
                 break;
@@ -53,12 +53,15 @@ public class Generator {
             user.setFirstName(fio[1]);
             user.setMiddleName(fio[2]);
             user.setLocation(getOne(cityList));
-
-            int id = userRepository.save(user);
+            user.setYearsOld(getIntOfRange(18, 45));
 
             UserCard card = new UserCard();
-            card.setId(user.getCard().getId());
-            card.setUserId(id);
+            card.setSexualPreference(SexualPreferenceType.fromStr(getOne(sexualPrefeneceList)));
+            card.setGender(GenderType.fromStr(male));
+
+            user.setCard(card);
+
+            userRepository.save(user);
 
             List<String> tags = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
@@ -73,9 +76,6 @@ public class Generator {
             }
             card.setTags(tags);
             card.setRating(getDoubleOfRange(1.0, 4.7));
-            card.setYearsOld(getIntOfRange(18, 45));
-            card.setSexualPreference(SexualPreferenceType.valueOf(getOne(sexualPrefeneceList)));
-            card.setGender(GenderType.valueOf(male));
 
 
             userCardRepository.save(card);
@@ -116,7 +116,7 @@ public class Generator {
 
     public static void main(String[] args) {
         Generator generator = new Generator();
-        generator.generate("man");
-        generator.generate("woman");
+        generator.generate("male");
+        generator.generate("female");
     }
 }

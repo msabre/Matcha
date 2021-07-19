@@ -15,7 +15,6 @@ public class UserCard {
     @Expose private String workPlace;
     @Expose private String position;
     @Expose private String education;
-    @Expose private int yearsOld;
     @Expose private double rating;
     @Expose private GenderType gender;
     @Expose private SexualPreferenceType sexualPreference;
@@ -87,14 +86,6 @@ public class UserCard {
 
     public void setEducation(String education) {
         this.education = education;
-    }
-
-    public int getYearsOld() {
-        return yearsOld;
-    }
-
-    public void setYearsOld(int yearsOld) {
-        this.yearsOld = yearsOld;
     }
 
     public double getRating() {

@@ -28,19 +28,19 @@ public class AddProfileInfoServlet extends HttpServlet {
 
     private UserController userController;
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setCharacterEncoding("UTF-8");
-
-        try {
-            int id = Integer.parseInt(req.getParameter("id"));
-            User user = userController.findUser(id);
-            HttpService.putBody(resp, JsonService.getJson(user));
-
-        } catch (Exception e) {
-            HttpService.putBody(resp, "WRONG ID");
-        }
-    }
+//    @Override
+//    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+//        req.setCharacterEncoding("UTF-8");
+//
+//        try {
+//            int id = Integer.parseInt(req.getParameter("id"));
+//            User user = userController.findUser(id);
+//            HttpService.putBody(resp, JsonService.getJson(user));
+//
+//        } catch (Exception e) {
+//            HttpService.putBody(resp, "WRONG ID");
+//        }
+//    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -55,7 +55,7 @@ public class AddProfileInfoServlet extends HttpServlet {
             for (FileItem item : items) {
                 if (!item.isFormField() && item.getFieldName().contains("photo") && item.getSize() > 0) {
                     String fileName = item.getName();
-                    String format = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
+                    String format = fileName.substring(fileName.lastIndexOf(".") + 1);
                     String name = "IMG_" + user.getId() + "_" + item.getFieldName() + "." + format;
 
                     BufferedImage image = ImageIO.read(item.getInputStream());
@@ -67,6 +67,7 @@ public class AddProfileInfoServlet extends HttpServlet {
             }
         } catch(FileUploadException e){
                 e.printStackTrace();
+                return;
         }
 
         UserCard card = (UserCard) JsonService.getObjectWithExposeFields(UserCard.class, HttpService.getBody(req));

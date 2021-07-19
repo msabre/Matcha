@@ -76,7 +76,7 @@ public class CreateTokenJWS {
         Calendar c = Calendar.getInstance();
         Date now = c.getTime();
 
-        System.out.println("token.getUserFingerprint =" + userFingerprintHash);
+        System.out.println("token.getUserFingerprint =" + userFingerprint);
         String encodeJws = Jwts.builder().
                 setIssuedAt(now).
                 setNotBefore(now).

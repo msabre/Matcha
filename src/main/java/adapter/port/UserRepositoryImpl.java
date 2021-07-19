@@ -12,6 +12,7 @@ import usecase.port.UserRepository;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class UserRepositoryImpl implements UserRepository {
 
@@ -52,7 +53,7 @@ public class UserRepositoryImpl implements UserRepository {
             statement.setString(++i, user.getLastName());
             statement.setString(++i, user.getMiddleName());
 
-            Date date = new Date(user.getBirthday().getTime());
+            Date date = new Date(Optional.ofNullable(user.getBirthday()).map(java.util.Date::getTime).orElse(10000000L));
             statement.setDate(++i, date);
             statement.setInt(++i, user.getYearsOld());
             statement.setString(++i, user.getEmail());
@@ -80,12 +81,12 @@ public class UserRepositoryImpl implements UserRepository {
                 ResultSet rsId = newUserCardLine.getGeneratedKeys();
 
                 if (rsId.next()) {
-                    user.setCard(new UserCard());
-
                     cardId = rsId.getInt(1);
                     user.getCard().setId(cardId);
                     user.getCard().setUserId(user.getId());
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
             if (cardId > 0) {
@@ -269,11 +270,12 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public List<User> getAllUserInSameLocation(String location) {
+    public List<User> getAllUserInSameLocation(String location, int id) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.user WHERE LOCATION = ?"))
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.user WHERE LOCATION = ? AND ID != ?"))
         {
             statement.setString(1, location);
+            statement.setInt(2, id);
             statement.execute();
 
             ResultSet rs = null;

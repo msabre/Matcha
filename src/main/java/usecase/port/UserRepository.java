@@ -16,7 +16,7 @@ public interface UserRepository {
 
     boolean passwordUpdate(Integer id, String password);
 
-    List<User> getAllUserInSameLocation(String location);
+    List<User> getAllUserInSameLocation(String location, int id);
 
     void createChatBetweenTwoUsers(int usr1, int usr2);
 }

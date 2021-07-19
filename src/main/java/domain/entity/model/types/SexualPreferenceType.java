@@ -3,7 +3,7 @@ package domain.entity.model.types;
 public enum SexualPreferenceType {
     GETERO("getero"),
     GAY("gay"),
-    LESBY("lesby"),
+    LESBY("lesbi"),
     BISEXUAL("bisexual");
 
     private String value;

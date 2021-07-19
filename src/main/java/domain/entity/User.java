@@ -7,10 +7,9 @@ import domain.entity.model.types.SexualPreferenceType;
 import java.util.Date;
 
 public class User {
+    @Expose
     private int id;
 
-    @Expose
-    private String userId;
     @Expose
     private String firstName;
     @Expose
@@ -58,14 +57,6 @@ public class User {
 
     public void setMatch(Boolean match) {
         this.match = match;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 
     public String getTokenConfirm() {

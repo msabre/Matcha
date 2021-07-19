@@ -46,7 +46,7 @@ public class RecommendUsersList {
 
     public List<User> get(User user) {
         this.user = user;
-        List<User> userList = userRepository.getAllUserInSameLocation(user.getLocation());
+        List<User> userList = userRepository.getAllUserInSameLocation(user.getLocation(), user.getId());
 
         userList = mandatoryFilter(userList);
         if (userList == null)
@@ -80,10 +80,10 @@ public class RecommendUsersList {
 
         // Фильтруем по ориентации
         List<String> avalibalePreference = sexualConformity
-                .get(user.getCard().getGender() + ";" + user.getCard().getSexualPreference());
+                .get(user.getCard().getGender().getValue() + ";" + user.getCard().getSexualPreference().getValue());
 
         userList = userList.stream().filter((userObj) -> {
-            String preferences = userObj.getCard().getGender() + ";" + userObj.getCard().getSexualPreference();
+            String preferences = String.format("%s;%s", userObj.getCard().getGender().getValue(), userObj.getCard().getSexualPreference().getValue());
             return avalibalePreference.contains(preferences);
 
         }).collect(Collectors.toList());
@@ -106,8 +106,8 @@ public class RecommendUsersList {
 
         // Фильтр по возрасту (обязательный)
         userList = userList.stream().filter(userObj ->
-                userObj.getCard().getYearsOld() >= user.getFilter().getAgeBy() &&
-                        userObj.getCard().getYearsOld() <= user.getFilter().getAgeTo())
+                userObj.getYearsOld() >= user.getFilter().getAgeBy() &&
+                        userObj.getYearsOld() <= user.getFilter().getAgeTo())
                 .collect(Collectors.toList());
 
         if (userList.size() == 0)
@@ -128,7 +128,7 @@ public class RecommendUsersList {
         // Фильтр на рейтинг
         if (user.getFilter().getRating() != null)
         {
-            double rating = user.getCard().getRating();
+            double rating = user.getFilter().getRating();
             userList = userList.stream().filter(userObj ->
                     userObj.getCard().getRating() >= rating - MyProperties.RATING_FALSITY &&
                             userObj.getCard().getRating() <= rating + MyProperties.RATING_FALSITY)
@@ -143,7 +143,7 @@ public class RecommendUsersList {
 
     private void sortUserList(List<User> userList) {
         userList.sort((o1, o2) -> {
-            int res = o1.getCard().getYearsOld() - o2.getCard().getYearsOld();
+            int res = o1.getYearsOld() - o2.getYearsOld();
             if (res != 0)
                 return res;
 
