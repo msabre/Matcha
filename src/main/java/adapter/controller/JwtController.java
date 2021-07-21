@@ -60,7 +60,7 @@ public class JwtController {
     }
 
     public int checkJwt(ServletRequest req, ServletResponse resp) {
-        Pair<String, String> tokenStr = getJwsFromCookies(req);
+        Pair<String, String> tokenStr = getAcToken(req);
 
         if (isNull(tokenStr)) {
             JsonWebToken newToken = refreshToken(req, resp);
@@ -80,14 +80,22 @@ public class JwtController {
         return jws.getUserId();
     }
 
-    public Pair<String, String> getJwsFromCookies(ServletRequest req) {
-        String accessJws = Optional.ofNullable(getCookie(req, ACCESS_TOKEN)).map(Cookie::getValue).orElse(null);
-        String acFingerprint = Optional.ofNullable(getCookie(req, FINGERPRINT_ACCESS)).map(Cookie::getValue).orElse(null);
+    public Pair<String, String> getRsToken(ServletRequest req) {
+        return getJwsFromCookies(req, REFRESH_TOKEN, FINGERPRINT_REFRESH);
+    }
 
-        if (isNull(accessJws) || isNull(acFingerprint))
+    public Pair<String, String> getAcToken(ServletRequest req) {
+        return getJwsFromCookies(req, ACCESS_TOKEN, FINGERPRINT_ACCESS);
+    }
+
+    private Pair<String, String> getJwsFromCookies(ServletRequest req, String token, String requireParam) {
+        String jws = Optional.ofNullable(getCookie(req, token)).map(Cookie::getValue).orElse(null);
+        String fingerprint = Optional.ofNullable(getCookie(req, requireParam)).map(Cookie::getValue).orElse(null);
+
+        if (isNull(jws) || isNull(fingerprint))
             return null;
 
-        return new Pair<>(accessJws, acFingerprint);
+        return new Pair<>(jws, fingerprint);
     }
 
     public void deleteJwtCookies(ServletRequest req, ServletResponse resp) {
@@ -116,10 +124,9 @@ public class JwtController {
     }
 
     private JsonWebToken refreshToken(ServletRequest req, ServletResponse resp) {
-        String rsJws = Optional.ofNullable(getCookie(req, REFRESH_TOKEN)).map(Cookie::getValue).orElse(null);
-        String rsFingerprint = Optional.ofNullable(getCookie(req, FINGERPRINT_REFRESH)).map(Cookie::getValue).orElse(null);
+        Pair<String, String> rsJws = getRsToken(req);
 
-        JsonWebToken oldRefToken = checkRsToken(rsJws, rsFingerprint);
+        JsonWebToken oldRefToken = checkRsToken(rsJws.getKey(), rsJws.getValue());
         if (isNull(oldRefToken)) {
             return null;
         }
@@ -151,7 +158,7 @@ public class JwtController {
         if (isNull(id))
             return null;
 
-        JsonWebToken jws = null;
+        JsonWebToken jws;
         try {
             jws = verifyJWT(token, fingerprint);
             jws.setId(id);

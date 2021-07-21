@@ -35,7 +35,7 @@ public class RegistrationServlet extends HttpServlet {
     private OperationController operationController;
 
     @Override
-    public void init() throws ServletException {
+    public void init() {
         userController = userController();
         passwordEncoder = passwordEncoder();
         operationController = operationController();

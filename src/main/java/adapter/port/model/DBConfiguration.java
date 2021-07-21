@@ -46,13 +46,11 @@ public class DBConfiguration {
         return null;
     }
 
-    public static boolean loadDriver() {
+    private static void loadDriver() {
         try {
-            Class classaa = Class.forName("com.mysql.cj.jdbc.Driver");
-            return true;
+            Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            return false;
         }
     }
 

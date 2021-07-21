@@ -28,7 +28,7 @@ public class GetAuthorizedUserServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         resp.setCharacterEncoding("UTF-8");
 
         int userId = jwtController.checkJwt(req, resp);

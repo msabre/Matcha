@@ -4,7 +4,6 @@ import com.google.gson.annotations.Expose;
 import domain.entity.model.types.GenderType;
 import domain.entity.model.types.SexualPreferenceType;
 
-import java.io.File;
 import java.util.List;
 
 public class UserCard {
@@ -19,8 +18,8 @@ public class UserCard {
     @Expose private GenderType gender;
     @Expose private SexualPreferenceType sexualPreference;
     @Expose private List<String> tags;
+    @Expose private List<Photo> photos;
 
-    private List<File> photos;
     private List<Integer> likes;
     private List<Integer> dislikes;
 
@@ -104,11 +103,11 @@ public class UserCard {
         this.tags = tags;
     }
 
-    public List<File> getPhotos() {
+    public List<Photo> getPhotos() {
         return photos;
     }
 
-    public void setPhotos(List<File> photos) {
+    public void setPhotos(List<Photo> photos) {
         this.photos = photos;
     }
 

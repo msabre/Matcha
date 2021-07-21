@@ -19,6 +19,7 @@ public class UserController {
     private UpdateUserCard updateUserCard;
     private RecommendUsersList recommendUsersList;
     private PutLikeAction putLikeAction;
+    private UploadUserPhoto uploadUserPhoto;
 
     private UserController() {
     }
