@@ -34,7 +34,7 @@ public class UserCardRepositoryImpl implements UserCardRepository {
     @Override
     public UserCard save(UserCard card) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
-             PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user_card SET BIOGRAPHY = ?, WORKPLACE = ?, POSITION = ?, EDUCATION = ?, GENDER = ?, SEXUAL_PREFERENCE = ?, TAGS = ?, RATING = ? WHERE ID = ?", Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user_card SET BIOGRAPHY = ?, WORKPLACE = ?, POSITION = ?, EDUCATION = ?, GENDER = ?, SEXUAL_PREFERENCE = ?, TAGS = ?, RATING = ?, PHOTOS_PARAMS WHERE ID = ?", Statement.RETURN_GENERATED_KEYS)) {
 
             int i = 0;
 
@@ -66,7 +66,7 @@ public class UserCardRepositoryImpl implements UserCardRepository {
     @Override
     public UserCard findById(Integer id) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
-             PreparedStatement state = connection.prepareStatement("SELECT * FROM matcha. where ID = ?"))
+             PreparedStatement state = connection.prepareStatement("SELECT * FROM matcha.user_card where ID = ?"))
         {
             state.setInt(1, id);
             state.execute();
