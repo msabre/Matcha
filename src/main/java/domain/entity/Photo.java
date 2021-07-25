@@ -7,7 +7,7 @@ public class Photo {
     @Expose private byte[] content;
     @Expose private String format;
     @Expose private String action;
-    @Expose private int number;
+    @Expose private String number;
 
     public byte[] getContent() {
         return content;
@@ -33,11 +33,11 @@ public class Photo {
         this.action = action;
     }
 
-    public int getNumber() {
+    public String getNumber() {
         return number;
     }
 
-    public void setNumber(int number) {
+    public void setNumber(String number) {
         this.number = number;
     }
 }

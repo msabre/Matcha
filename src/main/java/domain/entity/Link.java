@@ -1,11 +1,5 @@
 package domain.entity;
 
-import com.google.gson.annotations.Expose;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 public class Link {
     private String url;
     private Integer id;

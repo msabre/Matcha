@@ -1,7 +1,8 @@
 package usecase.port;
 
+import domain.entity.Photo;
 import domain.entity.User;
-import usecase.exception.SamePasswordException;
+import domain.entity.UserCard;
 
 import java.util.List;
 
@@ -10,11 +11,15 @@ public interface UserRepository {
 
     User findByEmail(String email);
 
-    User findById(Integer id);
+    User findById(int id);
 
-    void confirmById(Integer id);
+    void uploadPhotosContetn(UserCard card);
 
-    boolean passwordUpdate(Integer id, String password);
+    void setPhotosParams(List<Photo> photos);
+
+    void confirmById(int id);
+
+    boolean passwordUpdate(int id, String password);
 
     List<User> getAllUserInSameLocation(String location, int id);
 

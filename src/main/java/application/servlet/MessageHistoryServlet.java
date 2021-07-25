@@ -16,7 +16,7 @@ public class MessageHistoryServlet extends HttpServlet {
     private MessageController messageController;
 
     public MessageHistoryServlet() {
-        // this.messageController = messageController();
+//         this.messageController = messageController();
     }
 
     @Override

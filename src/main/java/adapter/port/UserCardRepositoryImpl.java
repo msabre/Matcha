@@ -2,6 +2,7 @@ package adapter.port;
 
 import adapter.port.model.DBConfiguration;
 import domain.entity.Link;
+import domain.entity.Photo;
 import domain.entity.UserCard;
 import domain.entity.model.types.GenderType;
 import domain.entity.model.types.SexualPreferenceType;
@@ -65,7 +66,7 @@ public class UserCardRepositoryImpl implements UserCardRepository {
     @Override
     public UserCard findById(Integer id) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
-             PreparedStatement state = connection.prepareStatement("SELECT * FROM matcha.user_card where ID = ?"))
+             PreparedStatement state = connection.prepareStatement("SELECT * FROM matcha. where ID = ?"))
         {
             state.setInt(1, id);
             state.execute();
@@ -95,10 +96,23 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                     card.setLikes(getUserLikesAction(user_id, "like"));
                     card.setDislikes(getUserLikesAction(user_id, "dislike"));
 
+                    card.setPhotos(new ArrayList<>(5));
+                    String params = resultSet.getString(++i);
+                    if (!params.isEmpty()) {
+                        for (String photoParam : params.split(";")) {
+                            String[] detail = photoParam.split("_");
+
+                            Photo photo = new Photo();
+                            photo.setFormat(detail[0]);
+                            photo.setNumber(detail[1]);
+                            card.getPhotos().add(photo);
+                        }
+                    }
+
                     return card;
                 }
             }
-            catch (SQLException e) {
+            catch (Exception e) {
                 e.printStackTrace();
             }
             finally {
@@ -152,7 +166,7 @@ public class UserCardRepositoryImpl implements UserCardRepository {
     @Override
     public void increaseRating(int id, double increse) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-             PreparedStatement statement = connection.prepareStatement("SELECT RAITING FROM matcha.user_card WHERE  RATING =?"))
+             PreparedStatement statement = connection.prepareStatement("SELECT RAITING FROM matcha.user_card WHERE ID =?"))
         {
             statement.setInt(1, id);
             statement.execute();

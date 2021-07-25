@@ -5,68 +5,40 @@
 <web-app>
   <display-name>Archetype Created Web Application</display-name>
 
-  <!--<filter>-->
-    <!--<filter-name>AuthenficationFilter</filter-name>-->
-    <!--<filter-class>application.filters.AuthenficationFilter</filter-class>-->
-  <!--</filter>-->
 
   <filter>
     <filter-name>JwtFilter</filter-name>
     <filter-class>application.filters.JwtFilter</filter-class>
   </filter>
 
-  <!--<filter>-->
-    <!--<filter-name>CorsFilter</filter-name>-->
-    <!--<filter-class>org.apache.catalina.filters.CorsFilter</filter-class>-->
-    <!--<init-param>-->
-      <!--<param-name>cors.allowed.origins</param-name>-->
-      <!--<param-value>*</param-value>-->
-    <!--</init-param>-->
-<!--&lt;!&ndash;    <init-param>&ndash;&gt;-->
-<!--&lt;!&ndash;      <param-name>cors.allowed.methods</param-name>&ndash;&gt;-->
-<!--&lt;!&ndash;      <param-value>GET, POST, HEAD, OPTIONS, PATCH</param-value>&ndash;&gt;-->
-<!--&lt;!&ndash;    </init-param>&ndash;&gt;-->
-<!--&lt;!&ndash;    <init-param>&ndash;&gt;-->
-<!--&lt;!&ndash;      <param-name>cors.preflight.maxage</param-name>&ndash;&gt;-->
-<!--&lt;!&ndash;      <param-value>10</param-value>&ndash;&gt;-->
-<!--&lt;!&ndash;    </init-param>&ndash;&gt;-->
-  <!--</filter>-->
+<!--  // Chrome не поддерживает localhost-->
+  <filter>
+    <filter-name>CorsFilter</filter-name>
+    <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
+    <init-param>
+      <param-name>cors.allowed.origins</param-name>
+      <param-value>*</param-value>
+    </init-param>
+    <init-param>
+      <param-name>cors.allowed.methods</param-name>
+      <param-value>GET, POST, HEAD, OPTIONS, PATCH</param-value>
+    </init-param>
+    <init-param>
+      <param-name>cors.preflight.maxage</param-name>
+      <param-value>10</param-value>
+    </init-param>
+  </filter>
 
-  <!--<filter-mapping>-->
-    <!--<filter-name>CorsFilter</filter-name>-->
-    <!--<url-pattern>/*</url-pattern>-->
-  <!--</filter-mapping>-->
-
+  <filter-mapping>
+    <filter-name>CorsFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
 
   <filter-mapping>
     <filter-name>JwtFilter</filter-name>
     <url-pattern>/main/*</url-pattern>
   </filter-mapping>
 
-  <!--<filter-mapping>-->
-    <!--<filter-name>AuthenficationFilter</filter-name>-->
-    <!--<url-pattern>/registration</url-pattern>-->
-  <!--</filter-mapping>-->
-
-  <!--<filter-mapping>-->
-    <!--<filter-name>AuthenficationFilter</filter-name>-->
-    <!--<url-pattern>/login</url-pattern>-->
-  <!--</filter-mapping>-->
-
-    <!--<filter-mapping>-->
-        <!--<filter-name>AuthenficationFilter</filter-name>-->
-        <!--<url-pattern>/resetpassend</url-pattern>-->
-    <!--</filter-mapping>-->
-
-    <!--<filter-mapping>-->
-        <!--<filter-name>AuthenficationFilter</filter-name>-->
-        <!--<url-pattern>/resetpasschange</url-pattern>-->
-    <!--</filter-mapping>-->
-
-<!--  <servlet>-->
-<!--    <servlet-name>WelcomeServlet</servlet-name>-->
-<!--    <servlet-class>application.servlet.WelcomeServlet</servlet-class>-->
-<!--  </servlet>-->
 
   <servlet>
     <servlet-name>RegistrationFormServlet</servlet-name>
@@ -118,12 +90,6 @@
     <servlet-class>application.servlet.LikeServlet</servlet-class>
   </servlet>
 
-
-
-<!--  <servlet-mapping>-->
-<!--    <servlet-name>WelcomeServlet</servlet-name>-->
-<!--    <url-pattern></url-pattern>-->
-<!--  </servlet-mapping>-->
   <servlet-mapping>
     <servlet-name>RegistrationFormServlet</servlet-name>
     <url-pattern>/registration</url-pattern>
@@ -174,10 +140,5 @@
     <servlet-name>LikeServlet</servlet-name>
     <url-pattern>/main/like</url-pattern>
   </servlet-mapping>
-
-  <!--<welcome-file-list>-->
-    <!--<welcome-file>main</welcome-file>-->
-    <!--<welcome-file>/</welcome-file>-->
-  <!--</welcome-file-list>-->
 
 </web-app>

@@ -2,17 +2,25 @@ package adapter.port;
 
 import adapter.port.model.DBConfiguration;
 import config.MyConfiguration;
+import config.MyProperties;
 import domain.entity.FilterParams;
+import domain.entity.Photo;
 import domain.entity.User;
 import domain.entity.UserCard;
 import usecase.port.FilterParamsRepository;
 import usecase.port.UserCardRepository;
 import usecase.port.UserRepository;
 
+import java.io.*;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class UserRepositoryImpl implements UserRepository {
 
@@ -179,7 +187,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User findById(Integer id) {
+    public User findById(int id) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
              PreparedStatement state = connection.prepareStatement("SELECT * FROM matcha.user where ID = ?"))
         {
@@ -216,6 +224,8 @@ public class UserRepositoryImpl implements UserRepository {
                     FilterParams filter = filterParamsRepository.findById(resultSet.getInt(++i));
                     user.setFilter(filter);
 
+                    uploadPhotosContetn(userCard);
+
                     return user;
                 }
             }
@@ -236,12 +246,35 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public void confirmById(Integer id) {
-        try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword()))
-        {
-            PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user SET CONFIRM = NULL where ID = ?");
-            statement.setInt(1, id);
+    public void uploadPhotosContetn(UserCard card) {
+        for (Photo photo : card.getPhotos()) {
+            String path = String.format("%sIMG_%s_%s_%s.%s", MyProperties.IMAGES_PATH, card.getUserId(), "photo", photo.getNumber(), photo.getFormat());
+            File file =  new File(path);
 
+            if (file.exists()) {
+                try {
+                    byte[] content = Files.readAllBytes(Paths.get(path));
+                    Base64.getEncoder().encode(content);
+                    photo.setContent(content);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            // TODO разобраться в потоках
+        }
+    }
+
+    @Override
+    public void setPhotosParams(List<Photo> photos) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user_card SET PHOTOS_PARAMS = ? where ID = ?");)
+        {
+            String param = photos.stream()
+                    .map(p -> p.getNumber() + "_" + p.getFormat())
+                    .collect(Collectors.joining());
+
+            statement.setString(1, param);
             statement.execute();
 
         } catch (SQLException e) {
@@ -250,7 +283,20 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public boolean passwordUpdate(Integer id, String password) {
+    public void confirmById(int id) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user SET CONFIRM = NULL where ID = ?"))
+        {
+            statement.setInt(1, id);
+            statement.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean passwordUpdate(int id, String password) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
              PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user SET PASSWORD = ? where ID = ?"))
         {

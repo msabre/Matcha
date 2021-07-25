@@ -81,6 +81,8 @@ public class HttpService {
         if (body == null)
             return ;
 
+        response.setHeader("Content-Type","text/html; charset=windows-1251");
+
         BufferedWriter bufferedWriter = null;
 
         try {

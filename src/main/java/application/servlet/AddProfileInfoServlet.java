@@ -5,9 +5,9 @@ import application.services.HttpService;
 import application.services.json.JsonService;
 import config.MyProperties;
 import domain.entity.Photo;
-import domain.entity.ProcessResult;
 import domain.entity.User;
 import domain.entity.UserCard;
+import usecase.port.UserCardRepository;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServlet;
@@ -43,10 +43,14 @@ public class AddProfileInfoServlet extends HttpServlet {
             case  "photo":
                 List<Photo> photos = JsonService.getList(HttpService.getBody(req));
                 processActionPhoto(photos, user.getId());
+                // userController.updatePhotoParams(user);
         }
     }
 
     private void processActionPhoto(List<Photo> photos, int id) {
+        if (photos == null)
+            return;
+
         for (Photo photo : photos) {
             String path = String.format("%sIMG_%s_%s_%s.%s", MyProperties.IMAGES_PATH, id, "photo", photo.getNumber(), photo.getFormat());
 
@@ -63,8 +67,9 @@ public class AddProfileInfoServlet extends HttpServlet {
                     break;
                 case "delete":
                     File file = new File(path);
-                    if (file.exists() && file.delete())
-                        return ;
+                    if (file.exists() && file.delete()) {
+                        return;
+                    }
             }
         }
     }
