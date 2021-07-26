@@ -98,12 +98,14 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                             String[] detail = photoParam.split("_");
 
                             Photo photo = new Photo();
-                            photo.setFormat(detail[0]);
-                            photo.setNumber(detail[1]);
+                            photo.setNumber(detail[0]);
+                            photo.setFormat(detail[1]);
                             card.getPhotos().add(photo);
                         }
                     }
                     Integer user_id = resultSet.getInt(++i);
+                    card.setUserId(user_id);
+
                     card.setLikes(getUserLikesAction(user_id, "like"));
                     card.setDislikes(getUserLikesAction(user_id, "dislike"));
 
@@ -200,33 +202,27 @@ public class UserCardRepositoryImpl implements UserCardRepository {
             if (rs.next())
                 oldParams = rs.getString(1);
 
-            List<Photo> current = new ArrayList<>(5);
-            if (oldParams!= null && !oldParams.isEmpty()) {
+            List<String> listResult = new ArrayList<>(Collections.nCopies(5, null));
+            if (oldParams != null && !oldParams.isEmpty()) {
                 for (String photoParam : oldParams.split(";")) {
                     String[] detail = photoParam.split("_");
-
-                    Photo photo;
-                    int index = Integer.parseInt(detail[1]);
-                    if (photoList.get(index) == null) {
-                        photo = new Photo();
-                        photo.setFormat(detail[0]);
-                        photo.setNumber(detail[1]);
-                    } else {
-                        photo = photoList.get(index);
-                        if (photo.getAction().equals("delete"))
-                            photo = null;
-                    }
-                    current.add(index, photo);
+                    listResult.set(Integer.parseInt(detail[0]) - 1, photoParam);
                 }
             }
+            photoList.forEach(photo -> {
+                int index = Integer.parseInt(photo.getNumber()) - 1;
+                if (photo.getAction().equals("save"))
+                    listResult.set(index, String.format("%s_%s", photo.getNumber(), photo.getFormat()));
+                else
+                    listResult.set(index, null);
+            });
 
-            String result = current.stream()
+            String result = listResult.stream()
                     .filter(Objects::nonNull)
-                    .map(p -> String.format("%s_%s", p.getFormat(), p.getFormat()))
                     .collect(Collectors.joining(";"));
 
             try (PreparedStatement updateLine = connection.prepareStatement("update matcha.user_card set PHOTOS_PARAMS = ? WHERE ID =?")) {
-                updateLine.setString(1, result);
+                updateLine.setString(1, result.toString());
                 updateLine.setInt(2, cardId);
                 updateLine.execute();
             }

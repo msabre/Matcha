@@ -8,8 +8,8 @@ import usecase.port.UserRepository;
 import static java.util.Objects.isNull;
 
 public class LoginUser {
-    private UserRepository repository;
-    private PasswordEncoder passwordEncoder;
+    private final UserRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
     public LoginUser(UserRepository repository,PasswordEncoder passwordEncoder) {
         this.repository = repository;

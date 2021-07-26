@@ -1,6 +1,5 @@
 package usecase;
 
-import domain.entity.Link;
 import domain.entity.UserCard;
 import usecase.port.UserCardRepository;
 

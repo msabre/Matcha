@@ -125,6 +125,8 @@ public class JwtController {
 
     private JsonWebToken refreshToken(ServletRequest req, ServletResponse resp) {
         Pair<String, String> rsJws = getRsToken(req);
+        if (isNull(rsJws) || isNull(rsJws.getKey()) || isNull(rsJws.getValue()))
+            return null;
 
         JsonWebToken oldRefToken = checkRsToken(rsJws.getKey(), rsJws.getValue());
         if (isNull(oldRefToken)) {
@@ -151,9 +153,6 @@ public class JwtController {
     }
 
     private JsonWebToken checkRsToken(String token, String fingerprint) {
-        if (isNull(token) || isNull(fingerprint))
-            return null;
-
         Integer id = getTokenId.get(token);
         if (isNull(id))
             return null;

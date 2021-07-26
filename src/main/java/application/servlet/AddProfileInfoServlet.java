@@ -7,7 +7,6 @@ import config.MyProperties;
 import domain.entity.Photo;
 import domain.entity.User;
 import domain.entity.UserCard;
-import usecase.port.UserCardRepository;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServlet;
@@ -42,29 +41,21 @@ public class AddProfileInfoServlet extends HttpServlet {
                 break;
             case  "photo":
                 List<Photo> photos = JsonService.getList(HttpService.getBody(req));
-                processActionPhoto(photos, user.getId());
-                addNullsInPhotosList(photos);
-                userController.updatePhotoParams(user.getId(), photos);
+                if (photos != null && !photos.isEmpty()) {
+                    processActionPhoto(photos, user.getId());
+                    userController.updatePhotoParams(user.getId(), photos);
+                }
         }
     }
 
-    private void addNullsInPhotosList(List<Photo> photos) {
-        for (int i = 0; i < 5; i++)
-            if (Integer.parseInt(photos.get(i).getNumber()) != i)
-                photos.add(i, null);
-    }
-
     private void processActionPhoto(List<Photo> photos, int id) {
-        if (photos == null)
-            return;
-
         for (Photo photo : photos) {
             String path = String.format("%sIMG_%s_%s_%s.%s", MyProperties.IMAGES_PATH, id, "photo", photo.getNumber(), photo.getFormat());
 
             switch (photo.getAction()) {
                 case "save":
                     try {
-                        byte[] byteContent = photo.getContent();
+                        byte[] byteContent = photo.getContent().getBytes();
                         ByteArrayInputStream bufferedInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(byteContent));
                         BufferedImage img = ImageIO.read(bufferedInputStream);
                         ImageIO.write(img, photo.getFormat(), new File(path));

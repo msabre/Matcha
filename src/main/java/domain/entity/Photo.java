@@ -4,16 +4,16 @@ import com.google.gson.annotations.Expose;
 
 public class Photo {
 
-    @Expose private byte[] content;
+    @Expose private String content;
     @Expose private String format;
     @Expose private String action;
     @Expose private String number;
 
-    public byte[] getContent() {
+    public String getContent() {
         return content;
     }
 
-    public void setContent(byte[] content) {
+    public void setContent(String content) {
         this.content = content;
     }
 

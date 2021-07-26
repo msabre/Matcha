@@ -13,6 +13,7 @@ import usecase.port.UserRepository;
 
 import java.io.*;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
@@ -203,12 +204,7 @@ public class UserRepositoryImpl implements UserRepository {
 
                     user.setId(resultSet.getInt(++i));
                     user.setTokenConfirm(resultSet.getString(++i));
-
-                    if (user.getTokenConfirm() == null)
-                        user.setConfirm(true);
-                    else
-                        user.setConfirm(false);
-
+                    user.setConfirm(user.getTokenConfirm() == null);
                     user.setFirstName(resultSet.getString(++i));
                     user.setLastName(resultSet.getString(++i));
                     user.setMiddleName(resultSet.getString(++i));
@@ -254,8 +250,7 @@ public class UserRepositoryImpl implements UserRepository {
             if (file.exists()) {
                 try {
                     byte[] content = Files.readAllBytes(Paths.get(path));
-                    Base64.getEncoder().encode(content);
-                    photo.setContent(content);
+                    photo.setContent(new String(Base64.getEncoder().encode(content), StandardCharsets.UTF_8));
 
                 } catch (IOException e) {
                     e.printStackTrace();
