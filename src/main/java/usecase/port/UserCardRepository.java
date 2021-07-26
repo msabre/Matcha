@@ -1,7 +1,9 @@
 package usecase.port;
 
-import domain.entity.Link;
+import domain.entity.Photo;
 import domain.entity.UserCard;
+
+import java.util.List;
 
 public interface UserCardRepository {
     UserCard save(UserCard card);
@@ -9,4 +11,6 @@ public interface UserCardRepository {
     UserCard findById(Integer id);
 
     void increaseRating(int id, double increse);
+
+    void updatePhotosParams(int cardId, List<Photo> photoList);
 }

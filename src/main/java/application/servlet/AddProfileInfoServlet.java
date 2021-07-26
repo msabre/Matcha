@@ -43,8 +43,15 @@ public class AddProfileInfoServlet extends HttpServlet {
             case  "photo":
                 List<Photo> photos = JsonService.getList(HttpService.getBody(req));
                 processActionPhoto(photos, user.getId());
-                // userController.updatePhotoParams(user);
+                addNullsInPhotosList(photos);
+                userController.updatePhotoParams(user.getId(), photos);
         }
+    }
+
+    private void addNullsInPhotosList(List<Photo> photos) {
+        for (int i = 0; i < 5; i++)
+            if (Integer.parseInt(photos.get(i).getNumber()) != i)
+                photos.add(i, null);
     }
 
     private void processActionPhoto(List<Photo> photos, int id) {

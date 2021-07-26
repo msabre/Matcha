@@ -3,6 +3,7 @@ package adapter.controller;
 
 import config.MyConfiguration;
 
+import domain.entity.Photo;
 import domain.entity.User;
 import domain.entity.UserCard;import usecase.*;
 
@@ -19,7 +20,7 @@ public class UserController {
     private UpdateUserCard updateUserCard;
     private RecommendUsersList recommendUsersList;
     private PutLikeAction putLikeAction;
-    private UploadUserPhoto uploadUserPhoto;
+    private UpdatePhotoParams updatePhotoParams;
 
     private UserController() {
     }
@@ -36,6 +37,7 @@ public class UserController {
             instance.updateUserCard = MyConfiguration.updateUserCard();
             instance.recommendUsersList = MyConfiguration.recommendUsersList();
             instance.putLikeAction = MyConfiguration.putLikeAction();
+            instance.updatePhotoParams = MyConfiguration.updatePhotoParams();
         }
 
         return instance;
@@ -83,5 +85,9 @@ public class UserController {
 
     public void deleteLike(int from, int to) {
         putLikeAction.dislike(from, to);
+    }
+
+    public void updatePhotoParams(int userId, List<Photo> param) {
+        updatePhotoParams.update(userId, param);
     }
 }

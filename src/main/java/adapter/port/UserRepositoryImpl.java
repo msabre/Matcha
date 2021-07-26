@@ -163,7 +163,7 @@ public class UserRepositoryImpl implements UserRepository {
             ResultSet resultSet = null;
             try {
                 resultSet = state.getResultSet();
-                Integer id;
+                int id;
                 while (resultSet.next()) {
                     id = resultSet.getInt(1);
 
