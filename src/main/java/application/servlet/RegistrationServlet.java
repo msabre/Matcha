@@ -15,7 +15,6 @@ import domain.entity.User;
 import domain.entity.UserCard;import usecase.port.PasswordEncoder;
 
 import javax.mail.MessagingException;
-import javax.servlet.ServletException;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -66,7 +65,7 @@ public class RegistrationServlet extends HttpServlet {
 
         user.setLocation(location);
 
-        UserCard userCard = (UserCard) JsonService.getObject(UserCard.class, json);
+        UserCard userCard = (UserCard) JsonService.getObjectByExposeFields(UserCard.class, json);
         user.setCard(userCard);
 
         int userId = userController.createUser(user);

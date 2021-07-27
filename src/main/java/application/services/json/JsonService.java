@@ -14,11 +14,12 @@ import java.util.List;
 
 public class JsonService {
 
-    private static Gson gsonBuilder;
+    private static Gson gsonExpose;
+    private static Gson gson;
 
-    private static Gson getGsonBuilder() {
-        if (gsonBuilder == null) {
-            gsonBuilder = new GsonBuilder()
+    private static Gson getGsonExpose() {
+        if (gsonExpose == null) {
+            gsonExpose = new GsonBuilder()
                 .excludeFieldsWithoutExposeAnnotation()
                 .registerTypeAdapter(GenderType.class, new GenderTypeSerializer())
                 .registerTypeAdapter(GenderType.class, new GenderTypeDeserializer())
@@ -28,14 +29,28 @@ public class JsonService {
                 .registerTypeAdapter(byte[].class, new ByteArrayTypeDeserializer())
                 .create();
         }
-        return gsonBuilder;
+        return gsonExpose;
+    }
+
+    private static Gson getGson() {
+        if (gson == null) {
+            gson = new GsonBuilder()
+                    .registerTypeAdapter(GenderType.class, new GenderTypeSerializer())
+                    .registerTypeAdapter(GenderType.class, new GenderTypeDeserializer())
+                    .registerTypeAdapter(SexualPreferenceType.class, new SexualPreferenceTypeSerializer())
+                    .registerTypeAdapter(SexualPreferenceType.class, new SexualPreferenceTypeDeserializer())
+                    .registerTypeAdapter(Date.class, new DateTypeDeserializer())
+                    .registerTypeAdapter(byte[].class, new ByteArrayTypeDeserializer())
+                    .create();
+        }
+        return gson;
     }
 
     public static String getJsonArray(List<?> objectList) {
         if (objectList == null)
             return null;
 
-        Gson gson = getGsonBuilder();
+        Gson gson = getGsonExpose();
         JsonArray array = new JsonArray();
         for (Object obj : objectList) {
             JsonObject o = JsonParser.parseString(gson.toJson(obj)).getAsJsonObject();
@@ -62,25 +77,25 @@ public class JsonService {
 //        return array.toString();
 //    }
 
-    public static Object getObjectWithExposeFields(Class clazz, String json) {
-        if (json == null)
-            return null;
-
-        Gson gson = getGsonBuilder();
-        return gson.fromJson(json, clazz);
-    }
-
     public static Object getObject(Class clazz, String json) {
         if (json == null)
             return null;
 
-        Gson gson = getGsonBuilder();
+        Gson gson = getGson();
+        return gson.fromJson(json, clazz);
+    }
+
+    public static Object getObjectByExposeFields(Class clazz, String json) {
+        if (json == null)
+            return null;
+
+        Gson gson = getGsonExpose();
         return gson.fromJson(json, clazz);
     }
 
     public static List<Photo> getList(String json) {
         Type listType = new TypeToken<List<Photo>>(){}.getType();
-        Gson gson = getGsonBuilder();
+        Gson gson = getGsonExpose();
         return gson.fromJson(json, listType);
     }
 
@@ -90,7 +105,7 @@ public class JsonService {
         if (o == null)
             return null;
 
-        Gson gson = getGsonBuilder();
+        Gson gson = getGsonExpose();
         return gson.toJson(o);
     }
 }

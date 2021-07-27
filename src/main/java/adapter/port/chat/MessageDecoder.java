@@ -10,7 +10,7 @@ import javax.websocket.EndpointConfig;
 public class MessageDecoder implements Decoder.Text<WebSocketMessage> {
     @Override
     public WebSocketMessage decode(String s) throws DecodeException {
-        return (WebSocketMessage) JsonService.getObject(WebSocketMessage.class , s);
+        return (WebSocketMessage) JsonService.getObjectByExposeFields(WebSocketMessage.class , s);
     }
 
     @Override

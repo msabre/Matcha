@@ -211,7 +211,7 @@ public class JwtController {
         cookie.setValue(value);
         cookie.setHttpOnly(true);
         //cookie.setSecure(true);
-        cookie.setDomain("localhost");
+//        cookie.setDomain("/");
         cookie.setPath("/");
         cookie.setMaxAge(maxAge);
 
