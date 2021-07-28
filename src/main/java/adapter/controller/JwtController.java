@@ -186,7 +186,7 @@ public class JwtController {
         user.setAuthorized(true);
         req.getSession().setAttribute("user", user);
 
-        int cookiesAcExpires = 30;
+        int cookiesAcExpires = 60 * 3;
         int cookiesRsExpires = 60 * 60 * 24 * 45;
 
         Cookie accessCookie = createHttpOnlyCookie(req, ACCESS_TOKEN, pairToken.getKey().getToken(), cookiesAcExpires);
@@ -195,6 +195,7 @@ public class JwtController {
         Cookie refreshCookie = createHttpOnlyCookie(req, REFRESH_TOKEN, pairToken.getValue().getToken(), cookiesRsExpires);
         Cookie fingerprintRsCookie = createHttpOnlyCookie(req, FINGERPRINT_REFRESH, pairToken.getValue().getUserFingerprint(), cookiesRsExpires);
 
+        resp.setHeader("Access-Control-Allow-Credentials", "true");
         resp.addCookie(accessCookie);
         resp.addCookie(refreshCookie);
         resp.addCookie(fingerprintAcCookie);
@@ -211,7 +212,7 @@ public class JwtController {
         cookie.setValue(value);
         cookie.setHttpOnly(true);
         //cookie.setSecure(true);
-//        cookie.setDomain("/");
+        cookie.setDomain("localhost");
         cookie.setPath("/");
         cookie.setMaxAge(maxAge);
 
