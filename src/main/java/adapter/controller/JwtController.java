@@ -195,11 +195,11 @@ public class JwtController {
         Cookie refreshCookie = createHttpOnlyCookie(req, REFRESH_TOKEN, pairToken.getValue().getToken(), cookiesRsExpires);
         Cookie fingerprintRsCookie = createHttpOnlyCookie(req, FINGERPRINT_REFRESH, pairToken.getValue().getUserFingerprint(), cookiesRsExpires);
 
-        resp.setHeader("Access-Control-Allow-Credentials", "true");
         resp.addCookie(accessCookie);
         resp.addCookie(refreshCookie);
         resp.addCookie(fingerprintAcCookie);
         resp.addCookie(fingerprintRsCookie);
+
 
         return pairToken;
     }
