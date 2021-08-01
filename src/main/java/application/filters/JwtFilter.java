@@ -22,7 +22,7 @@ public class JwtFilter implements Filter {
 
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
 
-        if (jwtController.checkJwt(req, resp) < 0) {
+        if (!jwtController.checkJwt(req, resp)) {
             HttpService.putBody((HttpServletResponse) resp, "Error JWT");
             return;
         }

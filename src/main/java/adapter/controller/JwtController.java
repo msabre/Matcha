@@ -59,25 +59,30 @@ public class JwtController {
         return instance;
     }
 
-    public int checkJwt(ServletRequest req, ServletResponse resp) {
+    public boolean checkJwt(ServletRequest req, ServletResponse resp) {
+        HttpServletRequest request = (HttpServletRequest) req;
         Pair<String, String> tokenStr = getAcToken(req);
 
         if (isNull(tokenStr)) {
             JsonWebToken newToken = refreshToken(req, resp);
-            return (newToken == null) ? -1 : newToken.getUserId();
+            return newToken != null;
         }
 
         JsonWebToken jws;
         try {
             jws = verifyJWT(tokenStr.getKey(), tokenStr.getValue());
+            User user = (User) request.getSession().getAttribute("user");
+            if (user == null)
+                request.getSession().setAttribute("user", userController.findUser(jws.getUserId()));
+
         } catch (ExpiredJwtException expiredJwtException) {
-            if ((jws = refreshToken(req, resp)) == null)
-                return -1;
+            if (refreshToken(req, resp) == null)
+                return false;
         } catch (Exception e) {
-            return -1;
+            return false;
         }
 
-        return jws.getUserId();
+        return true;
     }
 
     public Pair<String, String> getRsToken(ServletRequest req) {
@@ -186,7 +191,7 @@ public class JwtController {
         user.setAuthorized(true);
         req.getSession().setAttribute("user", user);
 
-        int cookiesAcExpires = 30;
+        int cookiesAcExpires = 60 * 3;
         int cookiesRsExpires = 60 * 60 * 24 * 45;
 
         Cookie accessCookie = createHttpOnlyCookie(req, ACCESS_TOKEN, pairToken.getKey().getToken(), cookiesAcExpires);
@@ -211,7 +216,7 @@ public class JwtController {
         cookie.setValue(value);
         cookie.setHttpOnly(true);
         //cookie.setSecure(true);
-//        cookie.setDomain("/");
+        cookie.setDomain("localhost");
         cookie.setPath("/");
         cookie.setMaxAge(maxAge);
 

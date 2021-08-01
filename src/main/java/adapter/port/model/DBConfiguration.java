@@ -2,13 +2,22 @@ package adapter.port.model;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 public class DBConfiguration {
     private static DBConfiguration instanse = null;
 
-    private final static String PATH_TO_PROPERTIES
-            = DBConfiguration.class.getResource("/databaseConfiguration.properties").getPath();
+    private static String PATH_TO_PROPERTIES = "";
+
+    static {
+        try {
+            PATH_TO_PROPERTIES = Paths.get(DBConfiguration.class.getResource("/databaseConfiguration.properties").toURI()).toFile().getPath();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
 
     private static String user;
     private static String password;
