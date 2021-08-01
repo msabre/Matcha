@@ -205,6 +205,7 @@ public class JwtController {
         resp.addCookie(fingerprintAcCookie);
         resp.addCookie(fingerprintRsCookie);
 
+
         return pairToken;
     }
 
