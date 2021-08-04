@@ -24,7 +24,7 @@ public class MainServlet extends HttpServlet {
     private UserController userController;
 
     @Override
-    public void init() throws ServletException {
+    public void init() {
         userController = userController();
     }
 
@@ -37,7 +37,6 @@ public class MainServlet extends HttpServlet {
             return;
 
         String filters = HttpService.getBody(req);
-        // String filters = "{\"ageBy\":\"18\", \"ageTo\":\"45\"}";
         FilterParams filterParams = (FilterParams) JsonService.getObjectByExposeFields(FilterParams.class, filters);
 
         User user = (User) req.getSession().getAttribute("user");

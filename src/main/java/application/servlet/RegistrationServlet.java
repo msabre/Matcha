@@ -33,6 +33,11 @@ public class RegistrationServlet extends HttpServlet {
     private PasswordEncoder passwordEncoder;
     private OperationController operationController;
 
+    private final static String mailTextForm = "Здравствуйте, уважаемый %s!\n" +
+            "Подтвердите свой адрес электронной почты, чтобы завершить создание своей учетной записи Match по ссылке: %s\n" +
+            "Эта ссылка будет действовать в течение 24 ч. Если срок действия ссылки истек, попробуйте запросить новое " +
+            "электронное письмо для подтверждения..";
+
     @Override
     public void init() {
         userController = userController();
@@ -53,8 +58,8 @@ public class RegistrationServlet extends HttpServlet {
         String hashPassword = passwordEncoder.encrypt(user.getPassword(), null);
         user.setPassword(hashPassword);
         user.setConfirm(false);
-        user.setTokenConfirm(null);
-        // userWeb.setConfirmToken(passwordEncoder.getToken(userWeb.getName() + userWeb.getEmail() + userWeb.getCountry()));
+        // user.setTokenConfirm(null);
+         user.setTokenConfirm(passwordEncoder.getToken(user.getFirstName() + user.getEmail() + user.getLocation()));
 
         String location = null;
         try {
@@ -77,7 +82,7 @@ public class RegistrationServlet extends HttpServlet {
 
         req.getSession().setAttribute("email", user.getEmail());
 
-        // sendConfirmMail(userWeb);
+        sendConfirmMail(user);
         HttpService.putBody(resp, "SUCCESS");
     }
 
@@ -93,17 +98,14 @@ public class RegistrationServlet extends HttpServlet {
     }
 
     private void sendConfirmMail (User user) {
-        String link = "http://localhost:8080/confirmAccount?id=" + user.getId() + "&conf=" + user.getTokenConfirm() + "&linkId=";
+        String link = String.format("http://%s/confirmAccount?id=%s&conf=%s&linkId=", "localhost:3000", user.getId(), user.getTokenConfirm());
         link +=  operationController.addLink(link);
 
         MailService mailService = new MailService(MyProperties.ADMIN_LOGIN, MyProperties.ADMIN_PASSWORD);
 
         mailService.setSubject("Test");
-        mailService.setText("здравствуйте, " + user.getFirstName() + " " + user.getMiddleName() + "!\n" +
-                "Подтвердите свой адрес электронной почты, чтобы завершить создание своей учетной записи Match по ссылке:" +
-                link + "\n" +
-                "Эта ссылка будет действовать в течение 24 ч. Если срок действия ссылки истек, попробуйте запросить новое " +
-                "электронное письмо для подтверждения..");
+        String fio = String.format("%s %s", user.getFirstName(), user.getMiddleName());
+        mailService.setText(String.format(mailTextForm, fio, link));
 
         try {
             mailService.sendMail(user.getEmail());

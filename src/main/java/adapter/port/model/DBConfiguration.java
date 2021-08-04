@@ -49,7 +49,7 @@ public class DBConfiguration {
             return instanse;
 
         } catch (IOException e) {
-            System.out.println("Ошибка в программе: файл " + PATH_TO_PROPERTIES + " не обнаружено");
+            System.out.println("Ошибка в программе: файл " + PATH_TO_PROPERTIES + " не обнаружен");
             e.printStackTrace();
         }
         return null;

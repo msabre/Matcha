@@ -103,4 +103,13 @@ public class HttpService {
             }
         }
     }
+
+    public static String getUrl(HttpServletRequest request) {
+        return request.getScheme() + "://" +
+               request.getServerName() +
+               ("http".equals(request.getScheme()) && request.getServerPort() == 80
+                       || "https".equals(request.getScheme()) && request.getServerPort() == 443 ? "" : ":" + request.getServerPort()) +
+               request.getRequestURI() +
+               (request.getQueryString() != null ? "?" + request.getQueryString() : "");
+    }
 }

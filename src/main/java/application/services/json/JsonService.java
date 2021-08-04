@@ -108,4 +108,13 @@ public class JsonService {
         Gson gson = getGsonExpose();
         return gson.toJson(o);
     }
+
+    public static String getParameter(String json, String paramName) {
+        try {
+            return JsonParser.parseString(json).getAsJsonObject().get(paramName).getAsString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

@@ -6,13 +6,12 @@ import adapter.controller.UserController;
 
 import application.services.HttpService;
 import application.services.MailService;
-import com.google.gson.JsonParser;
+import application.services.json.JsonService;
 import config.MyProperties;
 import domain.entity.User;
 import usecase.port.PasswordEncoder;
 
 import javax.mail.MessagingException;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,18 +30,17 @@ public class ResetPasswordSendServlet extends HttpServlet {
     private OperationController operationController;
 
     @Override
-    public void init() throws ServletException {
+    public void init() {
         userController = userController();
         passwordEncoder = passwordEncoder();
         operationController = operationController();
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         req.setCharacterEncoding("UTF-8");
 
-        String body = HttpService.getBody(req);
-        String email = JsonParser.parseString(body).getAsJsonObject().get("email").getAsString();
+        String email = JsonService.getParameter(HttpService.getBody(req), "email");
         User user = userController.findUser(email);
 
         if (isNull(user)) {
@@ -52,13 +50,15 @@ public class ResetPasswordSendServlet extends HttpServlet {
 
         String token = passwordEncoder.getToken(user.getEmail() + user.getFirstName() + user.getId());
 
-        String link = "http://localhost:3000/resetpasschange?id=" + user.getId() + "&passtoken=" + token + "&linkId=";
+        String link = String.format("http://%s/resetpasschange?id=%s&passtoken=%s&linkId=", "localhost:3000", user.getId(), token);
         link += operationController.addLink(link);
+
+        String fio = String.format("%s %s", user.getFirstName(), user.getMiddleName());
+        String text = String.format("Здравствуйте, %s!\nДля сброса пароля перейдите по ссылке: %s", fio, link);
 
         MailService mailService = new MailService(MyProperties.ADMIN_LOGIN, MyProperties.ADMIN_PASSWORD);
         mailService.setSubject("Сброс пароля");
-        mailService.setText("здравствуйте, " + user.getFirstName() + " " + user.getMiddleName() + "!\n" +
-                "Для сброса пароля перейдите по ссылке: " + link);
+        mailService.setText(text);
 
         try {
             mailService.sendMail(email);
