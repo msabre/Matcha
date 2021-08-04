@@ -9,6 +9,8 @@ import usecase.port.UserCardRepository;
 import usecase.port.UserRepository;
 
 import java.io.*;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,19 +29,18 @@ public class Generator {
         userCardRepository = MyConfiguration.userCardRepository();
     }
 
-    public void generate(String male) {
-
-        cityList = readFile(Generator.class.getResource("/generator/cityList.txt").getPath());
-        interestsList = readFile(Generator.class.getResource("/generator/interestsList.txt").getPath());
+    public void generate(String male) throws URISyntaxException {
+        cityList = readFile(Paths.get(Generator.class.getResource("/generator/cityList.txt").toURI()).toFile().getPath());
+        interestsList = readFile(Paths.get(Generator.class.getResource("/generator/interestsList.txt").toURI()).toFile().getPath());
 
         switch (male) {
             case "male":
-                namesList = readFile(Generator.class.getResource("/generator/namesListMale.txt").getPath());
-                sexualPrefeneceList = readFile(Generator.class.getResource("/generator/sexualPreferenseMale.txt").getPath());
+                namesList = readFile(Paths.get(Generator.class.getResource("/generator/namesListMale.txt").toURI()).toFile().getPath());
+                sexualPrefeneceList = readFile(Paths.get(Generator.class.getResource("/generator/sexualPreferenseMale.txt").toURI()).toFile().getPath());
                 break;
             case "female":
-                namesList = readFile(Generator.class.getResource("/generator/namesListFemale.txt").getPath());
-                sexualPrefeneceList = readFile(Generator.class.getResource("/generator/sexualPreferenseFemale.txt").getPath());
+                namesList = readFile(Paths.get(Generator.class.getResource("/generator/namesListFemale.txt").toURI()).toFile().getPath());
+                sexualPrefeneceList = readFile(Paths.get(Generator.class.getResource("/generator/sexualPreferenseFemale.txt").toURI()).toFile().getPath());
                 break;
             default:
                 return ;
@@ -114,7 +115,7 @@ public class Generator {
         return null;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws URISyntaxException {
         Generator generator = new Generator();
         generator.generate("male");
         generator.generate("female");
