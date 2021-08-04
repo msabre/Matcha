@@ -2,11 +2,11 @@ package application.services;
 
 
 import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -51,7 +51,7 @@ public class HttpService {
         try {
             InputStream inputStream = request.getInputStream();
             if (inputStream != null) {
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+                bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
                 char[] charBuffer = new char[128];
                 int bytesRead = -1;
                 while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
@@ -81,7 +81,7 @@ public class HttpService {
         if (body == null)
             return ;
 
-        response.setHeader("Content-Type","text/html; charset=windows-1251");
+        response.setHeader("Content-Type","text/html; charset=utf-8");
 
         BufferedWriter bufferedWriter = null;
 

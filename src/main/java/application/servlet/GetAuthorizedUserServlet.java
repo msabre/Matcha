@@ -31,11 +31,8 @@ public class GetAuthorizedUserServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         resp.setCharacterEncoding("UTF-8");
 
-        int userId = jwtController.checkJwt(req, resp);
-        if (userId >= 0) {
+        if (jwtController.checkJwt(req, resp)) {
             User user = (User) req.getSession().getAttribute("user");
-            if (user == null)
-                user = userController.findUser(userId);
             String body = JsonService.getJson(user);
             HttpService.putBody(resp, body);
 
