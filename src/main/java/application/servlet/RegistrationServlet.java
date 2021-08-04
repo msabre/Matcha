@@ -103,7 +103,7 @@ public class RegistrationServlet extends HttpServlet {
 
         MailService mailService = new MailService(MyProperties.ADMIN_LOGIN, MyProperties.ADMIN_PASSWORD);
 
-        mailService.setSubject("Test");
+        mailService.setSubject("Подтверждение регистрации");
         String fio = String.format("%s %s", user.getFirstName(), user.getMiddleName());
         mailService.setText(String.format(mailTextForm, fio, link));
 
