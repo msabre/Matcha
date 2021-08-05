@@ -193,6 +193,26 @@
 
         </plugin>
         <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>properties-maven-plugin</artifactId>
+          <version>1.0.0</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>set-system-properties</goal>
+              </goals>
+              <configuration>
+                <properties>
+                  <property>
+                    <name>https.protocols</name>
+                    <value>TLSv1.2</value>
+                  </property>
+                </properties>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.8.0</version>
         </plugin>
