@@ -92,7 +92,7 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                     card.setPhotos(new ArrayList<>(5));
 
                     String params = resultSet.getString(++i);
-                    card.setPhotos(new ArrayList<>(5));
+                    card.setPhotos(new ArrayList<>(Collections.nCopies(5, null)));
                     if (params!= null && !params.isEmpty()) {
                         for (String photoParam : params.split(";")) {
                             String[] detail = photoParam.split("_");
@@ -222,7 +222,7 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                     .collect(Collectors.joining(";"));
 
             try (PreparedStatement updateLine = connection.prepareStatement("update matcha.user_card set PHOTOS_PARAMS = ? WHERE ID =?")) {
-                updateLine.setString(1, result.toString());
+                updateLine.setString(1, result);
                 updateLine.setInt(2, cardId);
                 updateLine.execute();
             }

@@ -49,16 +49,12 @@ public class JwtRepositoryImpl implements JwtRepository {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
              PreparedStatement checkLine = connection.prepareStatement("SELECT * FROM matcha.JWT where TOKEN = ?"))
         {
-
             checkLine.setString(1, token);
             checkLine.execute();
 
             try (ResultSet rs = checkLine.getResultSet()) {
-                while (rs.next())
+                if (rs.next())
                     return rs.getInt("ID");
-
-            } catch (SQLException e) {
-                e.printStackTrace();
             }
 
         } catch (SQLException e) {

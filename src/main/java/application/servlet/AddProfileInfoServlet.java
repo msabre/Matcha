@@ -19,9 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.*;
 
-import java.util.Base64;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import static config.MyConfiguration.userController;
 
@@ -49,6 +47,7 @@ public class AddProfileInfoServlet extends HttpServlet {
                     userController.updatePhotoParams(user.getId(), photos);
                 }
         }
+        req.getSession().setAttribute("user", user);
     }
 
     private void processActionPhoto(List<Photo> photos, User user) {
@@ -68,8 +67,7 @@ public class AddProfileInfoServlet extends HttpServlet {
                         }
                         else
                             compressImage(byteContent, path);
-
-                        if (currentPhotos.get(index) != null) currentPhotos.set(index, photo); else currentPhotos.add(photo);
+                        currentPhotos.set(index, photo);
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -77,12 +75,13 @@ public class AddProfileInfoServlet extends HttpServlet {
                     break;
                 case "delete":
                     File file = new File(path);
-                    if (file.exists() && file.delete()) {
+                    if (file.exists() && file.delete())
                         user.getCard().getPhotos().remove(index);
-                        return;
-                    }
+                default:
+                    break;
             }
         }
+        currentPhotos.sort(Comparator.comparingInt(p -> Integer.parseInt(p.getNumber())));
     }
 
     public void compressImage(byte[] content, String destinationPath) throws IOException {

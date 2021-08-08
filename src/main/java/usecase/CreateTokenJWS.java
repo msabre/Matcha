@@ -22,8 +22,8 @@ import java.util.Map;
 
 public class CreateTokenJWS {
 
-    private JwtRepository jwtRepository;
-    private PasswordEncoder encoder;
+    private final JwtRepository jwtRepository;
+    private final PasswordEncoder encoder;
 
     public CreateTokenJWS(JwtRepository jwtRepository, PasswordEncoder encoder) {
         this.jwtRepository = jwtRepository;

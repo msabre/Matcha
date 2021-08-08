@@ -244,6 +244,9 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public void uploadPhotosContetn(UserCard card) {
         for (Photo photo : card.getPhotos()) {
+            if (photo == null)
+                continue;
+
             String path = String.format("%sIMG_%s_%s_%s.%s", MyProperties.IMAGES_PATH, card.getUserId(), "photo", photo.getNumber(), photo.getFormat());
             File file =  new File(path);
 

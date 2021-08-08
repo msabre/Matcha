@@ -11,7 +11,6 @@ public class GetTokenId {
     }
 
     public Integer get(String token) {
-
         return jwtRepository.getTokenId(token);
     }
 }
