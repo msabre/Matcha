@@ -238,7 +238,6 @@ public class JwtController {
             NoSuchAlgorithmException, UnsupportedEncodingException {
 
         Map<String, Object> claims = verifyTokenJWS.verify(jws, require);
-
         JsonWebToken token = new JsonWebToken();
         token.setToken(jws);
         token.setUserFingerprint((String) claims.get("userFingerprint"));

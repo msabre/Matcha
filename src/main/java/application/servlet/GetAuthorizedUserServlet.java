@@ -11,19 +11,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 import static config.MyConfiguration.jwtController;
-import static config.MyConfiguration.userController;
 
 public class GetAuthorizedUserServlet extends HttpServlet {
 
-    private UserController userController;
     private JwtController jwtController;
 
     @Override
     public void init() {
-        userController = userController();
         jwtController = jwtController();
     }
 

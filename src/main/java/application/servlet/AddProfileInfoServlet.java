@@ -45,15 +45,17 @@ public class AddProfileInfoServlet extends HttpServlet {
             case  "photo":
                 List<Photo> photos = JsonService.getList(HttpService.getBody(req));
                 if (photos != null && !photos.isEmpty()) {
-                    processActionPhoto(photos, user.getId());
+                    processActionPhoto(photos, user);
                     userController.updatePhotoParams(user.getId(), photos);
                 }
         }
     }
 
-    private void processActionPhoto(List<Photo> photos, int id) {
+    private void processActionPhoto(List<Photo> photos, User user) {
+        List<Photo> currentPhotos = user.getCard().getPhotos();
         for (Photo photo : photos) {
-            String path = String.format("%sIMG_%s_%s_%s.%s", MyProperties.IMAGES_PATH, id, "photo", photo.getNumber(), photo.getFormat());
+            String path = String.format("%sIMG_%s_%s_%s.%s", MyProperties.IMAGES_PATH, user.getId(), "photo", photo.getNumber(), photo.getFormat());
+            int index = Integer.parseInt(photo.getNumber()) - 1;
 
             switch (photo.getAction()) {
                 case "save":
@@ -65,7 +67,10 @@ public class AddProfileInfoServlet extends HttpServlet {
                             ImageIO.write(img, photo.getFormat(), new File(path));
                         }
                         else
-                            compressImage(byteContent, photo.getFormat(), path);
+                            compressImage(byteContent, path);
+
+                        if (currentPhotos.get(index) != null) currentPhotos.set(index, photo); else currentPhotos.add(photo);
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -73,13 +78,14 @@ public class AddProfileInfoServlet extends HttpServlet {
                 case "delete":
                     File file = new File(path);
                     if (file.exists() && file.delete()) {
+                        user.getCard().getPhotos().remove(index);
                         return;
                     }
             }
         }
     }
 
-    public void compressImage(byte[] content,   String format, String destinationPath) throws IOException {
+    public void compressImage(byte[] content, String destinationPath) throws IOException {
         ByteArrayInputStream bufferedInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(content));
         BufferedImage img = ImageIO.read(bufferedInputStream);
 
