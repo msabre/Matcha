@@ -105,9 +105,9 @@ public class JwtController {
 
     public void deleteJwtCookies(ServletRequest req, ServletResponse resp) {
         Cookie accessCookie = deleteCookie(HttpService.getCookie(req, ACCESS_TOKEN));
-        Cookie fingerprintAcCookie = deleteCookie(HttpService.getCookie(req, FINGERPRINT_REFRESH));
         Cookie refreshCookie = deleteCookie(HttpService.getCookie(req, REFRESH_TOKEN));
         Cookie fingerprintRsCookie = deleteCookie(HttpService.getCookie(req, FINGERPRINT_ACCESS));
+        Cookie fingerprintAcCookie = deleteCookie(HttpService.getCookie(req, FINGERPRINT_REFRESH));
 
         HttpServletResponse response = (HttpServletResponse) resp;
         addCookie(refreshCookie, response);
@@ -118,8 +118,10 @@ public class JwtController {
 
 
     private Cookie deleteCookie(Cookie cookie) {
-        if (cookie != null)
+        if (cookie != null) {
             cookie.setMaxAge(0);
+            cookie.setValue("");
+        }
         return cookie;
     }
 

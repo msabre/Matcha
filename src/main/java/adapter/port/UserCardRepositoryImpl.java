@@ -89,7 +89,6 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                     List<String> tags = Arrays.asList(arrayTags);
                     card.setTags(tags);
                     card.setRating(resultSet.getDouble(++i));
-                    card.setPhotos(new ArrayList<>(5));
 
                     String params = resultSet.getString(++i);
                     card.setPhotos(new ArrayList<>(Collections.nCopies(5, null)));
@@ -100,7 +99,7 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                             Photo photo = new Photo();
                             photo.setNumber(detail[0]);
                             photo.setFormat(detail[1]);
-                            card.getPhotos().add(photo);
+                            card.getPhotos().set(Integer.parseInt(detail[0]) - 1, photo);
                         }
                     }
                     Integer user_id = resultSet.getInt(++i);
@@ -211,10 +210,15 @@ public class UserCardRepositoryImpl implements UserCardRepository {
             }
             photoList.forEach(photo -> {
                 int index = Integer.parseInt(photo.getNumber()) - 1;
-                if (photo.getAction().equals("save"))
-                    listResult.set(index, String.format("%s_%s", photo.getNumber(), photo.getFormat()));
-                else
-                    listResult.set(index, null);
+                switch (photo.getAction()) {
+                    case "save":
+                        listResult.set(index, String.format("%s_%s", photo.getNumber(), photo.getFormat()));
+                        break;
+                    case "delete":
+                        listResult.set(index, null);
+                    default:
+                        break;
+                }
             });
 
             String result = listResult.stream()

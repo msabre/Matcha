@@ -21,7 +21,7 @@ public class MailService {
         }
     }
 
-    private String userName;
+    private final String userName;
     private final String password;
 
     private String text;
@@ -50,19 +50,14 @@ public class MailService {
             }
         });
 
-        try {
-            MimeMessage message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(userName));
-            message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-            message.setSubject(subject);
-            message.setText(text);
-            Transport.send(message);
+        MimeMessage message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(userName));
+        message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+        message.setSubject(subject);
+        message.setText(text);
+        Transport.send(message);
 
-            System.out.println("Email Sent successfully....");
-
-        } catch (javax.mail.MessagingException e) {
-            e.printStackTrace();
-        }
+        System.out.println("Email Sent successfully....");
     }
 
     public void setText(String text) {

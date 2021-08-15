@@ -4,7 +4,7 @@ public enum GenderType {
     MALE("male"),
     FEMALE("female");
 
-    private String value;
+    private final String value;
 
     GenderType(String value) {
         this.value = value;

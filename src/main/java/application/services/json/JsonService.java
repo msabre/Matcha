@@ -27,6 +27,7 @@ public class JsonService {
                 .registerTypeAdapter(SexualPreferenceType.class, new SexualPreferenceTypeDeserializer())
                 .registerTypeAdapter(Date.class, new DateTypeDeserializer())
                 .registerTypeAdapter(byte[].class, new ByteArrayTypeDeserializer())
+                .registerTypeAdapter(List.class, new CollectionAdapter())
                 .create();
         }
         return gsonExpose;

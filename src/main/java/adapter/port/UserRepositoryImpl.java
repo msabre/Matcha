@@ -246,8 +246,7 @@ public class UserRepositoryImpl implements UserRepository {
         for (Photo photo : card.getPhotos()) {
             if (photo == null)
                 continue;
-
-            String path = String.format("%sIMG_%s_%s_%s.%s", MyProperties.IMAGES_PATH, card.getUserId(), "photo", photo.getNumber(), photo.getFormat());
+            String path = String.format("%s/IMG_%s_%s_%s.%s", MyProperties.IMAGES_PATH, card.getUserId(), "photo", photo.getNumber(), photo.getFormat());
             File file =  new File(path);
 
             if (file.exists()) {
