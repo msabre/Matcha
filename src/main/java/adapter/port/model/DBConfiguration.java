@@ -1,7 +1,7 @@
 package adapter.port.model;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import application.services.MatchUtils;
+
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -30,29 +30,14 @@ public class DBConfiguration {
     public static DBConfiguration getConfig() {
         if (instanse != null)
             return instanse;
+        Properties prop = MatchUtils.getProps(PATH_TO_PROPERTIES);
+        user = prop.getProperty("user");
+        password = prop.getProperty("password");
+        url = prop.getProperty("url");
+        instanse = new DBConfiguration();
 
-        FileInputStream fileInputStream;
-        Properties prop = new Properties();
-
-        try {
-            fileInputStream = new FileInputStream(PATH_TO_PROPERTIES);
-            prop.load(fileInputStream);
-
-            user = prop.getProperty("user");
-            password = prop.getProperty("password");
-            url = prop.getProperty("url");
-
-            instanse = new DBConfiguration();
-
-            loadDriver();
-
-            return instanse;
-
-        } catch (IOException e) {
-            System.out.println("Ошибка в программе: файл " + PATH_TO_PROPERTIES + " не обнаружен");
-            e.printStackTrace();
-        }
-        return null;
+        loadDriver();
+        return instanse;
     }
 
     private static void loadDriver() {

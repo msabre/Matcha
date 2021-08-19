@@ -169,12 +169,12 @@ public class RecommendUsersList {
 
         userList.removeAll(dislikesUsers);
 
-        if (userList.size() > MyProperties.COUNT_RECCOMENDED_USERS_LIST_SIZE)
-            userList = userList.subList(0, MyProperties.COUNT_RECCOMENDED_USERS_LIST_SIZE);
+        if (userList.size() > MyProperties.USERS_LIST_SIZE)
+            userList = userList.subList(0, MyProperties.USERS_LIST_SIZE);
 
         // Добиваем пачку пользователями, которых уже дизлайкали
         for (int i = 0; i < dislikesUsers.size()
-                && userList.size() < MyProperties.COUNT_RECCOMENDED_USERS_LIST_SIZE; i++) {
+                && userList.size() < MyProperties.USERS_LIST_SIZE; i++) {
             userList.add(dislikesUsers.get(i));
         }
     }

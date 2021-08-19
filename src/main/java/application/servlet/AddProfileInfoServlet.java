@@ -40,7 +40,7 @@ public class AddProfileInfoServlet extends HttpServlet {
                 card.setId(user.getCard().getId());
                 user.setCard(userController.updateUserCard(card));
                 break;
-            case  "photo":
+            case "photo":
                 List<Photo> photos = JsonService.getList(HttpService.getBody(req));
                 if (photos != null && !photos.isEmpty()) {
                     processActionPhoto(photos, user);

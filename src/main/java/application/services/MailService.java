@@ -33,15 +33,7 @@ public class MailService {
     }
 
     public void sendMail(String to) throws MessagingException {
-        Properties prop = new Properties();
-
-        FileInputStream fileInputStream;
-        try {
-            fileInputStream = new FileInputStream(PATH_TO_PROPERTIES);
-            prop.load(fileInputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Properties prop = MatchUtils.getProps(PATH_TO_PROPERTIES);
 
         Session session = Session.getDefaultInstance(prop, new Authenticator() {
             @Override

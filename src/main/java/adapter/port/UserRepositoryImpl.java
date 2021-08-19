@@ -220,7 +220,7 @@ public class UserRepositoryImpl implements UserRepository {
                     FilterParams filter = filterParamsRepository.findById(resultSet.getInt(++i));
                     user.setFilter(filter);
 
-                    uploadPhotosContetn(userCard);
+                    uploadPhotosContent(userCard);
 
                     return user;
                 }
@@ -242,7 +242,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public void uploadPhotosContetn(UserCard card) {
+    public void uploadPhotosContent(UserCard card) {
         for (Photo photo : card.getPhotos()) {
             if (photo == null)
                 continue;

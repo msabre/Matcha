@@ -1,5 +1,6 @@
 package usecase.port;
 
+import domain.entity.FilterParams;
 import domain.entity.Photo;
 import domain.entity.User;
 import domain.entity.UserCard;
@@ -13,7 +14,7 @@ public interface UserRepository {
 
     User findById(int id);
 
-    void uploadPhotosContetn(UserCard card);
+    void uploadPhotosContent(UserCard card);
 
     void setPhotosParams(List<Photo> photos);
 

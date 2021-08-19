@@ -43,6 +43,8 @@ public class MyConfiguration {
 
     public static UpdatePhotoParams updatePhotoParams() { return new UpdatePhotoParams(userCardRepository()); }
 
+    public static UpdateFilter updateFilter() { return new UpdateFilter(filterParamsRepository()); }
+
 
 
     public static OperationController operationController() {

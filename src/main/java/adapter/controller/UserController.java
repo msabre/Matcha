@@ -3,6 +3,7 @@ package adapter.controller;
 
 import config.MyConfiguration;
 
+import domain.entity.FilterParams;
 import domain.entity.Photo;
 import domain.entity.User;
 import domain.entity.UserCard;import usecase.*;
@@ -21,6 +22,7 @@ public class UserController {
     private RecommendUsersList recommendUsersList;
     private PutLikeAction putLikeAction;
     private UpdatePhotoParams updatePhotoParams;
+    private UpdateFilter updateFilter;
 
     private UserController() {
     }
@@ -38,6 +40,7 @@ public class UserController {
             instance.recommendUsersList = MyConfiguration.recommendUsersList();
             instance.putLikeAction = MyConfiguration.putLikeAction();
             instance.updatePhotoParams = MyConfiguration.updatePhotoParams();
+            instance.updateFilter = MyConfiguration.updateFilter();
         }
 
         return instance;
@@ -89,5 +92,9 @@ public class UserController {
 
     public void updatePhotoParams(int userId, List<Photo> param) {
         updatePhotoParams.update(userId, param);
+    }
+
+    public void filterUpdate(FilterParams params) {
+        updateFilter.update(params);
     }
 }

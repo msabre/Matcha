@@ -29,7 +29,7 @@ public class MainServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setCharacterEncoding("UTF-8");
 
         String act = req.getParameter("act");
@@ -37,11 +37,12 @@ public class MainServlet extends HttpServlet {
             return;
 
         String filters = HttpService.getBody(req);
-        FilterParams filterParams = (FilterParams) JsonService.getObjectByExposeFields(FilterParams.class, filters);
-
         User user = (User) req.getSession().getAttribute("user");
-        if (filterParams != null)
+        if (!filters.isEmpty()) {
+            FilterParams filterParams = (FilterParams) JsonService.getObjectByExposeFields(FilterParams.class, filters);
+            userController.filterUpdate(filterParams);
             user.setFilter(filterParams);
+        }
 
         List<User> usersList = userController.getRecommendUsersList(user);
 
