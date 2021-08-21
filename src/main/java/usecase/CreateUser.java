@@ -5,7 +5,7 @@ import usecase.port.PasswordEncoder;
 import usecase.port.UserRepository;
 
 public class CreateUser {
-    private UserRepository repository;
+    private final UserRepository repository;
 
 
     public CreateUser(UserRepository repository, PasswordEncoder passwordEncoder) {

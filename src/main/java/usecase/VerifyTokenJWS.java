@@ -23,11 +23,11 @@ public class VerifyTokenJWS {
         String requireHash = encoder.getSHA256(requireParam);
 
         Jws<Claims> claimsJws = Jwts
-                .parserBuilder().
-                require("userFingerprint", requireHash).
-                setSigningKey(MyProperties.JWT_KEY).
-                build().
-                parseClaimsJws(jws);
+                .parserBuilder()
+                .require("userFingerprint", requireHash)
+                .setSigningKey(MyProperties.JWT_KEY)
+                .build()
+                .parseClaimsJws(jws);
 
         Map<String, Object> mapClaims = new HashMap<>();
         mapClaims.put("userId", claimsJws.getBody().get("userId"));

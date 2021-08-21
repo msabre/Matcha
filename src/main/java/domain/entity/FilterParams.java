@@ -1,11 +1,19 @@
 package domain.entity;
 
+import com.google.gson.annotations.Expose;
+
 public class FilterParams {
     private int id;
+    @Expose
     private Integer ageBy;
+    @Expose
     private Integer ageTo;
+    @Expose
     private Double rating;
+    @Expose
     private Integer commonTagsCount;
+    @Expose
+    private String location;
 
     public int getId() {
         return id;
@@ -45,5 +53,13 @@ public class FilterParams {
 
     public void setCommonTagsCount(Integer commonTagsCount) {
         this.commonTagsCount = commonTagsCount;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

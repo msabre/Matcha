@@ -1,14 +1,13 @@
 package domain.entity;
 
 import com.google.gson.annotations.Expose;
-import domain.entity.model.types.GenderType;
-import domain.entity.model.types.SexualPreferenceType;
 
 import java.util.Date;
 
 public class User {
     @Expose
     private int id;
+    private boolean authorized;
 
     @Expose
     private String firstName;
@@ -32,8 +31,8 @@ public class User {
     private boolean confirm;
     private Date birthday;
 
+    @Expose
     private FilterParams filter;
-    private boolean authorized;
 
     public Date getBirthday() {
         return birthday;

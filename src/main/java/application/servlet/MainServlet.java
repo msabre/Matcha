@@ -39,9 +39,14 @@ public class MainServlet extends HttpServlet {
         String filters = HttpService.getBody(req);
         User user = (User) req.getSession().getAttribute("user");
         if (!filters.isEmpty()) {
-            FilterParams filterParams = (FilterParams) JsonService.getObjectByExposeFields(FilterParams.class, filters);
+            FilterParams filterParams = (FilterParams) JsonService.getObject(FilterParams.class, filters);
+            filterParams.setId(user.getFilter().getId());
+            if (isNull(filterParams.getLocation()))
+                filterParams.setLocation(user.getLocation());
+
             userController.filterUpdate(filterParams);
             user.setFilter(filterParams);
+            req.getSession().setAttribute("user", user);
         }
 
         List<User> usersList = userController.getRecommendUsersList(user);

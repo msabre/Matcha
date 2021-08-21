@@ -46,7 +46,7 @@ public class RecommendUsersList {
 
     public List<User> get(User user) {
         this.user = user;
-        List<User> userList = userRepository.getAllUserInSameLocation(user.getLocation(), user.getId());
+        List<User> userList = userRepository.getAllUserInSameLocation(user.getFilter().getLocation(), user.getId());
 
         userList = mandatoryFilter(userList);
         if (userList == null)
@@ -115,7 +115,7 @@ public class RecommendUsersList {
             return null;
 
         // Фильтр на количетсво общих интересов
-        if (user.getFilter().getCommonTagsCount() != null)
+        if (user.getFilter().getCommonTagsCount() > 0)
         {
             int countSameTags = user.getFilter().getCommonTagsCount();
             userList = userList.stream()
@@ -127,12 +127,11 @@ public class RecommendUsersList {
         }
 
         // Фильтр на рейтинг
-        if (user.getFilter().getRating() != null)
+        if (user.getFilter().getRating() > 0.0)
         {
             double rating = user.getFilter().getRating();
             userList = userList.stream().filter(userObj ->
-                    userObj.getCard().getRating() >= rating - MyProperties.RATING_FALSITY &&
-                            userObj.getCard().getRating() <= rating + MyProperties.RATING_FALSITY)
+                    userObj.getCard().getRating() >= rating - MyProperties.RATING_FALSITY)
                     .collect(Collectors.toList());
 
             if (userList.size() == 0)

@@ -31,14 +31,20 @@ public class FilterParamsRepositoryImpl implements FilterParamsRepository {
              PreparedStatement statement = connection.prepareStatement("UPDATE matcha.FILTER_PARAMS SET AGE_BY = ?, AGE_TO = ?, RATING = ?," +
                      "COMMON_TAGS_COUNT = ? WHERE ID = ?")) {
 
-            if (filter.getAgeBy() == null || filter.getAgeTo() == null) {
+            if (filter.getAgeBy() == null)
                 filter.setAgeBy(18);
+            if (filter.getAgeTo() == null)
                 filter.setAgeTo(45);
-            }
+            if (filter.getRating() == null)
+                filter.setRating(0.0);
+            if (filter.getCommonTagsCount() == null)
+                filter.setCommonTagsCount(0);
+
             statement.setInt(1, filter.getAgeBy());
             statement.setInt(2, filter.getAgeTo());
             statement.setDouble(3, filter.getRating());
             statement.setInt(4, filter.getCommonTagsCount());
+            statement.setInt(5, filter.getId());
 
             statement.execute();
 
@@ -66,6 +72,7 @@ public class FilterParamsRepositoryImpl implements FilterParamsRepository {
                     filter.setAgeTo(resultSet.getInt(3));
                     filter.setRating(resultSet.getDouble(4));
                     filter.setCommonTagsCount(resultSet.getInt(5));
+                    filter.setLocation(resultSet.getString(6));
 
                     return filter;
                 }

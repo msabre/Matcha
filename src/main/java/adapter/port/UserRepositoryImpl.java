@@ -108,9 +108,12 @@ public class UserRepositoryImpl implements UserRepository {
             }
 
             int filterId = -1;
-            try (Statement newFilter = connection.createStatement()) {
-                newFilter.execute("INSERT INTO matcha.FILTER_PARAMS(AGE_BY, AGE_TO, RATING, COMMON_TAGS_COUNT) " +
-                        "VALUES(18, 45, NULL, NULL)", Statement.RETURN_GENERATED_KEYS);
+            try (PreparedStatement newFilter = connection.prepareStatement(
+                    "INSERT INTO matcha.FILTER_PARAMS(AGE_BY, AGE_TO, RATING, COMMON_TAGS_COUNT, LOCATION) VALUES(18, 45, 0.0, 0, ?)",
+                    Statement.RETURN_GENERATED_KEYS)) {
+
+                newFilter.setString(1, user.getLocation());
+                newFilter.execute();
 
                 ResultSet rsId = newFilter.getGeneratedKeys();
                 if (rsId.next()) {
@@ -370,7 +373,6 @@ public class UserRepositoryImpl implements UserRepository {
                      Statement.RETURN_GENERATED_KEYS)) {
 
             statement.execute();
-
 
         } catch (SQLException e) {
             e.printStackTrace();

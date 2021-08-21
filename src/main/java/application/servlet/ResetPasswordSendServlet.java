@@ -50,7 +50,7 @@ public class ResetPasswordSendServlet extends HttpServlet {
 
         String token = passwordEncoder.getToken(user.getEmail() + user.getFirstName() + user.getId());
 
-        String link = String.format("http://%s/resetpasschange?id=%s&passtoken=%s&linkId=", "localhost:3000", user.getId(), token);
+        String link = String.format("http://%s/resetpasschange?id=%s&passtoken=%s&linkId=", MyProperties.CLIENT_HOST, user.getId(), token);
         link += operationController.addLink(link);
 
         String fio = String.format("%s %s", user.getFirstName(), user.getMiddleName());

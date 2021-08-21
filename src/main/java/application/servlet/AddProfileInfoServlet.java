@@ -2,6 +2,7 @@ package application.servlet;
 
 import adapter.controller.UserController;
 import application.services.HttpService;
+import application.services.MatchUtils;
 import application.services.json.JsonService;
 import config.MyProperties;
 import domain.entity.Photo;
@@ -53,7 +54,7 @@ public class AddProfileInfoServlet extends HttpServlet {
         List<Photo> current = Optional.ofNullable(user.getCard().getPhotos()).orElse(new ArrayList<>(Collections.nCopies(5, null)));
 
         for (Photo photo : photos) {
-            String path = String.format("%s/IMG_%s_%s_%s.%s", MyProperties.IMAGES_PATH, user.getId(), "photo", photo.getNumber(), photo.getFormat());
+            String path = String.format("%sIMG_%s_%s_%s.%s", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), user.getId(), "photo", photo.getNumber(), photo.getFormat());
             int index = Optional.ofNullable(photo.getNumber()).map(Integer::parseInt).orElse(0) - 1;
             if (index < 0)
                 continue;
