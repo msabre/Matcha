@@ -7,11 +7,9 @@ import adapter.controller.UserController;
 import application.services.HttpService;
 import domain.entity.User;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Optional;
 
 import static config.MyConfiguration.operationController;
@@ -37,7 +35,7 @@ public class ConfirmAccountServlet extends HttpServlet {
 
         Integer linkId = Optional.ofNullable(req.getParameter("linkId")).map(Integer::parseInt).orElse(-1);
 
-        if (!operationController.checkLink(linkId, HttpService.getUrl(req))) {
+        if (!operationController.isCorrectLink(linkId, HttpService.getUrl(req))) {
             HttpService.putBody(resp, "ERROR LINK");
             return;
         }

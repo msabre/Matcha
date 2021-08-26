@@ -1,6 +1,5 @@
 package usecase.port;
 
-import domain.entity.FilterParams;
 import domain.entity.Photo;
 import domain.entity.User;
 import domain.entity.UserCard;
@@ -25,4 +24,6 @@ public interface UserRepository {
     List<User> getAllUserInSameLocation(String location, int id);
 
     void createChatBetweenTwoUsers(int usr1, int usr2);
+
+    boolean updateEmail(int id, String email);
 }

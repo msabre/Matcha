@@ -71,7 +71,7 @@ public class PasswordEncoderImpl implements PasswordEncoder {
 
         try {
             hashedPassword = key.generateSecret(spec).getEncoded();
-        } catch (InvalidKeySpecException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -105,7 +105,7 @@ public class PasswordEncoderImpl implements PasswordEncoder {
     public String getSHA256(String str) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] hashByte = digest.digest(str.getBytes("utf-8"));
+        byte[] hashByte = digest.digest(str.getBytes(StandardCharsets.UTF_8));
         return DatatypeConverter.printHexBinary(hashByte);
     }
 

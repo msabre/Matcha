@@ -378,6 +378,26 @@ public class UserRepositoryImpl implements UserRepository {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public boolean updateEmail(int id, String email) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user SET EMAIL = ? where ID = ?"))
+        {
+
+            statement.setString(1, email);
+            statement.setInt(2, id);
+
+            statement.execute();
+            System.out.println("email has been changed");
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("email change error");
+        }
+        return false;
+    }
 }
 
 

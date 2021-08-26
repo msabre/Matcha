@@ -6,6 +6,7 @@ import adapter.controller.UserController;
 
 import application.services.HttpService;
 import application.services.MailService;
+import application.services.MatchUtils;
 import application.services.json.JsonService;
 import config.MyProperties;
 import domain.entity.User;
@@ -48,7 +49,7 @@ public class ResetPasswordSendServlet extends HttpServlet {
             return;
         }
 
-        String token = passwordEncoder.getToken(user.getEmail() + user.getFirstName() + user.getId());
+        String token = passwordEncoder.getToken(MatchUtils.generateRqUid());
 
         String link = String.format("http://%s/resetpasschange?id=%s&passtoken=%s&linkId=", MyProperties.CLIENT_HOST, user.getId(), token);
         link += operationController.addLink(link);

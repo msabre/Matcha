@@ -43,7 +43,7 @@ public class ResetPasswordChangeServlet extends HttpServlet {
 
         Integer linkId = Optional.ofNullable(req.getParameter("linkId")).map(Integer::parseInt).orElse(-1);
 
-        if (!operationController.checkLink(linkId, HttpService.getUrl(req))) {
+        if (!operationController.isCorrectLink(linkId, HttpService.getUrl(req))) {
             HttpService.putBody(resp, "ERROR LINK");
             return;
         }
@@ -53,7 +53,7 @@ public class ResetPasswordChangeServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         req.setCharacterEncoding("UTF-8");
 
         String body = HttpService.getBody(req);

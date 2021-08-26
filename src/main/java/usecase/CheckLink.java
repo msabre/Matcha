@@ -7,7 +7,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 public class CheckLink {
-    private UrlRepository repository;
+    private final UrlRepository repository;
 
     public CheckLink(UrlRepository repository) {
         this.repository = repository;

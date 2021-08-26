@@ -45,6 +45,8 @@ public class MyConfiguration {
 
     public static UpdateFilter updateFilter() { return new UpdateFilter(filterParamsRepository()); }
 
+    public static UpdateEmail updateEmail() { return new UpdateEmail(userRepository()); }
+
 
 
     public static OperationController operationController() {

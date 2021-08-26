@@ -7,6 +7,7 @@ import adapter.controller.*;
 import application.services.HttpService;
 import application.services.LocationService;
 import application.services.MailService;
+import application.services.MatchUtils;
 import application.services.json.JsonService;
 
 import com.maxmind.geoip2.exception.GeoIp2Exception;
@@ -59,7 +60,7 @@ public class RegistrationServlet extends HttpServlet {
         user.setPassword(hashPassword);
         user.setConfirm(false);
         // user.setTokenConfirm(null);
-         user.setTokenConfirm(passwordEncoder.getToken(user.getFirstName() + user.getEmail() + user.getLocation()));
+         user.setTokenConfirm(passwordEncoder.getToken(MatchUtils.generateRqUid()));
 
         String location = null;
         try {
@@ -79,8 +80,6 @@ public class RegistrationServlet extends HttpServlet {
 
         user.setId(userId);
         userCard.setUserId(userId);
-
-        req.getSession().setAttribute("email", user.getEmail());
 
         sendConfirmMail(user);
         HttpService.putBody(resp, "SUCCESS");

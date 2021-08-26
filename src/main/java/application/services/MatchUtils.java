@@ -1,12 +1,14 @@
 package application.services;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
+import java.util.UUID;
 
 public class MatchUtils {
     public static Properties getProps(String path) {
@@ -39,5 +41,9 @@ public class MatchUtils {
     public static String getSlash() {
         String os = System.getProperty("os.name");
         return os.contains("Windows") ? "\\" : "/";
+    }
+
+    public static String generateRqUid() {
+        return UUID.randomUUID().toString().replace("-", StringUtils.EMPTY);
     }
 }

@@ -98,6 +98,11 @@
     <servlet-class>application.servlet.LikeServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>EmailChangeServlet</servlet-name>
+    <servlet-class>application.servlet.EmailChangeServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
     <servlet-name>RegistrationFormServlet</servlet-name>
     <url-pattern>/registration</url-pattern>
@@ -147,6 +152,11 @@
   <servlet-mapping>
     <servlet-name>LikeServlet</servlet-name>
     <url-pattern>/main/like</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>EmailChangeServlet</servlet-name>
+    <url-pattern>/main/emailchange</url-pattern>
   </servlet-mapping>
 
 </web-app>

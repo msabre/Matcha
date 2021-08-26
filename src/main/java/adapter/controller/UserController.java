@@ -23,6 +23,7 @@ public class UserController {
     private PutLikeAction putLikeAction;
     private UpdatePhotoParams updatePhotoParams;
     private UpdateFilter updateFilter;
+    private UpdateEmail updateEmail;
 
     private UserController() {
     }
@@ -41,6 +42,7 @@ public class UserController {
             instance.putLikeAction = MyConfiguration.putLikeAction();
             instance.updatePhotoParams = MyConfiguration.updatePhotoParams();
             instance.updateFilter = MyConfiguration.updateFilter();
+            instance.updateEmail = MyConfiguration.updateEmail();
         }
 
         return instance;
@@ -96,5 +98,9 @@ public class UserController {
 
     public void filterUpdate(FilterParams params) {
         updateFilter.update(params);
+    }
+
+    public void updateEmail(int id, String email) {
+        updateEmail.update(id, email);
     }
 }

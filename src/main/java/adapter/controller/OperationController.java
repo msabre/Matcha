@@ -30,7 +30,7 @@ public class OperationController {
         return createLink.addLink(link);
     }
 
-    public boolean checkLink(Integer id, String url) {
+    public boolean isCorrectLink(Integer id, String url) {
         return checkLink.isRevelantLink(id, url);
     }
 
