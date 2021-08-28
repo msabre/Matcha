@@ -4,6 +4,7 @@ import domain.entity.Photo;
 import domain.entity.User;
 import domain.entity.UserCard;
 
+import java.util.Date;
 import java.util.List;
 
 public interface UserRepository {
@@ -25,5 +26,9 @@ public interface UserRepository {
 
     void createChatBetweenTwoUsers(int usr1, int usr2);
 
-    boolean updateEmail(int id, String email);
+    void updateEmail(int id, String email);
+
+    void updateFio(int id, String[] fio);
+
+    void birhDateUpdate(int id, Date birthDate, int yearsOld);
 }

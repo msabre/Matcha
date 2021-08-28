@@ -54,7 +54,7 @@ public class RegistrationServlet extends HttpServlet {
         String json = HttpService.getBody(req);
         User user = (User) JsonService.getObject(User.class, json);
 
-        user.setYearsOld(getYearsOld(user.getBirthday()));
+        user.setYearsOld(MatchUtils.getYearsOldFromDate(user.getBirthday()));
 
         String hashPassword = passwordEncoder.encrypt(user.getPassword(), null);
         user.setPassword(hashPassword);
@@ -83,17 +83,6 @@ public class RegistrationServlet extends HttpServlet {
 
         sendConfirmMail(user);
         HttpService.putBody(resp, "SUCCESS");
-    }
-
-    private int getYearsOld(Date birthDay) {
-        LocalDate birthDate = birthDay.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
-        LocalDate now = new Date().toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
-
-        return Period.between(birthDate, now).getYears();
     }
 
     private void sendConfirmMail (User user) {

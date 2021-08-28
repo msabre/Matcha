@@ -100,8 +100,6 @@ public class JsonService {
         return gson.fromJson(json, listType);
     }
 
-
-
     public static String getJson(Object o) {
         if (o == null)
             return null;

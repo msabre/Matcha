@@ -380,7 +380,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public boolean updateEmail(int id, String email) {
+    public void updateEmail(int id, String email) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
              PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user SET EMAIL = ? where ID = ?"))
         {
@@ -390,13 +390,48 @@ public class UserRepositoryImpl implements UserRepository {
 
             statement.execute();
             System.out.println("email has been changed");
-            return true;
 
         } catch (SQLException e) {
             e.printStackTrace();
             System.err.println("email change error");
         }
-        return false;
+    }
+
+    @Override
+    public void updateFio(int id, String[] fio) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user SET LASTNAME = ?, NAME = ?, MIDDLENAME = ? where ID = ?"))
+        {
+            statement.setString(1, fio[0]);
+            statement.setString(2, fio[1]);
+            statement.setString(3, fio[2]);
+            statement.setInt(4, id);
+
+            statement.execute();
+            System.out.println("fio has been changed");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("fio change error");
+        }
+    }
+
+    @Override
+    public void birhDateUpdate(int id, java.util.Date birthDate, int yearsOld) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user SET BIRTHDAY = ?, YEARS_OLD = ? where ID = ?"))
+        {
+            statement.setDate(1, new Date(birthDate.getTime()));
+            statement.setInt(2, yearsOld);
+            statement.setInt(3, id);
+
+            statement.execute();
+            System.out.println("birthDate has been changed");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("birthDate change error");
+        }
     }
 }
 

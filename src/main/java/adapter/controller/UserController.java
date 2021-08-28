@@ -8,6 +8,7 @@ import domain.entity.Photo;
 import domain.entity.User;
 import domain.entity.UserCard;import usecase.*;
 
+import java.util.Date;
 import java.util.List;
 
 public class UserController {
@@ -24,6 +25,8 @@ public class UserController {
     private UpdatePhotoParams updatePhotoParams;
     private UpdateFilter updateFilter;
     private UpdateEmail updateEmail;
+    private FioUpdate fioUpdate;
+    private BirthDateUpdate birthDateUpdate;
 
     private UserController() {
     }
@@ -43,6 +46,8 @@ public class UserController {
             instance.updatePhotoParams = MyConfiguration.updatePhotoParams();
             instance.updateFilter = MyConfiguration.updateFilter();
             instance.updateEmail = MyConfiguration.updateEmail();
+            instance.fioUpdate = MyConfiguration.fioUpdate();
+            instance.birthDateUpdate = MyConfiguration.birthDateUpdate();
         }
 
         return instance;
@@ -102,5 +107,13 @@ public class UserController {
 
     public void updateEmail(int id, String email) {
         updateEmail.update(id, email);
+    }
+
+    public void fioUpdate(int userId, String[] fio) {
+        fioUpdate.update(userId, fio);
+    }
+
+    public void birthDateUpdate(int userId, Date birthDate, int yearsOld) {
+        birthDateUpdate.update(userId, birthDate, yearsOld);
     }
 }

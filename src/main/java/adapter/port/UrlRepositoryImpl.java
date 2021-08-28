@@ -10,7 +10,7 @@ public class UrlRepositoryImpl implements UrlRepository {
 
     private static UrlRepositoryImpl instance;
 
-    private DBConfiguration config = DBConfiguration.getConfig();;
+    private final DBConfiguration config = DBConfiguration.getConfig();;
 
     private UrlRepositoryImpl() {
 
@@ -59,7 +59,7 @@ public class UrlRepositoryImpl implements UrlRepository {
                 Link link = new Link();
                 while (resultSet.next()) {
                     link.setId(resultSet.getInt(1));
-                    link.setUrl(resultSet.getString(2));
+                    link.setToken(resultSet.getString(2));
                     link.setOpen(resultSet.getInt(3) == 1);
 
                     return link;

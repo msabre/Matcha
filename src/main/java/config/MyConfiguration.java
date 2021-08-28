@@ -47,6 +47,9 @@ public class MyConfiguration {
 
     public static UpdateEmail updateEmail() { return new UpdateEmail(userRepository()); }
 
+    public static FioUpdate fioUpdate() { return new FioUpdate(userRepository()); }
+
+    public static BirthDateUpdate birthDateUpdate() { return new BirthDateUpdate(userRepository()); }
 
 
     public static OperationController operationController() {

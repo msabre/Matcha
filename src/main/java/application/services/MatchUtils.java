@@ -7,6 +7,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -45,5 +49,16 @@ public class MatchUtils {
 
     public static String generateRqUid() {
         return UUID.randomUUID().toString().replace("-", StringUtils.EMPTY);
+    }
+
+    public static int getYearsOldFromDate(Date birthDay) {
+        LocalDate birthDate = birthDay.toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+        LocalDate now = new Date().toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+
+        return Period.between(birthDate, now).getYears();
     }
 }

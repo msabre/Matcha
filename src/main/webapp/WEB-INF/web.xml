@@ -100,7 +100,7 @@
 
   <servlet>
     <servlet-name>EmailChangeServlet</servlet-name>
-    <servlet-class>application.servlet.EmailChangeServlet</servlet-class>
+    <servlet-class>application.servlet.CommonInfoChangeServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>

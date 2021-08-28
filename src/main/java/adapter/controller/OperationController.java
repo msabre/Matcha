@@ -31,7 +31,7 @@ public class OperationController {
     }
 
     public boolean isCorrectLink(Integer id, String url) {
-        return checkLink.isRevelantLink(id, url);
+        return checkLink.isRelevantLink(id, url);
     }
 
     public void confirmLink(Integer id) {

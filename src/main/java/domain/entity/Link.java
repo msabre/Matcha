@@ -1,16 +1,16 @@
 package domain.entity;
 
 public class Link {
-    private String url;
+    private String token;
     private Integer id;
     private boolean open;
 
-    public String getUrl() {
-        return url;
+    public String getToken() {
+        return token;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public Integer getId() {
