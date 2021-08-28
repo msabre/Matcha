@@ -47,7 +47,20 @@ public class CommonInfoChangeServlet extends HttpServlet {
 
         req.setCharacterEncoding("UTF-8");
 
-        String act = req.getParameter("act");
+        int linkId = Optional.ofNullable(req.getParameter("linkId")).map(Integer::parseInt).orElse(-1);
+        if (!operationController.isCorrectLink(linkId, req.getParameter("token"))) {
+                    HttpService.putBody(resp, "WRONG");
+                    return;
+        }
+        HttpService.putBody(resp, "SUCCESS");
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        req.setCharacterEncoding("UTF-8");
+
+        String body = HttpService.getBody(req);
+        String act = JsonService.getParameter(body,"act");
         if (act == null)
             return;
 
@@ -58,22 +71,14 @@ public class CommonInfoChangeServlet extends HttpServlet {
                         "Изменение параметров учетной записи Match");
                 break;
 
-            case "emailChangeConfirm":
-                int linkId = Optional.ofNullable(req.getParameter("linkId")).map(Integer::parseInt).orElse(-1);
-                if (!operationController.isCorrectLink(linkId, req.getParameter("token"))) {
-                    HttpService.putBody(resp, "WRONG");
-                    return;
-                }
-                break;
-
             case "emailNewRqSend":
-                linkId = Optional.ofNullable(req.getParameter("linkId")).map(Integer::parseInt).orElse(-1);
-                if (!operationController.isCorrectLink(linkId, req.getParameter("token"))) {
+                int linkId = Optional.ofNullable(JsonService.getParameter(body, "linkId")).map(Integer::parseInt).orElse(-1);
+                if (!operationController.isCorrectLink(linkId, JsonService.getParameter(body,"token"))) {
                     HttpService.putBody(resp, "WRONG");
                     return;
                 }
-                String newEmail = req.getParameter("email");
-                int id = Optional.ofNullable(req.getParameter("id")).map(Integer::parseInt).orElse(-1);
+                String newEmail = JsonService.getParameter(body,"email");
+                int id = Optional.ofNullable(JsonService.getParameter(body,"id")).map(Integer::parseInt).orElse(-1);
                 user = userController.findUser(id);
                 if (user == null) {
                     HttpService.putBody(resp, "WRONG");
@@ -88,7 +93,7 @@ public class CommonInfoChangeServlet extends HttpServlet {
                     return;
                 }
                 operationController.confirmLink(linkId);
-                sendMail(newEmail, getConfirmNewEmailText(user, confirmLinkGenerate(id) + "email=" + newEmail),
+                sendMail(newEmail, getConfirmNewEmailText(user, confirmLinkGenerate(id) + "&email=" + newEmail),
                         "Подтверждение почтового адреса Match");
                 break;
 
