@@ -49,8 +49,8 @@ public class CommonInfoChangeServlet extends HttpServlet {
 
         int linkId = Optional.ofNullable(req.getParameter("linkId")).map(Integer::parseInt).orElse(-1);
         if (!operationController.isCorrectLink(linkId, req.getParameter("token"))) {
-                    HttpService.putBody(resp, "WRONG");
-                    return;
+            HttpService.putBody(resp, "WRONG");
+            return;
         }
         HttpService.putBody(resp, "SUCCESS");
     }
@@ -64,10 +64,15 @@ public class CommonInfoChangeServlet extends HttpServlet {
         if (act == null)
             return;
 
-        User user = (User) req.getSession().getAttribute("user");
+        User userSession = (User) req.getSession().getAttribute("user");
+        if (userSession == null) {
+            HttpService.putBody(resp, "WRONG");
+            return;
+        }
+
         switch (act) {
             case "emailRqSend":
-                sendMail(user.getEmail(), getEmailRqSendText(user, confirmLinkGenerate(user.getId())),
+                sendMail(userSession.getEmail(), getEmailRqSendText(userSession, confirmLinkGenerate(userSession.getId())),
                         "Изменение параметров учетной записи Match");
                 break;
 
@@ -79,8 +84,8 @@ public class CommonInfoChangeServlet extends HttpServlet {
                 }
                 String newEmail = JsonService.getParameter(body,"email");
                 int id = Optional.ofNullable(JsonService.getParameter(body,"id")).map(Integer::parseInt).orElse(-1);
-                user = userController.findUser(id);
-                if (user == null) {
+                User user = userController.findUser(id);
+                if (user == null || user.getId() != userSession.getId()) {
                     HttpService.putBody(resp, "WRONG");
                     return;
                 }
@@ -117,7 +122,8 @@ public class CommonInfoChangeServlet extends HttpServlet {
 
         int id = Optional.ofNullable(JsonService.getParameter(body, "id")).map(Integer::parseInt).orElse(-1);
         User user = userController.findUser(id);
-        if (user == null) {
+        User userSession = (User) req.getSession().getAttribute("user");
+        if (user == null || userSession == null || user.getId() != userSession.getId()) {
             HttpService.putBody(resp, "WRONG");
             return;
         }
