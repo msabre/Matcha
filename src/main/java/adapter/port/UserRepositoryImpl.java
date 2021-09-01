@@ -354,7 +354,8 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public void createChatBetweenTwoUsers(int usr1, int usr2) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
-             PreparedStatement statement = connection.prepareStatement("INSERT INTO matcha.CHAT_AFFILIATION(?, ?)",
+             PreparedStatement statement = connection.prepareStatement(
+                     "INSERT INTO matcha.CHAT_AFFILIATION(USER_ID, CHAT_ID) VALUES (?, ?)",
                      Statement.RETURN_GENERATED_KEYS)) {
             statement.setInt(1, usr1);
             statement.setInt(2, usr2);

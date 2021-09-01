@@ -1,9 +1,9 @@
 package adapter.port;
 
 import adapter.port.model.DBConfiguration;
-import domain.entity.Link;
 import domain.entity.Photo;
 import domain.entity.UserCard;
+import domain.entity.model.types.Action;
 import domain.entity.model.types.GenderType;
 import domain.entity.model.types.SexualPreferenceType;
 import usecase.port.UserCardRepository;
@@ -102,11 +102,10 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                             card.getPhotos().set(Integer.parseInt(detail[0]) - 1, photo);
                         }
                     }
-                    Integer user_id = resultSet.getInt(++i);
+                    int user_id = resultSet.getInt(++i);
                     card.setUserId(user_id);
 
-                    card.setLikes(getUserLikesAction(user_id, "like"));
-                    card.setDislikes(getUserLikesAction(user_id, "dislike"));
+                    card.setActionMap(getUserLikesAction(user_id));
 
                     return card;
                 }
@@ -127,21 +126,19 @@ public class UserCardRepositoryImpl implements UserCardRepository {
         return null;
     }
 
-    private List<Integer> getUserLikesAction(Integer userId, String action) {
+    private Map<Integer, Action> getUserLikesAction(Integer userId) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-             PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION WHERE FROM_USR = ? AND ACTION = ?"))
+             PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION WHERE FROM_USR = ?"))
         {
             statement.setInt(1, userId);
-            statement.setString(2, action);
             statement.execute();
 
             ResultSet rs = null;
             try {
                 rs = statement.getResultSet();
-                List<Integer> likesList = new ArrayList<>();
+                Map<Integer, Action> likesList = new HashMap<>();
                 while (rs.next()) {
-                    Integer id = rs.getInt(2);
-                    likesList.add(id);
+                    likesList.put(rs.getInt("TO_USR"), Action.valueOf(rs.getString("ACTION")));
                 }
                 return likesList;
 

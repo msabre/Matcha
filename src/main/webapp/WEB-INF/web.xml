@@ -156,7 +156,7 @@
 
   <servlet-mapping>
     <servlet-name>EmailChangeServlet</servlet-name>
-    <url-pattern>/main/emailchange</url-pattern>
+    <url-pattern>/main/accountsettings</url-pattern>
   </servlet-mapping>
 
 </web-app>

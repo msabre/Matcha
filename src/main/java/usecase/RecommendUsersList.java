@@ -3,6 +3,7 @@ package usecase;
 import config.MyProperties;
 import domain.entity.User;
 
+import domain.entity.model.types.Action;
 import usecase.port.LikesActionRepository;
 import usecase.port.UserRepository;
 
@@ -61,7 +62,8 @@ public class RecommendUsersList {
 
         // ставим матч если кто то из пользователей уже лайкнул клиента
         userList.forEach((userObj) -> {
-            if (userObj.getCard().getLikes().contains(user.getId()))
+            Map<Integer, Action> actionMap = userObj.getCard().getActionMap();
+            if (actionMap.containsKey(user.getId()) && actionMap.get(user.getId()).equals(Action.LIKE))
                 userObj.setMatch(true);
         });
 
@@ -79,6 +81,16 @@ public class RecommendUsersList {
         if (userList == null)
             return null;
 
+        userList = userList.stream().filter(userObj ->
+                user.getCard().getActionMap().containsKey(userObj.getId()) &&
+                        !user.getCard().getActionMap().get(userObj.getId()).equals(Action.LIKE) &&
+                            !user.getCard().getActionMap().get(userObj.getId()).equals(Action.MATCH)
+                )
+                .collect(Collectors.toList());
+
+        if (userList.size() == 0)
+            return null;
+
         // Фильтруем по ориентации
         List<String> avalibalePreference = sexualConformity
                 .get(user.getCard().getGender().getValue() + ";" + user.getCard().getSexualPreference().getValue());
@@ -88,14 +100,6 @@ public class RecommendUsersList {
             return avalibalePreference.contains(preferences);
 
         }).collect(Collectors.toList());
-
-        if (userList.size() == 0)
-            return null;
-
-        // Фильтруем тех кого уже лайкали
-        List<Integer> likeIds = user.getCard().getLikes();
-        userList = userList.stream().filter(userObj ->
-                !likeIds.contains(userObj.getId())).collect(Collectors.toList());
 
         if (userList.size() == 0)
             return null;
@@ -157,12 +161,13 @@ public class RecommendUsersList {
 
     // убирает из списка пользоватлей, которых дизлайкали раньше
     private void fixSize(List<User> userList) {
-        List<Integer> dislikeIds = user.getCard().getDislikes();
+        List<Integer> dislikeIds = user.getCard().getActionMap().entrySet()
+                .stream().filter(entry -> entry.getValue().equals(Action.DISLIKE))
+                .map(Map.Entry::getKey).collect(Collectors.toList());
 
         List<User> dislikesUsers = userList.stream()
-                .filter(userObj-> dislikeIds
-                .contains(userObj.getId()))
-                .sorted(Comparator
+                .filter(userObj-> dislikeIds.contains(userObj.getId()))
+                    .sorted(Comparator
                         .comparingInt(usr -> dislikeIds.indexOf(usr.getId())))
                 .collect(Collectors.toList());
 

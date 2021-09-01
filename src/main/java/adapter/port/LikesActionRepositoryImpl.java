@@ -27,11 +27,6 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
     }
 
     @Override
-    public List<Integer> getUserLikes(Integer userId) {
-        return getUserLikesAction(userId, Action.LIKE);
-    }
-
-    @Override
     public List<Integer> getUserDislikes(Integer userId) {
         return getUserLikesAction(userId, Action.DISLIKE);
     }
@@ -49,7 +44,7 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
             ResultSet resultSet = statement.getResultSet();
             List<Integer> list = new ArrayList<>();
             while (resultSet.next()) {
-                list.add(resultSet.getInt(2));
+                list.add(resultSet.getInt("TO_USR"));
             }
             return list;
 
@@ -61,8 +56,8 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
 
     @Override
     public void match(int from, int to) {
-        putUpdateAction(from, to, Action.LIKE);
-        putUpdateAction(to, from, Action.MATCH);
+        putUpdateAction(from, to, Action.MATCH);
+        removeLine(to, from);
     }
 
     @Override
@@ -73,26 +68,6 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
     @Override
     public void dislike(int from, int to) {
         putUpdateAction(from, to, Action.DISLIKE);
-    }
-
-    @Override
-    public boolean isLike(int from, int to) {
-        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-             PreparedStatement isLikeFrom = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION WHERE FROM_USR = ? AND TO_USR = ? AND ACTION = LIKE"))
-        {
-            isLikeFrom.setInt(1, from);
-            isLikeFrom.setInt(2, to);
-            isLikeFrom.execute();
-
-            ResultSet rs1 = isLikeFrom.getResultSet();
-
-            return rs1.next() && rs1.getInt(1) == from;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return false;
     }
 
     private void putUpdateAction(int from, int to, Action action) {
@@ -110,18 +85,33 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
         }
     }
 
+    public void removeLine(int from, int to) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement putLikeAct = connection.prepareStatement("DELETE FROM matcha.LIKES_ACTION WHERE FROM_USR = ? AND TO_USR = ?"))
+        {
+            putLikeAct.setInt(1, from);
+            putLikeAct.setInt(2, to);
+
+            putLikeAct.execute();
+
+        } catch (SQLException e) {
+            System.err.println("Не удалось удалить строку с действием от id=" + from + " к id:" + to);
+        }
+    }
+
     @Override
     public void putDislikeForUsers(int from, List<Integer> ids) {
-        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword())
-            )
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword()))
         {
             List<Integer> acts = getUserDislikes(from);
+            if (acts == null)
+                return;
 
             for (int id : ids)
             {
                 if (!acts.contains(id)) {
-                    try (PreparedStatement insert = connection.prepareStatement("INSERT INTO matcha.LIKES_ACTION(FROM_USR, TO_USR, ACTION) " +
-                            "VALUES(?, ?, 'DISLIKE')")) {
+                    try (PreparedStatement insert = connection.prepareStatement(
+                            "INSERT INTO matcha.LIKES_ACTION(FROM_USR, TO_USR, ACTION) VALUES(?, ?, 'DISLIKE')")) {
                         insert.setInt(1, from);
                         insert.setInt(2, id);
 

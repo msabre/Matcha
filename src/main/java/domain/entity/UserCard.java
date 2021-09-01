@@ -1,10 +1,13 @@
 package domain.entity;
 
 import com.google.gson.annotations.Expose;
+import domain.entity.model.types.Action;
 import domain.entity.model.types.GenderType;
 import domain.entity.model.types.SexualPreferenceType;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UserCard {
     private int id;
@@ -20,8 +23,7 @@ public class UserCard {
     @Expose private List<String> tags;
     @Expose private List<Photo> photos;
 
-    private List<Integer> likes;
-    private List<Integer> dislikes;
+    Map<Integer, Action> actionMap;
 
     public int getId() {
         return id;
@@ -111,19 +113,13 @@ public class UserCard {
         this.photos = photos;
     }
 
-    public List<Integer> getLikes() {
-        return likes;
+    public Map<Integer, Action> getActionMap() {
+        if (actionMap == null)
+            return new HashMap<>();
+        return actionMap;
     }
 
-    public void setLikes(List<Integer> likes) {
-        this.likes = likes;
-    }
-
-    public List<Integer> getDislikes() {
-        return dislikes;
-    }
-
-    public void setDislikes(List<Integer> dislikes) {
-        this.dislikes = dislikes;
+    public void setActionMap(Map<Integer, Action> actionMap) {
+        this.actionMap = actionMap;
     }
 }

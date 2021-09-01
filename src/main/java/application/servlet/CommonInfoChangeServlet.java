@@ -187,7 +187,7 @@ public class CommonInfoChangeServlet extends HttpServlet {
 
     private String confirmLinkGenerate(int userId) {
         String token = MatchUtils.generateRqUid();
-        String link = String.format("http://%s/main/emailchange?act=emailChangeConfirm&id=%s&token=%s&linkId=",
+        String link = String.format("http://%s/main/accountsettings?act=emailChangeConfirm&id=%s&token=%s&linkId=",
                 MyProperties.CLIENT_HOST, userId, token);
         return link + operationController.addLink(token);
     }
