@@ -82,9 +82,8 @@ public class RecommendUsersList {
             return null;
 
         userList = userList.stream().filter(userObj ->
-                user.getCard().getActionMap().containsKey(userObj.getId()) &&
-                        !user.getCard().getActionMap().get(userObj.getId()).equals(Action.LIKE) &&
-                            !user.getCard().getActionMap().get(userObj.getId()).equals(Action.MATCH)
+                        !Action.LIKE.equals(user.getCard().getActionMap().get(userObj.getId())) &&
+                            !Action.MATCH.equals(user.getCard().getActionMap().get(userObj.getId()))
                 )
                 .collect(Collectors.toList());
 

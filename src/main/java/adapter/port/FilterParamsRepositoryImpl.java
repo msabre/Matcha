@@ -29,7 +29,7 @@ public class FilterParamsRepositoryImpl implements FilterParamsRepository {
     public void update(FilterParams filter) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
              PreparedStatement statement = connection.prepareStatement("UPDATE matcha.FILTER_PARAMS SET AGE_BY = ?, AGE_TO = ?, RATING = ?," +
-                     "COMMON_TAGS_COUNT = ? WHERE ID = ?")) {
+                     "COMMON_TAGS_COUNT = ?, LOCATION = ? WHERE ID = ?")) {
 
             if (filter.getAgeBy() == null)
                 filter.setAgeBy(18);
@@ -40,11 +40,13 @@ public class FilterParamsRepositoryImpl implements FilterParamsRepository {
             if (filter.getCommonTagsCount() == null)
                 filter.setCommonTagsCount(0);
 
-            statement.setInt(1, filter.getAgeBy());
-            statement.setInt(2, filter.getAgeTo());
-            statement.setDouble(3, filter.getRating());
-            statement.setInt(4, filter.getCommonTagsCount());
-            statement.setInt(5, filter.getId());
+            int i = 1;
+            statement.setInt(i++, filter.getAgeBy());
+            statement.setInt(i++, filter.getAgeTo());
+            statement.setDouble(i++, filter.getRating());
+            statement.setInt(i++, filter.getCommonTagsCount());
+            statement.setString(i++, filter.getLocation());
+            statement.setInt(i, filter.getId());
 
             statement.execute();
 
