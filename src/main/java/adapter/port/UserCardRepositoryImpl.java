@@ -103,7 +103,6 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                         }
                     }
                     card.setUserId(resultSet.getInt(++i));
-                    updateUserActions(card);
                     return card;
                 }
             }

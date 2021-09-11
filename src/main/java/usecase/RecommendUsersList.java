@@ -76,7 +76,7 @@ public class RecommendUsersList {
                 userObj.setMatch(true);
         });
 
-        // поставили всем пользователям дизлайк
+        // поставили всем отобранным пользователям дизлайк
         likesActionRepository.putDislikeForUsers(user.getId(),
                 userList.stream().map(User::getId).collect(Collectors.toList()),
                 user.getCard().getDisLikes()
@@ -134,7 +134,7 @@ public class RecommendUsersList {
         if (userList.size() >= MyProperties.USERS_LIST_SIZE)
             userList.subList(MyProperties.USERS_LIST_SIZE, userList.size()).clear();
 
-        // Добиваем пачку пользователями, которых уже дизлайкали
+        // Добиваем пачку пользователями, которых уже дизлайкали (Самыми старыми)
         for (int i = 0; i < dislikesUsers.size() && userList.size() < MyProperties.USERS_LIST_SIZE; i++) {
             userList.add(dislikesUsers.get(i));
         }

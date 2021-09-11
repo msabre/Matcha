@@ -5,7 +5,6 @@ import domain.entity.model.types.Action;
 import usecase.port.LikesActionRepository;
 
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class LikesActionRepositoryImpl implements LikesActionRepository {
@@ -24,29 +23,6 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
         }
 
         return instance;
-    }
-
-    private List<Integer> getUserLikesAction(Integer userId, Action action) {
-        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-             PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION WHERE FROM_USR = ? AND ACTION = ? " +
-                     "ORDER BY CREATION_TIME DESC"))
-        {
-            statement.setInt(1, userId);
-            statement.setString(2, action.toString());
-
-            statement.execute();
-
-            ResultSet resultSet = statement.getResultSet();
-            List<Integer> list = new ArrayList<>();
-            while (resultSet.next()) {
-                list.add(resultSet.getInt("TO_USR"));
-            }
-            return list;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     @Override
