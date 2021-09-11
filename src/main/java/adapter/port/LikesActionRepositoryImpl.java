@@ -26,11 +26,6 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
         return instance;
     }
 
-    @Override
-    public List<Integer> getUserDislikes(Integer userId) {
-        return getUserLikesAction(userId, Action.DISLIKE);
-    }
-
     private List<Integer> getUserLikesAction(Integer userId, Action action) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
              PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION WHERE FROM_USR = ? AND ACTION = ? " +
@@ -100,16 +95,12 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
     }
 
     @Override
-    public void putDislikeForUsers(int from, List<Integer> ids) {
+    public void putDislikeForUsers(int from, List<Integer> ids, List<Integer> dislikesAlready) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword()))
         {
-            List<Integer> acts = getUserDislikes(from);
-            if (acts == null)
-                return;
-
             for (int id : ids)
             {
-                if (!acts.contains(id)) {
+                if (!dislikesAlready.contains(id)) {
                     try (PreparedStatement insert = connection.prepareStatement(
                             "INSERT INTO matcha.LIKES_ACTION(FROM_USR, TO_USR, ACTION) VALUES(?, ?, 'DISLIKE')")) {
                         insert.setInt(1, from);

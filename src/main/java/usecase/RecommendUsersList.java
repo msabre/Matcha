@@ -3,7 +3,6 @@ package usecase;
 import config.MyProperties;
 import domain.entity.User;
 
-import domain.entity.model.types.Action;
 import usecase.port.LikesActionRepository;
 import usecase.port.UserCardRepository;
 import usecase.port.UserRepository;
@@ -78,7 +77,10 @@ public class RecommendUsersList {
         });
 
         // поставили всем пользователям дизлайк
-        likesActionRepository.putDislikeForUsers(user.getId(), userList.stream().map(User::getId).collect(Collectors.toList()));
+        likesActionRepository.putDislikeForUsers(user.getId(),
+                userList.stream().map(User::getId).collect(Collectors.toList()),
+                user.getCard().getDisLikes()
+        );
 
         return userList;
     }
@@ -113,17 +115,11 @@ public class RecommendUsersList {
     }
 
     private void sortUserList(List<User> userList) {
-        userList.sort((o1, o2) -> {
-            int res = Integer.compare(o1.getYearsOld(), o2.getYearsOld());
-            if (res != 0)
-                return res;
-
-            double res2 = Double.compare(o1.getCard().getRating(), o2.getCard().getRating());
-            if (res2 != 0)
-                return res;
-
-            return Integer.compare(getCommonTagsCount(o1), getCommonTagsCount(o2));
-        });
+        userList.sort(
+                Comparator.comparing(User::getYearsOld)
+                .thenComparing(u -> u.getCard().getRating())
+                .thenComparing(this::getCommonTagsCount)
+        );
     }
 
     private void fixSize(List<User> userList) {

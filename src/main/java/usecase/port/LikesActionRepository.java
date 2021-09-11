@@ -3,8 +3,6 @@ package usecase.port;
 import java.util.List;
 
 public interface LikesActionRepository {
-    List<Integer> getUserDislikes(Integer userId);
-
     void removeLine(int from, int to);
 
     void like(int from, int to);
@@ -13,5 +11,5 @@ public interface LikesActionRepository {
 
     void match(int from, int to);
 
-    void putDislikeForUsers(int from, List<Integer> ids);
+    void putDislikeForUsers(int from, List<Integer> ids, List<Integer> dislikesAlready);
 }
