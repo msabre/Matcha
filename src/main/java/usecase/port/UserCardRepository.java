@@ -13,4 +13,6 @@ public interface UserCardRepository {
     void increaseRating(int id, double increse);
 
     void updatePhotosParams(int cardId, List<Photo> photoList);
+
+    void updateUserActions(UserCard userCard);
 }

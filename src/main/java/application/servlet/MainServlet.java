@@ -33,24 +33,28 @@ public class MainServlet extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
 
         String act = req.getParameter("act");
-        if (isNull(act) || !act.equals("getList"))
+        if (isNull(act))
             return;
 
-        String filters = HttpService.getBody(req);
-        User user = (User) req.getSession().getAttribute("user");
-        if (!filters.isEmpty()) {
-            FilterParams filterParams = (FilterParams) JsonService.getObject(FilterParams.class, filters);
-            filterParams.setId(user.getFilter().getId());
-            if (isNull(filterParams.getLocation()))
-                filterParams.setLocation(user.getLocation());
+        switch (act) {
+            case "getList":
+                String filters = HttpService.getBody(req);
+                User user = (User) req.getSession().getAttribute("user");
+                if (!filters.isEmpty()) {
+                    FilterParams filterParams = (FilterParams) JsonService.getObject(FilterParams.class, filters);
+                    filterParams.setId(user.getFilter().getId());
+                    if (isNull(filterParams.getLocation()))
+                        filterParams.setLocation(user.getLocation());
 
-            userController.filterUpdate(filterParams);
-            user.setFilter(filterParams);
-            req.getSession().setAttribute("user", user);
+                    userController.filterUpdate(filterParams);
+                    user.setFilter(filterParams);
+                    req.getSession().setAttribute("user", user);
+                }
+                List<User> usersList = userController.getRecommendUsersList(user);
+                HttpService.putBody(resp, JsonService.getJsonArray(usersList));
+                break;
+            case "getContacts":
+                break;
         }
-
-        List<User> usersList = userController.getRecommendUsersList(user);
-
-        HttpService.putBody(resp, JsonService.getJsonArray(usersList));
     }
 }

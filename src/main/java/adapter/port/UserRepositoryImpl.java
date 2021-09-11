@@ -17,10 +17,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
+import java.sql.Date;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class UserRepositoryImpl implements UserRepository {
@@ -315,19 +313,40 @@ public class UserRepositoryImpl implements UserRepository {
         return false;
     }
 
+
     @Override
-    public List<User> getAllUserInSameLocation(String location, int id) {
+    public LinkedList<User> getAllUserInSameLocation(String location, int id, int age_by, int age_to, List<String> preferencesParams) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.user WHERE LOCATION = ? AND ID != ?"))
+            PreparedStatement statement = connection.prepareStatement(
+                    "SELECT DISTINCT usr.ID FROM matcha.user usr " +
+                    "INNER JOIN matcha.user_card card ON card.ID = usr.USER_CARD " +
+                    "WHERE usr.LOCATION = ? " +
+                        "AND usr.ID != ? " +
+                        "AND usr.YEARS_OLD >= ? " +
+                        "AND usr.YEARS_OLD <= ? " +
+                        "AND FIND_IN_SET(card.GENDER, ?) > 0 " +
+                        "AND FIND_IN_SET(card.SEXUAL_PREFERENCE, ?) > 0 " +
+                        "AND usr.ID NOT IN (SELECT acts.TO_USR FROM matcha.LIKES_ACTION acts " +
+                                            "WHERE acts.FROM_USR = ? " +
+                                            "AND acts.ACTION IN ('LIKE', 'MATCH'))"))
         {
-            statement.setString(1, location);
-            statement.setInt(2, id);
+            String gender = preferencesParams.stream().map(s -> s.split(";")[0]).distinct().collect(Collectors.joining(","));
+            String sexualPreferences = preferencesParams.stream().map(s -> s.split(";")[1]).distinct().collect(Collectors.joining(","));
+
+            int i = 1;
+            statement.setString(i++, location);
+            statement.setInt(i++, id);
+            statement.setInt(i++, age_by);
+            statement.setInt(i++, age_to);
+            statement.setString(i++, gender);
+            statement.setString(i++, sexualPreferences);
+            statement.setInt(i, id);
             statement.execute();
 
             ResultSet rs = null;
             try {
                 rs = statement.getResultSet();
-                List<User> usersList = new ArrayList<>();
+                LinkedList<User> usersList = new LinkedList<>();
                 while (rs.next()) {
                     User user = findById(rs.getInt(1));
                     usersList.add(user);
@@ -342,7 +361,6 @@ public class UserRepositoryImpl implements UserRepository {
                 else
                     System.err.println("Пользователи по данному запросы не найдены!");
             }
-
             return null;
 
         } catch (SQLException e) {

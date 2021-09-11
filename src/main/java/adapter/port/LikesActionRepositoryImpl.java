@@ -34,7 +34,7 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
     private List<Integer> getUserLikesAction(Integer userId, Action action) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
              PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION WHERE FROM_USR = ? AND ACTION = ? " +
-                     "ORDER BY CREATION_TIME"))
+                     "ORDER BY CREATION_TIME DESC"))
         {
             statement.setInt(1, userId);
             statement.setString(2, action.toString());

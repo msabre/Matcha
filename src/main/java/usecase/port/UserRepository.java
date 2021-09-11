@@ -5,6 +5,7 @@ import domain.entity.User;
 import domain.entity.UserCard;
 
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 public interface UserRepository {
@@ -22,7 +23,7 @@ public interface UserRepository {
 
     boolean passwordUpdate(int id, String password);
 
-    List<User> getAllUserInSameLocation(String location, int id);
+    LinkedList<User> getAllUserInSameLocation(String location, int id, int age_by, int age_to, List<String> preferencesParams);
 
     void createChatBetweenTwoUsers(int usr1, int usr2);
 

@@ -5,9 +5,7 @@ import domain.entity.model.types.Action;
 import domain.entity.model.types.GenderType;
 import domain.entity.model.types.SexualPreferenceType;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class UserCard {
     private int id;
@@ -23,7 +21,10 @@ public class UserCard {
     @Expose private List<String> tags;
     @Expose private List<Photo> photos;
 
-    Map<Integer, Action> actionMap;
+    LinkedHashMap<Integer, Action> actionMap;
+    List<Integer> likes;
+    List<Integer> disLikes;
+    List<Integer> matches;
 
     public int getId() {
         return id;
@@ -113,13 +114,37 @@ public class UserCard {
         this.photos = photos;
     }
 
-    public Map<Integer, Action> getActionMap() {
+    public LinkedHashMap<Integer, Action> getActionMap() {
         if (actionMap == null)
-            return new HashMap<>();
+            return new LinkedHashMap<>();
         return actionMap;
     }
 
-    public void setActionMap(Map<Integer, Action> actionMap) {
+    public void setActionMap(LinkedHashMap<Integer, Action> actionMap) {
         this.actionMap = actionMap;
+    }
+
+    public List<Integer> getLikes() {
+        return likes;
+    }
+
+    public void setLikes(List<Integer> likes) {
+        this.likes = likes;
+    }
+
+    public List<Integer> getDisLikes() {
+        return disLikes;
+    }
+
+    public void setDisLikes(List<Integer> disLikes) {
+        this.disLikes = disLikes;
+    }
+
+    public List<Integer> getMatches() {
+        return matches;
+    }
+
+    public void setMatches(List<Integer> matches) {
+        this.matches = matches;
     }
 }

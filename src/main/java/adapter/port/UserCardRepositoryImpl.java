@@ -102,11 +102,8 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                             card.getPhotos().set(Integer.parseInt(detail[0]) - 1, photo);
                         }
                     }
-                    int user_id = resultSet.getInt(++i);
-                    card.setUserId(user_id);
-
-                    card.setActionMap(getUserLikesAction(user_id));
-
+                    card.setUserId(resultSet.getInt(++i));
+                    updateUserActions(card);
                     return card;
                 }
             }
@@ -126,9 +123,24 @@ public class UserCardRepositoryImpl implements UserCardRepository {
         return null;
     }
 
-    private Map<Integer, Action> getUserLikesAction(Integer userId) {
+    @Override
+    public void updateUserActions(UserCard userCard) {
+        userCard.setActionMap(getUserLikesAction(userCard.getUserId()));
+        userCard.setLikes(getActsListFromMap(userCard.getActionMap(), Action.LIKE));
+        userCard.setDisLikes(getActsListFromMap(userCard.getActionMap(), Action.DISLIKE));
+        userCard.setMatches(getActsListFromMap(userCard.getActionMap(), Action.MATCH));
+    }
+
+    private List<Integer> getActsListFromMap(Map<Integer, Action> actionMap, Action action ) {
+        return actionMap.entrySet().stream()
+                .filter(entry -> action.equals(entry.getValue()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    }
+
+    private LinkedHashMap<Integer, Action> getUserLikesAction(Integer userId) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-             PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION WHERE FROM_USR = ?"))
+             PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION WHERE FROM_USR = ? ORDER BY CREATION_TIME"))
         {
             statement.setInt(1, userId);
             statement.execute();
@@ -136,7 +148,7 @@ public class UserCardRepositoryImpl implements UserCardRepository {
             ResultSet rs = null;
             try {
                 rs = statement.getResultSet();
-                Map<Integer, Action> likesList = new HashMap<>();
+                LinkedHashMap<Integer, Action> likesList = new LinkedHashMap<>();
                 while (rs.next()) {
                     likesList.put(rs.getInt("TO_USR"), Action.valueOf(rs.getString("ACTION")));
                 }

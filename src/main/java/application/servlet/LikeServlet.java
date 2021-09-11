@@ -47,7 +47,6 @@ public class LikeServlet extends HttpServlet {
                 return;
         }
 
-        user.getCard().getActionMap().put(toUserId, Action.valueOf(action.toUpperCase()));
         HttpService.putBody(resp,"SUCCESS");
     }
 }

@@ -35,7 +35,7 @@ public class MyConfiguration {
         return new UpdateUserCard(userCardRepository());
     }
 
-    public static RecommendUsersList recommendUsersList() { return new RecommendUsersList(userRepository(), likesActionRepository()); }
+    public static RecommendUsersList recommendUsersList() { return new RecommendUsersList(userRepository(), likesActionRepository(), userCardRepository()); }
 
     public static PutLikeAction putLikeAction() {
         return new PutLikeAction(likesActionRepository(), userRepository());
