@@ -171,22 +171,52 @@ public class UserCardRepositoryImpl implements UserCardRepository {
     }
 
     @Override
-    public void increaseRating(int id, double increse) {
+    public void increaseRating(int id, double increase) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-             PreparedStatement statement = connection.prepareStatement("SELECT RAITING FROM matcha.user_card WHERE ID =?"))
+             PreparedStatement statement = connection.prepareStatement("SELECT RATING FROM matcha.user_card WHERE ID =?"))
         {
             statement.setInt(1, id);
             statement.execute();
 
-            double currentRating = 0;
+            double rating = 0;
             ResultSet rs = statement.getResultSet();
             while (rs.next()) {
-                currentRating += rs.getDouble("RATING");
+                rating = rs.getDouble("RATING");
+                rating += increase;
                 break;
             }
 
             try (PreparedStatement newRating = connection.prepareStatement("UPDATE matcha.user_card SET RATING = ? WHERE id = ?")) {
-                newRating.setDouble(1, currentRating + increse);
+                newRating.setDouble(1, rating);
+                newRating.setInt(2, id);
+                newRating.execute();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void decreaseRating(int id, double decrease) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement("SELECT RATING FROM matcha.user_card WHERE ID =?"))
+        {
+            statement.setInt(1, id);
+            statement.execute();
+
+            double rating = 0;
+            ResultSet rs = statement.getResultSet();
+            while (rs.next()) {
+                rating = rs.getDouble("RATING");
+                rating -= decrease;
+                if (rating < 0)
+                    rating = 0;
+                break;
+            }
+
+            try (PreparedStatement newRating = connection.prepareStatement("UPDATE matcha.user_card SET RATING = ? WHERE id = ?")) {
+                newRating.setDouble(1, rating);
                 newRating.setInt(2, id);
                 newRating.execute();
             }

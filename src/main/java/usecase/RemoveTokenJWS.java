@@ -4,7 +4,7 @@ import usecase.port.JwtRepository;
 
 public class RemoveTokenJWS {
 
-    private JwtRepository repository;
+    private final JwtRepository repository;
 
     public RemoveTokenJWS(JwtRepository jwtRepository) {
         this.repository = jwtRepository;

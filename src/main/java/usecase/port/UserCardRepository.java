@@ -10,7 +10,9 @@ public interface UserCardRepository {
 
     UserCard findById(Integer id);
 
-    void increaseRating(int id, double increse);
+    void increaseRating(int id, double increase);
+
+    void decreaseRating(int id, double decrease);
 
     void updatePhotosParams(int cardId, List<Photo> photoList);
 

@@ -38,7 +38,7 @@ public class MyConfiguration {
     public static RecommendUsersList recommendUsersList() { return new RecommendUsersList(userRepository(), likesActionRepository(), userCardRepository()); }
 
     public static PutLikeAction putLikeAction() {
-        return new PutLikeAction(likesActionRepository(), userRepository());
+        return new PutLikeAction(likesActionRepository(), userRepository(), userCardRepository());
     }
 
     public static UpdatePhotoParams updatePhotoParams() { return new UpdatePhotoParams(userCardRepository()); }

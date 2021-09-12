@@ -1,4 +1,4 @@
-package application.servlet;
+package application.servlets;
 
 import adapter.controller.OperationController;
 import adapter.controller.UserController;

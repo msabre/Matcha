@@ -70,12 +70,6 @@ public class RecommendUsersList {
         fixSize(userList);
         sortUserList(userList);
 
-        // ставим матч если кто то из пользователей уже лайкнул клиента
-        userList.forEach((userObj) -> {
-            if (user.getCard().getLikes().contains(userObj.getId()))
-                userObj.setMatch(true);
-        });
-
         // поставили всем отобранным пользователям дизлайк
         likesActionRepository.putDislikeForUsers(user.getId(),
                 userList.stream().map(User::getId).collect(Collectors.toList()),

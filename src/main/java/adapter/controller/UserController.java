@@ -85,16 +85,12 @@ public class UserController {
         return recommendUsersList.get(user);
     }
 
-    public void match(int from, int to) {
-        putLikeAction.match(from, to);
-    }
-
-    public void like(int from, int to) {
-        putLikeAction.like(from, to);
+    public boolean putMatchOrLike(int from, int to) {
+        return putLikeAction.putMatchOrLike(from, to);
     }
 
     public void deleteLike(int from, int to) {
-        putLikeAction.dislike(from, to);
+        putLikeAction.deleteLike(from, to);
     }
 
     public void updatePhotoParams(int userId, List<Photo> param) {
