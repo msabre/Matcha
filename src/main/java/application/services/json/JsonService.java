@@ -25,9 +25,11 @@ public class JsonService {
                 .registerTypeAdapter(GenderType.class, new GenderTypeDeserializer())
                 .registerTypeAdapter(SexualPreferenceType.class, new SexualPreferenceTypeSerializer())
                 .registerTypeAdapter(SexualPreferenceType.class, new SexualPreferenceTypeDeserializer())
-                .registerTypeAdapter(Date.class, new DateTypeDeserializer())
+//                .registerTypeAdapter(Date.class, new DateTypeDeserializer())
+//                .registerTypeAdapter(Date.class, new DateTypeSerializer())
                 .registerTypeAdapter(byte[].class, new ByteArrayTypeDeserializer())
                 .registerTypeAdapter(List.class, new CollectionAdapter())
+                .setDateFormat("dd.MM.yyyy")
                 .create();
         }
         return gsonExpose;
@@ -40,8 +42,9 @@ public class JsonService {
                     .registerTypeAdapter(GenderType.class, new GenderTypeDeserializer())
                     .registerTypeAdapter(SexualPreferenceType.class, new SexualPreferenceTypeSerializer())
                     .registerTypeAdapter(SexualPreferenceType.class, new SexualPreferenceTypeDeserializer())
-                    .registerTypeAdapter(Date.class, new DateTypeDeserializer())
+//                    .registerTypeAdapter(Date.class, new DateTypeDeserializer())
                     .registerTypeAdapter(byte[].class, new ByteArrayTypeDeserializer())
+                    .setDateFormat("dd.MM.yyyy")
                     .create();
         }
         return gson;

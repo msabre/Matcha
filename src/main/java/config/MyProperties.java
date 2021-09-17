@@ -21,6 +21,7 @@ public class MyProperties {
     public static double RATING_STEP = 0.2;
     public static double RATING_FALSITY = 0.75;
     public static String CLIENT_HOST = "localhost:3000";
+    public static String HTTP_PROTOCOL = "http";
 
     static {
         try {
@@ -43,6 +44,7 @@ public class MyProperties {
                     decodeCode.length, "HmacSHA256");
 
             CLIENT_HOST = props.getProperty("CLIENT_HOST");
+            HTTP_PROTOCOL = props.getProperty("HTTP_PROTOCOL");
         } catch (Exception e) {
             e.printStackTrace();
         }

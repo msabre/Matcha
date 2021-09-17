@@ -8,6 +8,7 @@ import application.services.MatchUtils;
 import application.services.json.JsonService;
 import config.MyProperties;
 import domain.entity.User;
+import usecase.port.PasswordEncoder;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServlet;
@@ -24,6 +25,7 @@ import static config.MyConfiguration.*;
 public class CommonInfoChangeServlet extends HttpServlet {
 
     private OperationController operationController;
+    private PasswordEncoder passwordEncoder;
     private UserController userController;
 
     private final static String changeEmailRqTextForm = "Здравствуйте, %s!\n" +
@@ -39,6 +41,7 @@ public class CommonInfoChangeServlet extends HttpServlet {
     @Override
     public void init() {
         operationController = operationController();
+        passwordEncoder = passwordEncoder();
         userController = userController();
     }
 
@@ -186,9 +189,9 @@ public class CommonInfoChangeServlet extends HttpServlet {
     }
 
     private String confirmLinkGenerate(int userId) {
-        String token = MatchUtils.generateRqUid();
-        String link = String.format("http://%s/main/accountsettings?act=emailChangeConfirm&id=%s&token=%s&linkId=",
-                MyProperties.CLIENT_HOST, userId, token);
+        String token = passwordEncoder.getToken(MatchUtils.generateRqUid());
+        String link = String.format("%s://%s/main/accountsettings?act=emailChangeConfirm&id=%s&token=%s&linkId=",
+                MyProperties.HTTP_PROTOCOL, MyProperties.CLIENT_HOST, userId, token);
         return link + operationController.addLink(token);
     }
 

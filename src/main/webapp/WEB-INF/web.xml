@@ -69,13 +69,8 @@
   </servlet>
 
   <servlet>
-    <servlet-name>ResetPasswordSend</servlet-name>
-    <servlet-class>application.servlets.ResetPasswordSendServlet</servlet-class>
-  </servlet>
-
-  <servlet>
     <servlet-name>ResetPasswordChange</servlet-name>
-    <servlet-class>application.servlets.ResetPasswordChangeServlet</servlet-class>
+    <servlet-class>application.servlets.PasswordChangeServlet</servlet-class>
   </servlet>
 
   <servlet>
@@ -130,13 +125,8 @@
   </servlet-mapping>
 
   <servlet-mapping>
-    <servlet-name>ResetPasswordSend</servlet-name>
-    <url-pattern>/resetpassend</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
     <servlet-name>ResetPasswordChange</servlet-name>
-    <url-pattern>/resetpasschange</url-pattern>
+    <url-pattern>/passchange</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

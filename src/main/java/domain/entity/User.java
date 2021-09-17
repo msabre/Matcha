@@ -22,14 +22,15 @@ public class User {
     private String location;
     @Expose
     private UserCard card;
-    @Expose
-    private boolean match;
 
+    @Expose
     private String email;
+    @Expose
+    private Date birthday;
+
     private String password;
     private String tokenConfirm;
     private boolean confirm;
-    private Date birthday;
 
     @Expose
     private FilterParams filter;
@@ -48,14 +49,6 @@ public class User {
 
     public void setYearsOld(Integer yearsOld) {
         this.yearsOld = yearsOld;
-    }
-
-    public Boolean getMatch() {
-        return match;
-    }
-
-    public void setMatch(Boolean match) {
-        this.match = match;
     }
 
     public String getTokenConfirm() {
@@ -88,14 +81,6 @@ public class User {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public boolean isMatch() {
-        return match;
-    }
-
-    public void setMatch(boolean match) {
-        this.match = match;
     }
 
     public String getFirstName() {
