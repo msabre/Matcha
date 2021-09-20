@@ -29,7 +29,7 @@
     </init-param>
     <init-param>
       <param-name>cors.allowed.methods</param-name>
-      <param-value>GET, POST, HEAD, OPTIONS, PATCH</param-value>
+      <param-value>GET, POST, HEAD, OPTIONS, PATCH, PUT, DELETE</param-value>
     </init-param>
     <init-param>
       <param-name>cors.preflight.maxage</param-name>
