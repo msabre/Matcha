@@ -27,6 +27,8 @@ import static config.MyConfiguration.userController;
 public class AddProfileInfoServlet extends HttpServlet {
 
     private UserController userController;
+    private final List<String> defaultFormats = Arrays.asList("png", "jpg");
+    private final List<String> compressRequiredFormats = Arrays.asList("tiff", "psd", "bmp", "hdr", "jpeg", "tga", "webp", "sgi");
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws  IOException {
@@ -44,13 +46,16 @@ public class AddProfileInfoServlet extends HttpServlet {
             case "photo":
                 List<Photo> photos = JsonService.getList(HttpService.getBody(req));
                 if (photos != null && !photos.isEmpty()) {
-                    processActionPhoto(photos, user);
+                    if (!processActionPhoto(photos, user)) {
+                        HttpService.putBody(resp, "UNEXPECTED PHOTO FORMAT");
+                        return;
+                    }
                     userController.updatePhotoParams(user.getCard().getId(), photos);
                 }
         }
     }
 
-    private void processActionPhoto(List<Photo> photos, User user) {
+    private boolean processActionPhoto(List<Photo> photos, User user) {
         List<Photo> current = Optional.ofNullable(user.getCard().getPhotos()).orElse(new ArrayList<>(Collections.nCopies(5, null)));
 
         for (Photo photo : photos) {
@@ -63,12 +68,15 @@ public class AddProfileInfoServlet extends HttpServlet {
                 case "save":
                     try {
                         byte[] byteContent = photo.getContent().getBytes();
-                        if (photo.getFormat().equals("png") || photo.getFormat().equals("jpg")) {
+                        if (defaultFormats.contains(photo.getFormat())) {
                             ByteArrayInputStream bufferedInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(byteContent));
                             BufferedImage img = ImageIO.read(bufferedInputStream);
                             ImageIO.write(img, photo.getFormat(), new File(path));
-                        } else
-                            compressImage(byteContent, photo.getFormat(), path);
+                        } else if (compressRequiredFormats.contains(photo.getFormat()))
+                            compressImage(byteContent, path);
+                        else
+                            return false;
+
                         current.set(index, photo);
 
                     } catch (Exception e) {
@@ -83,10 +91,11 @@ public class AddProfileInfoServlet extends HttpServlet {
                     break;
             }
         }
+        return true;
     }
 
 
-    public void compressImage(byte[] content, String format, String destinationPath) throws IOException {
+    private static void compressImage(byte[] content, String destinationPath) throws IOException {
         ByteArrayInputStream bufferedInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(content));
         BufferedImage img = ImageIO.read(bufferedInputStream);
 
@@ -115,49 +124,3 @@ public class AddProfileInfoServlet extends HttpServlet {
         userController = userController();
     }
 }
-
-
-// 2D Example
-//class JavaImageResizer {
-//
-//    public static void main(String[] args) throws IOException {
-//
-//        File folder = new File("/Users/pankaj/Desktop/images");
-//        File[] listOfFiles = folder.listFiles();
-//        System.out.println("Total No of Files:"+listOfFiles.length);
-//        Image img = null;
-//        BufferedImage tempPNG = null;
-//        BufferedImage tempJPG = null;
-//        File newFilePNG = null;
-//        File newFileJPG = null;
-//        for (int i = 0; i < listOfFiles.length; i++) {
-//            if (listOfFiles[i].isFile()) {
-//                System.out.println("File " + listOfFiles[i].getName());
-//                img = ImageIO.read(new File("/Users/pankaj/Desktop/images/"+listOfFiles[i].getName()));
-//                tempPNG = resizeImage(img, 100, 100);
-//                tempJPG = resizeImage(img, 100, 100);
-//                newFilePNG = new File("/Users/pankaj/Desktop/images/resize/"+listOfFiles[i].getName()+"_New.png");
-//                newFileJPG = new File("/Users/pankaj/Desktop/images/resize/"+listOfFiles[i].getName()+"_New.jpg");
-//                ImageIO.write(tempPNG, "png", newFilePNG);
-//                ImageIO.write(tempJPG, "jpg", newFileJPG);
-//            }
-//        }
-//        System.out.println("DONE");
-//    }
-//
-//    /**
-//     * This function resize the image file and returns the BufferedImage object that can be saved to file system.
-//     */
-//    public static BufferedImage resizeImage(final Image image, int width, int height) {
-//        final BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-//        final Graphics2D graphics2D = bufferedImage.createGraphics();
-//        graphics2D.setComposite(AlphaComposite.Src);
-//        //below three lines are for RenderingHints for better image quality at cost of higher processing time
-//        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-//        graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
-//        graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
-//        graphics2D.drawImage(image, 0, 0, width, height, null);
-//        graphics2D.dispose();
-//        return bufferedImage;
-//    }
-//}
