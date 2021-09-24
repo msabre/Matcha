@@ -1,13 +1,12 @@
 package domain.entity;
 
-import com.google.gson.annotations.Expose;
-
 public class Photo {
 
-    @Expose private String content;
-    @Expose private String format;
-    @Expose private String action;
-    @Expose private String number;
+    private String content;
+    private String format;
+    private String action;
+    private String number;
+    private boolean main;
 
     public String getContent() {
         return content;
@@ -39,5 +38,13 @@ public class Photo {
 
     public void setNumber(String number) {
         this.number = number;
+    }
+
+    public boolean isMain() {
+        return main;
+    }
+
+    public void setMain(boolean main) {
+        this.main = main;
     }
 }

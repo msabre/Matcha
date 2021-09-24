@@ -5,11 +5,10 @@ import com.google.gson.*;
 
 import com.google.gson.reflect.TypeToken;
 import domain.entity.Photo;
-import domain.entity.model.types.GenderType;
-import domain.entity.model.types.SexualPreferenceType;
+import domain.entity.types.GenderType;
+import domain.entity.types.SexualPreferenceType;
 
 import java.lang.reflect.Type;
-import java.util.Date;
 import java.util.List;
 
 public class JsonService {

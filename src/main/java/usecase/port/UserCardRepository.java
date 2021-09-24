@@ -17,4 +17,6 @@ public interface UserCardRepository {
     void updatePhotosParams(int cardId, List<Photo> photoList);
 
     void updateUserActions(UserCard userCard);
+
+    Photo getUserIconById(int id);
 }

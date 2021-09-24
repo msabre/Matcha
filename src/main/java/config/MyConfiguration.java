@@ -51,6 +51,14 @@ public class MyConfiguration {
 
     public static BirthDateUpdate birthDateUpdate() { return new BirthDateUpdate(userRepository()); }
 
+    public static GetUserIcon getUserIcon() {
+        return new GetUserIcon(userCardRepository());
+    }
+
+    public static UploadPhotoContent uploadPhotoContent() {
+        return new UploadPhotoContent();
+    }
+
 
     public static OperationController operationController() {
         return OperationController.getController();

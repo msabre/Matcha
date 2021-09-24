@@ -1,13 +1,13 @@
-package domain.entity.model;
+package domain.entity;
 
 import javax.websocket.Session;
 
-public class WebSocketUser {
+public class ChatUser {
     private int userId;
     private int chatId;
     private Session session;
 
-    public WebSocketUser(int userId, int chatId, Session session) {
+    public ChatUser(int userId, int chatId, Session session) {
         this.userId = userId;
         this.chatId = chatId;
         this.session = session;

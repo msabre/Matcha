@@ -1,17 +1,15 @@
 package adapter.port.chat;
 
-import application.services.json.JsonService;
-import domain.entity.model.WebSocketMessage;
+import domain.entity.Message;
 
-import javax.websocket.EncodeException;
 import javax.websocket.Encoder;
 import javax.websocket.EndpointConfig;
 
-public class MessageEncoder implements Encoder.Text<WebSocketMessage> {
+public class MessageEncoder implements Encoder.Text<Message> {
 
     @Override
-    public String encode(WebSocketMessage webSocketMessage) throws EncodeException {
-        return JsonService.getJson(webSocketMessage);
+    public String encode(Message message) {
+        return message.getContent();
     }
 
     @Override

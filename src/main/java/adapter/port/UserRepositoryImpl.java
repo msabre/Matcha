@@ -180,48 +180,46 @@ public class UserRepositoryImpl implements UserRepository {
                     resultSet.close();
                 else
                     System.err.println("Пользователь с данным email не найден!");
+                }
             }
+            catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return null;
         }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
-    @Override
-    public User findById(int id) {
-        try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
-             PreparedStatement state = connection.prepareStatement("SELECT * FROM matcha.user where ID = ?"))
-        {
-            state.setInt(1, id);
-            state.execute();
+        @Override
+        public User findById(int id) {
+            try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
+                 PreparedStatement state = connection.prepareStatement("SELECT * FROM matcha.user where ID = ?"))
+            {
+                state.setInt(1, id);
+                state.execute();
 
-            ResultSet resultSet = null;
-            try {
-                resultSet = state.getResultSet();
-                User user = new User();
-                while (resultSet.next()) {
-                    int i = 0;
+                ResultSet resultSet = null;
+                try {
+                    resultSet = state.getResultSet();
+                    User user = new User();
+                    while (resultSet.next()) {
+                        int i = 0;
 
-                    user.setId(resultSet.getInt(++i));
-                    user.setTokenConfirm(resultSet.getString(++i));
-                    user.setConfirm(user.getTokenConfirm() == null);
-                    user.setFirstName(resultSet.getString(++i));
-                    user.setLastName(resultSet.getString(++i));
-                    user.setMiddleName(resultSet.getString(++i));
-                    user.setBirthday(resultSet.getDate(++i));
-                    user.setYearsOld(resultSet.getInt(++i));
-                    user.setEmail(resultSet.getString(++i));
-                    user.setPassword(resultSet.getString(++i));
-                    user.setLocation(resultSet.getString(++i));
+                        user.setId(resultSet.getInt(++i));
+                        user.setTokenConfirm(resultSet.getString(++i));
+                        user.setConfirm(user.getTokenConfirm() == null);
+                        user.setFirstName(resultSet.getString(++i));
+                        user.setLastName(resultSet.getString(++i));
+                        user.setMiddleName(resultSet.getString(++i));
+                        user.setBirthday(resultSet.getDate(++i));
+                        user.setYearsOld(resultSet.getInt(++i));
+                        user.setEmail(resultSet.getString(++i));
+                        user.setPassword(resultSet.getString(++i));
+                        user.setLocation(resultSet.getString(++i));
 
-                    UserCard userCard = userCardRepository.findById(resultSet.getInt(++i));
-                    user.setCard(userCard);
+                        UserCard userCard = userCardRepository.findById(resultSet.getInt(++i));
+                        user.setCard(userCard);
 
-                    FilterParams filter = filterParamsRepository.findById(resultSet.getInt(++i));
-                    user.setFilter(filter);
-
-                    uploadPhotosContent(userCard);
+                        FilterParams filter = filterParamsRepository.findById(resultSet.getInt(++i));
+                        user.setFilter(filter);
 
                     return user;
                 }
@@ -240,27 +238,6 @@ public class UserRepositoryImpl implements UserRepository {
             e.printStackTrace();
         }
         return null;
-    }
-
-    @Override
-    public void uploadPhotosContent(UserCard card) {
-        for (Photo photo : card.getPhotos()) {
-            if (photo == null)
-                continue;
-            String path = String.format("%s/IMG_%s_%s_%s.%s", MyProperties.IMAGES_PATH, card.getUserId(), "photo", photo.getNumber(), photo.getFormat());
-            File file =  new File(path);
-
-            if (file.exists()) {
-                try {
-                    byte[] content = Files.readAllBytes(Paths.get(path));
-                    photo.setContent(new String(Base64.getEncoder().encode(content), StandardCharsets.UTF_8));
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            // TODO разобраться в потоках
-        }
     }
 
     @Override

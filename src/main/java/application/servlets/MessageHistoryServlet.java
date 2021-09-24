@@ -3,7 +3,7 @@ package application.servlets;
 import adapter.controller.MessageController;
 import application.services.HttpService;
 import application.services.json.JsonService;
-import domain.entity.model.WebSocketMessage;
+import domain.entity.Message;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -30,7 +30,7 @@ public class MessageHistoryServlet extends HttpServlet {
                 messageController.clearAll(toId);
                 break;
             case "getAll":
-                List<WebSocketMessage> list = messageController.getAll(toId);
+                List<Message> list = messageController.getAll(toId);
                 String answer = JsonService.getJsonArray(list);
                 HttpService.putBody(resp, answer);
                 break;

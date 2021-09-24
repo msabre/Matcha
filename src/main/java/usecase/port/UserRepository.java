@@ -15,8 +15,6 @@ public interface UserRepository {
 
     User findById(int id);
 
-    void uploadPhotosContent(UserCard card);
-
     void setPhotosParams(List<Photo> photos);
 
     void confirmById(int id);

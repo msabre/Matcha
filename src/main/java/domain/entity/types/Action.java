@@ -1,4 +1,4 @@
-package domain.entity.model.types;
+package domain.entity.types;
 
 public enum Action {
     LIKE("LIKE"),

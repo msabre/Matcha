@@ -3,13 +3,18 @@ package adapter.controller;
 
 import config.MyConfiguration;
 
+import config.MyProperties;
 import domain.entity.FilterParams;
 import domain.entity.Photo;
 import domain.entity.User;
 import domain.entity.UserCard;import usecase.*;
 
-import java.util.Date;
-import java.util.List;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 
 public class UserController {
     private static UserController instance;
@@ -27,6 +32,8 @@ public class UserController {
     private UpdateEmail updateEmail;
     private FioUpdate fioUpdate;
     private BirthDateUpdate birthDateUpdate;
+    private GetUserIcon getUserIcon;
+    private UploadPhotoContent uploadPhotoContent;
 
     private UserController() {
     }
@@ -48,6 +55,8 @@ public class UserController {
             instance.updateEmail = MyConfiguration.updateEmail();
             instance.fioUpdate = MyConfiguration.fioUpdate();
             instance.birthDateUpdate = MyConfiguration.birthDateUpdate();
+            instance.getUserIcon = MyConfiguration.getUserIcon();
+            instance.uploadPhotoContent = MyConfiguration.uploadPhotoContent();
         }
 
         return instance;
@@ -111,5 +120,18 @@ public class UserController {
 
     public void birthDateUpdate(int userId, Date birthDate, int yearsOld) {
         birthDateUpdate.update(userId, birthDate, yearsOld);
+    }
+
+    public Photo getUserIcon(int userId) {
+        Photo manual = getUserIcon.get(userId);
+        if (manual == null) {
+            uploadPhotoContent.upload(Collections.singletonList(manual), userId);
+            return manual;
+        }
+        return null;
+    }
+
+    public void uploadPhotosContent(List<Photo> photos, int id) {
+        uploadPhotoContent.upload(photos, id);
     }
 }

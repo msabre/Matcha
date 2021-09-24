@@ -1,4 +1,4 @@
-package domain.entity.model.types;
+package domain.entity.types;
 
 public interface BaseEnumType {
     public GenderType fromValue();

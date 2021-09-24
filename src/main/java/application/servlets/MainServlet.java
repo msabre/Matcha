@@ -28,7 +28,7 @@ public class MainServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         resp.setCharacterEncoding("UTF-8");
 
         String act = req.getParameter("act");
@@ -39,9 +39,11 @@ public class MainServlet extends HttpServlet {
             case "getList":
                 User user = (User) req.getSession().getAttribute("user");
                 List<User> usersList = userController.getRecommendUsersList(user);
+                usersList.forEach(u -> userController.uploadPhotosContent(u.getCard().getPhotos(), u.getId()));
                 HttpService.putBody(resp, JsonService.getJsonArray(usersList));
                 break;
-            case "getContacts":
+            case "getDialogs":
+
                 break;
         }
     }

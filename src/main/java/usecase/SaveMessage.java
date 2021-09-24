@@ -1,6 +1,6 @@
 package usecase;
 
-import domain.entity.model.WebSocketMessage;
+import domain.entity.Message;
 import usecase.port.MessageRepository;
 
 public class SaveMessage {
@@ -10,7 +10,7 @@ public class SaveMessage {
         this.repository = repository;
     }
 
-    public void save(WebSocketMessage msg) {
+    public void save(Message msg) {
         repository.save(msg);
     }
 }

@@ -27,8 +27,9 @@ import static config.MyConfiguration.userController;
 public class AddProfileInfoServlet extends HttpServlet {
 
     private UserController userController;
-    private final List<String> defaultFormats = Arrays.asList("png", "jpg");
-    private final List<String> compressRequiredFormats = Arrays.asList("tiff", "psd", "bmp", "hdr", "jpeg", "tga", "webp", "sgi");
+
+    private final static String JPG = "jpg";
+    private static final List<String> compressRequiredFormats = Arrays.asList("png", "tiff", "psd", "bmp", "hdr", "jpeg", "tga", "webp", "sgi");
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws  IOException {
@@ -59,7 +60,7 @@ public class AddProfileInfoServlet extends HttpServlet {
         List<Photo> current = Optional.ofNullable(user.getCard().getPhotos()).orElse(new ArrayList<>(Collections.nCopies(5, null)));
 
         for (Photo photo : photos) {
-            String path = String.format("%sIMG_%s_%s_%s.%s", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), user.getId(), "photo", photo.getNumber(), photo.getFormat());
+            String path = String.format("%sIMG_%s_%s_photo.jpg", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), user.getId(), photo.getNumber());
             int index = Optional.ofNullable(photo.getNumber()).map(Integer::parseInt).orElse(0) - 1;
             if (index < 0)
                 continue;
@@ -68,11 +69,12 @@ public class AddProfileInfoServlet extends HttpServlet {
                 case "save":
                     try {
                         byte[] byteContent = photo.getContent().getBytes();
-                        if (defaultFormats.contains(photo.getFormat())) {
+                        if (JPG.equals(photo.getFormat())) {
                             ByteArrayInputStream bufferedInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(byteContent));
                             BufferedImage img = ImageIO.read(bufferedInputStream);
                             ImageIO.write(img, photo.getFormat(), new File(path));
-                        } else if (compressRequiredFormats.contains(photo.getFormat()))
+                        }
+                        else if (compressRequiredFormats.contains(photo.getFormat()))
                             compressImage(byteContent, path);
                         else
                             return false;

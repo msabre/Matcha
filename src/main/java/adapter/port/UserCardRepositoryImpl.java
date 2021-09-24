@@ -3,9 +3,9 @@ package adapter.port;
 import adapter.port.model.DBConfiguration;
 import domain.entity.Photo;
 import domain.entity.UserCard;
-import domain.entity.model.types.Action;
-import domain.entity.model.types.GenderType;
-import domain.entity.model.types.SexualPreferenceType;
+import domain.entity.types.Action;
+import domain.entity.types.GenderType;
+import domain.entity.types.SexualPreferenceType;
 import usecase.port.UserCardRepository;
 
 import java.sql.*;
@@ -272,5 +272,39 @@ public class UserCardRepositoryImpl implements UserCardRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public Photo getUserIconById(int id) {
+        try(Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+            PreparedStatement statement = connection.prepareStatement("SELECT usr.PHOTOS_PARAMS, usr.MAIN_PHOTO FROM matcha.user usr WHERE usr.ID = ?")) {
+
+            statement.setInt(1, id);
+            statement.execute();
+
+            ResultSet resultSet = statement.getResultSet();
+            if (resultSet.next()) {
+                Photo photo = new Photo();
+                photo.setNumber(String.valueOf(resultSet.getInt("MAIN_PHOTO")));
+
+                String[] photosParams = resultSet.getString("PHOTOS_PARAMS").split(";");
+                String format = null;
+                for (String param : photosParams) {
+                    String[] array = param.split("_");
+                    if (array[0].equals(photo.getNumber())) {
+                        format = array[1];
+                        break;
+                    }
+                }
+                photo.setFormat(format);
+                photo.setMain(true);
+
+                return photo;
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 }

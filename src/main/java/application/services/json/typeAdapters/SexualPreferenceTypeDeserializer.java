@@ -4,8 +4,7 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
-import domain.entity.model.types.GenderType;
-import domain.entity.model.types.SexualPreferenceType;
+import domain.entity.types.SexualPreferenceType;
 
 import java.lang.reflect.Type;
 

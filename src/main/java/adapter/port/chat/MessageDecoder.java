@@ -1,21 +1,32 @@
 package adapter.port.chat;
 
 import application.services.json.JsonService;
-import domain.entity.model.WebSocketMessage;
+import domain.entity.Message;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
 
-public class MessageDecoder implements Decoder.Text<WebSocketMessage> {
+public class MessageDecoder implements Decoder.Text<Message> {
     @Override
-    public WebSocketMessage decode(String s) throws DecodeException {
-        return (WebSocketMessage) JsonService.getObjectByExposeFields(WebSocketMessage.class , s);
+    public Message decode(String s) {
+        return (Message) JsonService.getObject(Message.class , s);
     }
 
     @Override
     public boolean willDecode(String s) {
-        return false;
+        try {
+            new JSONObject(s);
+        } catch (JSONException ex) {
+            try {
+                new JSONArray(s);
+            } catch (JSONException arrayEx) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
