@@ -2,11 +2,20 @@ package domain.entity;
 
 public class Photo {
 
+    private int userId;
     private String content;
     private String format;
     private String action;
     private String number;
     private boolean main;
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
 
     public String getContent() {
         return content;

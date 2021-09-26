@@ -1,10 +1,12 @@
 package adapter.port;
 
 import adapter.port.model.DBConfiguration;
-import domain.entity.types.Action;
+import domain.entity.model.types.Action;
 import usecase.port.LikesActionRepository;
 
 import java.sql.*;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 public class LikesActionRepositoryImpl implements LikesActionRepository {
@@ -175,5 +177,25 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public List<Integer> getMatchUserIds(int id) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION acts WHERE acts.FROM_ID = ? AND ACTION = ?")) {
+            statement.setInt(1, id);
+            statement.setInt(2, id);
+            statement.setString(3, Action.MATCH.getValue());
+
+            try (ResultSet rs = statement.getResultSet()) {
+                List<Integer> ids = new LinkedList<>();
+                while (rs.next())
+                    ids.add(rs.getInt("TO_ID"));
+                return ids;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
     }
 }

@@ -7,11 +7,13 @@ import application.services.json.JsonService;
 
 import domain.entity.FilterParams;
 import domain.entity.User;
+import domain.entity.model.UserMatch;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import static config.MyConfiguration.userController;
@@ -35,15 +37,17 @@ public class MainServlet extends HttpServlet {
         if (isNull(act))
             return;
 
+        User user = (User) req.getSession().getAttribute("user");
         switch (act) {
             case "getList":
-                User user = (User) req.getSession().getAttribute("user");
                 List<User> usersList = userController.getRecommendUsersList(user);
-                usersList.forEach(u -> userController.uploadPhotosContent(u.getCard().getPhotos(), u.getId()));
+                usersList.forEach(u -> userController.uploadPhotosContent(u.getCard().getPhotos()));
                 HttpService.putBody(resp, JsonService.getJsonArray(usersList));
                 break;
-            case "getDialogs":
-
+            case "getMatches":
+                List<UserMatch> userMatches = userController.getUserMatchList(user.getId());
+                userMatches.forEach(m -> userController.uploadPhotosContent(Collections.singleton(m.getIcon())));
+                HttpService.putBody(resp, JsonService.getJsonArray(userMatches));
                 break;
         }
     }

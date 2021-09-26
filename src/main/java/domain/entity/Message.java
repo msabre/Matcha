@@ -1,7 +1,7 @@
 package domain.entity;
 
-import domain.entity.types.MessageStatus;
-import domain.entity.types.MessageType;
+import domain.entity.model.types.MessageStatus;
+import domain.entity.model.types.MessageType;
 
 public class Message {
     private int id;

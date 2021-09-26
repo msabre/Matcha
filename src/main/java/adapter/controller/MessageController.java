@@ -18,8 +18,8 @@ public class MessageController {
         this.getMessages = getMessages;
     }
 
-    public void save(Message msg) {
-        saveMessage.save(msg);
+    public Message save(Message msg) {
+        return saveMessage.save(msg);
     }
 
     public void clearAll(int chatId) {
@@ -28,5 +28,9 @@ public class MessageController {
 
     public List<Message> getFirstNMatches(int chatId, int size) {
         return getMessages.getFirstNMatches(chatId, size);
+    }
+
+    public List<Message> getNByIds(int chatId, int...ids) {
+        return getMessages.getNByIds(chatId, ids);
     }
 }

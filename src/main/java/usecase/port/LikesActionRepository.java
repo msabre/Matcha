@@ -15,4 +15,6 @@ public interface LikesActionRepository {
     void putDislikeForUsers(int from, List<Integer> ids, List<Integer> dislikesAlready);
 
     void deleteLike(int from, int to);
+
+    List<Integer> getMatchUserIds(int id);
 }

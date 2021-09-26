@@ -10,7 +10,7 @@ public class SaveMessage {
         this.repository = repository;
     }
 
-    public void save(Message msg) {
-        repository.save(msg);
+    public Message save(Message msg) {
+        return repository.save(msg);
     }
 }

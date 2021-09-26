@@ -1,5 +1,8 @@
 package usecase.port;
 
+import domain.entity.ChatAffiliation;
+import java.util.List;
+
 public interface ChatAffiliationRepository {
-    void create(int usr1, int usr2);
+    List<ChatAffiliation> getByUserId(int id);
 }

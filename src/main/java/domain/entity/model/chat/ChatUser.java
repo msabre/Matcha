@@ -1,4 +1,4 @@
-package domain.entity;
+package domain.entity.model.chat;
 
 import javax.websocket.Session;
 

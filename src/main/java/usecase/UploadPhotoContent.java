@@ -11,14 +11,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.List;
 
 public class UploadPhotoContent {
-    public void upload(List<Photo> photos, int userId) {
+    public void upload(Collection<Photo> photos) {
         for (Photo photo : photos) {
             if (photo == null)
                 continue;
-            String path = String.format("%sIMG_%s_%s_photo.jpg", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), userId, photo.getNumber());
+            String path = String.format("%sIMG_%s_%s_photo.jpg", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), photo.getUserId(), photo.getNumber());
             File file =  new File(path);
 
             if (file.exists()) {

@@ -7,10 +7,13 @@ import config.MyProperties;
 import domain.entity.FilterParams;
 import domain.entity.Photo;
 import domain.entity.User;
-import domain.entity.UserCard;import usecase.*;
+import domain.entity.UserCard;
+import domain.entity.model.UserMatch;
+import usecase.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -32,8 +35,8 @@ public class UserController {
     private UpdateEmail updateEmail;
     private FioUpdate fioUpdate;
     private BirthDateUpdate birthDateUpdate;
-    private GetUserIcon getUserIcon;
     private UploadPhotoContent uploadPhotoContent;
+    private GetMatchList getMatchList;
 
     private UserController() {
     }
@@ -55,8 +58,8 @@ public class UserController {
             instance.updateEmail = MyConfiguration.updateEmail();
             instance.fioUpdate = MyConfiguration.fioUpdate();
             instance.birthDateUpdate = MyConfiguration.birthDateUpdate();
-            instance.getUserIcon = MyConfiguration.getUserIcon();
             instance.uploadPhotoContent = MyConfiguration.uploadPhotoContent();
+            instance.getMatchList = MyConfiguration.getMatchList();
         }
 
         return instance;
@@ -122,16 +125,11 @@ public class UserController {
         birthDateUpdate.update(userId, birthDate, yearsOld);
     }
 
-    public Photo getUserIcon(int userId) {
-        Photo manual = getUserIcon.get(userId);
-        if (manual == null) {
-            uploadPhotoContent.upload(Collections.singletonList(manual), userId);
-            return manual;
-        }
-        return null;
+    public void uploadPhotosContent(Collection<Photo> photos) {
+        uploadPhotoContent.upload(photos);
     }
 
-    public void uploadPhotosContent(List<Photo> photos, int id) {
-        uploadPhotoContent.upload(photos, id);
+    public List<UserMatch> getUserMatchList(int id) {
+        return getMatchList.get(id);
     }
 }

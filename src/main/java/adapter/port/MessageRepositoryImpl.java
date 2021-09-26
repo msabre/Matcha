@@ -2,14 +2,17 @@ package adapter.port;
 
 import adapter.port.model.DBConfiguration;
 import domain.entity.Message;
-import domain.entity.types.MessageStatus;
-import domain.entity.types.MessageType;
+import domain.entity.model.types.MessageStatus;
+import domain.entity.model.types.MessageType;
 import usecase.port.MessageRepository;
 
 import java.io.ByteArrayInputStream;
 import java.sql.*;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MessageRepositoryImpl implements MessageRepository {
     private static MessageRepositoryImpl instance;
@@ -17,9 +20,7 @@ public class MessageRepositoryImpl implements MessageRepository {
 
     private final DBConfiguration config = DBConfiguration.getConfig();
 
-    private MessageRepositoryImpl() {
-
-    }
+    private MessageRepositoryImpl() {}
 
     public static MessageRepositoryImpl getRepository() {
         if (instance == null) {
@@ -30,9 +31,12 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
-    public void save(Message msg) {
+    public Message save(Message msg) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
-             PreparedStatement state = connection.prepareStatement("INSERT INTO TABLE match.web_socket_message(chat_id, from_id, to_id, type, status, content) VALUES(?, ?, ?, ?, ?, ?)")) {
+             PreparedStatement state = connection.prepareStatement(
+                     "INSERT INTO TABLE match.web_socket_message(chat_id, from_id, to_id, type, status, content) VALUES(?, ?, ?, ?, ?, ?)",
+                     Statement.RETURN_GENERATED_KEYS)) {
+
             int i = 1;
             state.setInt(i++, msg.getChatId());
             state.setInt(i++, msg.getFromId());
@@ -42,10 +46,15 @@ public class MessageRepositoryImpl implements MessageRepository {
             state.setBlob(i, new ByteArrayInputStream(msg.getContent()));
 
             state.execute();
+
+            ResultSet resultSet = state.getGeneratedKeys();
+            if (resultSet.next())
+                msg.setId(resultSet.getInt("ID"));
         }
         catch (SQLException e) {
             e.printStackTrace();
         }
+        return msg;
     }
 
     @Override
@@ -77,7 +86,7 @@ public class MessageRepositoryImpl implements MessageRepository {
         catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -98,7 +107,30 @@ public class MessageRepositoryImpl implements MessageRepository {
         catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return Collections.emptyList();
+    }
+
+    public List<Message> getNByIds(int chatId, int...ids) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
+             PreparedStatement state = connection.prepareStatement(
+                     "SELECT * FROM matcha.web_socket_message msg WHERE msg.chat_id = ? AND FIND_IN_SET(?) > 0")) {
+
+            String idsLine = Stream.of(ids).map(String::valueOf).collect(Collectors.joining(","));
+            state.setInt(1, chatId);
+            state.setString(2, idsLine);
+            state.execute();
+
+            ResultSet resultSet = state.getResultSet();
+            List<Message> history = new LinkedList<>();
+            while (resultSet.next())
+                history.add(getMessageFromResultSet(resultSet));
+
+            return history;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
     }
 
     private Message getMessageFromResultSet(ResultSet resultSet) throws SQLException {

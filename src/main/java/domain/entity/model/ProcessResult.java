@@ -1,4 +1,4 @@
-package domain.entity;
+package domain.entity.model;
 
 import java.util.List;
 
@@ -24,11 +24,11 @@ public class ProcessResult<T> {
         this.objectsList = objectsList;
     }
 
-    public domain.entity.ProcessResultType getProcessResultType() {
+    public domain.entity.model.ProcessResultType getProcessResultType() {
         return ProcessResultType;
     }
 
-    public void setProcessResultType(domain.entity.ProcessResultType processResultType) {
+    public void setProcessResultType(domain.entity.model.ProcessResultType processResultType) {
         ProcessResultType = processResultType;
     }
 

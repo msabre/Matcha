@@ -3,6 +3,7 @@ package usecase.port;
 import domain.entity.Photo;
 import domain.entity.UserCard;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface UserCardRepository {
@@ -18,5 +19,5 @@ public interface UserCardRepository {
 
     void updateUserActions(UserCard userCard);
 
-    Photo getUserIconById(int id);
+    List<Photo> getIconsByIds(Collection<Integer> ids);
 }

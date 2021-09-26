@@ -7,6 +7,7 @@ import domain.entity.FilterParams;
 import domain.entity.Photo;
 import domain.entity.User;
 import domain.entity.UserCard;
+import domain.entity.model.UserMatch;
 import usecase.port.FilterParamsRepository;
 import usecase.port.UserCardRepository;
 import usecase.port.UserRepository;

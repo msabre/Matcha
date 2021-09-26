@@ -19,4 +19,8 @@ public class GetMessages {
     public List<Message> getListOfNSizeAfterSpecificId(int chatId, int messageId, int size) {
         return repository.getListOfNSizeAfterSpecificId(chatId, messageId, size);
     }
+
+    public List<Message> getNByIds(int chatId, int...ids) {
+        return repository.getNByIds(chatId, ids);
+    }
 }

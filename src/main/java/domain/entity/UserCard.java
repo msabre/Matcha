@@ -1,9 +1,9 @@
 package domain.entity;
 
 import com.google.gson.annotations.Expose;
-import domain.entity.types.Action;
-import domain.entity.types.GenderType;
-import domain.entity.types.SexualPreferenceType;
+import domain.entity.model.types.Action;
+import domain.entity.model.types.GenderType;
+import domain.entity.model.types.SexualPreferenceType;
 
 import java.util.*;
 

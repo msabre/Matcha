@@ -37,9 +37,7 @@ public class MyConfiguration {
 
     public static RecommendUsersList recommendUsersList() { return new RecommendUsersList(userRepository(), likesActionRepository(), userCardRepository()); }
 
-    public static PutLikeAction putLikeAction() {
-        return new PutLikeAction(likesActionRepository(), userRepository(), userCardRepository());
-    }
+    public static PutLikeAction putLikeAction() { return new PutLikeAction(likesActionRepository(), userRepository(), userCardRepository()); }
 
     public static UpdatePhotoParams updatePhotoParams() { return new UpdatePhotoParams(userCardRepository()); }
 
@@ -51,12 +49,12 @@ public class MyConfiguration {
 
     public static BirthDateUpdate birthDateUpdate() { return new BirthDateUpdate(userRepository()); }
 
-    public static GetUserIcon getUserIcon() {
-        return new GetUserIcon(userCardRepository());
-    }
-
     public static UploadPhotoContent uploadPhotoContent() {
         return new UploadPhotoContent();
+    }
+
+    public static GetMatchList getMatchList() {
+        return new GetMatchList(likesActionRepository(), userCardRepository(), chatAffiliationRepository());
     }
 
 
@@ -130,6 +128,10 @@ public class MyConfiguration {
 
     public static MessageRepository messageRepository() {
         return MessageRepositoryImpl.getRepository();
+    }
+
+    public static ChatAffiliationRepository chatAffiliationRepository() {
+        return ChatAffiliationRepositoryIml.getRepository();
     }
 
 }

@@ -3,6 +3,7 @@ package usecase.port;
 import domain.entity.Photo;
 import domain.entity.User;
 import domain.entity.UserCard;
+import domain.entity.model.UserMatch;
 
 import java.util.Date;
 import java.util.LinkedList;

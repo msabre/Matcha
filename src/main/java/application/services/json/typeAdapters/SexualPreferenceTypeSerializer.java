@@ -1,7 +1,7 @@
 package application.services.json.typeAdapters;
 
 import com.google.gson.*;
-import domain.entity.types.SexualPreferenceType;
+import domain.entity.model.types.SexualPreferenceType;
 
 import java.lang.reflect.Type;
 

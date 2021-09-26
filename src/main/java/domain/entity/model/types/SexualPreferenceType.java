@@ -1,4 +1,4 @@
-package domain.entity.types;
+package domain.entity.model.types;
 
 public enum SexualPreferenceType {
     GETERO("getero"),

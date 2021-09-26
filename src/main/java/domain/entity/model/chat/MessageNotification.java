@@ -1,9 +1,9 @@
-package domain.entity;
+package domain.entity.model.chat;
 
 public class MessageNotification {
     private int id;
     private int messageId;
-    private String senderId;
+    private int senderId;
     private String senderName;
 
     public int getId() {
@@ -22,11 +22,11 @@ public class MessageNotification {
         this.messageId = messageId;
     }
 
-    public String getSenderId() {
+    public int getSenderId() {
         return senderId;
     }
 
-    public void setSenderId(String senderId) {
+    public void setSenderId(int senderId) {
         this.senderId = senderId;
     }
 

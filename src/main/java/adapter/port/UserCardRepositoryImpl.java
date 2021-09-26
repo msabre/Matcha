@@ -3,14 +3,15 @@ package adapter.port;
 import adapter.port.model.DBConfiguration;
 import domain.entity.Photo;
 import domain.entity.UserCard;
-import domain.entity.types.Action;
-import domain.entity.types.GenderType;
-import domain.entity.types.SexualPreferenceType;
+import domain.entity.model.types.Action;
+import domain.entity.model.types.GenderType;
+import domain.entity.model.types.SexualPreferenceType;
 import usecase.port.UserCardRepository;
 
 import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class UserCardRepositoryImpl implements UserCardRepository {
     private static UserCardRepositoryImpl instance;
@@ -275,15 +276,17 @@ public class UserCardRepositoryImpl implements UserCardRepository {
     }
 
     @Override
-    public Photo getUserIconById(int id) {
+    public List<Photo> getIconsByIds(Collection<Integer> ids) {
         try(Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-            PreparedStatement statement = connection.prepareStatement("SELECT usr.PHOTOS_PARAMS, usr.MAIN_PHOTO FROM matcha.user usr WHERE usr.ID = ?")) {
+            PreparedStatement statement = connection.prepareStatement("SELECT usr.PHOTOS_PARAMS, usr.MAIN_PHOTO FROM matcha.user usr WHERE FIND_IN_SET(?) > 0")) {
 
-            statement.setInt(1, id);
+            String idsLine = Stream.of(ids).map(String::valueOf).collect(Collectors.joining(","));
+            statement.setString(1, idsLine);
             statement.execute();
 
             ResultSet resultSet = statement.getResultSet();
-            if (resultSet.next()) {
+            List<Photo> photoList = new LinkedList<>();
+            while (resultSet.next()) {
                 Photo photo = new Photo();
                 photo.setNumber(String.valueOf(resultSet.getInt("MAIN_PHOTO")));
 
@@ -298,9 +301,9 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                 }
                 photo.setFormat(format);
                 photo.setMain(true);
-
-                return photo;
+                photoList.add(photo);
             }
+            return photoList;
 
         } catch (SQLException ex) {
             ex.printStackTrace();

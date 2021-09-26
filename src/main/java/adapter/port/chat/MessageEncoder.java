@@ -1,15 +1,15 @@
 package adapter.port.chat;
 
-import domain.entity.Message;
+import domain.entity.model.chat.TransportMessage;
 
 import javax.websocket.Encoder;
 import javax.websocket.EndpointConfig;
 
-public class MessageEncoder implements Encoder.Text<Message> {
+public class MessageEncoder implements Encoder.Text<TransportMessage> {
 
     @Override
-    public String encode(Message message) {
-        return message.getContent();
+    public String encode(TransportMessage transportMessage) {
+        return new String(transportMessage.getMessage().getContent());
     }
 
     @Override

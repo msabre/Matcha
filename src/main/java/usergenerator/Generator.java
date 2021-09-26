@@ -3,8 +3,8 @@ package usergenerator;
 import config.MyConfiguration;
 import domain.entity.User;
 import domain.entity.UserCard;
-import domain.entity.types.GenderType;
-import domain.entity.types.SexualPreferenceType;
+import domain.entity.model.types.GenderType;
+import domain.entity.model.types.SexualPreferenceType;
 import usecase.port.UserCardRepository;
 import usecase.port.UserRepository;
 

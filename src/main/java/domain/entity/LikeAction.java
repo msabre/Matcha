@@ -1,6 +1,6 @@
 package domain.entity;
 
-import domain.entity.types.Action;
+import domain.entity.model.types.Action;
 
 import java.util.Date;
 

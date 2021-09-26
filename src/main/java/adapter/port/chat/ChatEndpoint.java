@@ -1,9 +1,10 @@
 package adapter.port.chat;
 
 import adapter.controller.MessageController;
-import domain.entity.ChatUser;
+import domain.entity.model.chat.ChatUser;
+import domain.entity.model.chat.GetMessageRq;
 import domain.entity.Message;
-import domain.entity.types.MessageStatus;
+import domain.entity.model.chat.MessageNotification;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
@@ -41,13 +42,36 @@ public class ChatEndpoint {
     }
 
     @OnMessage
-    public void onMessage(final Session session, Message msg) {
+    public void onMessage(final Session session, Object msgObj) {
+        try {
+            int chatId = 0;
+            if (msgObj instanceof Message) {
+                Message message = (Message) msgObj;
+                message = messageController.save(message);
+                send(message.getChatId(), createNotification(message));
 
-        // подумать как получать и передавать разные json'ы
-        messageController.save(msg);
+            } else if (msgObj instanceof GetMessageRq) {
+                GetMessageRq getMessageRq = (GetMessageRq) msgObj;
+                List<Message> messageList = messageController.getNByIds(chatId, getMessageRq.getMessageIds());
+                messageList.forEach(msg -> send(getMessageRq.getChatId(), msg));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private MessageNotification createNotification(Message message) {
+        MessageNotification notification = new MessageNotification();
+        notification.setMessageId(message.getId());
+        notification.setSenderId(message.getFromId());
+
+        return notification;
+    }
+
+    private void send(int chatId, Object msgObj) {
         for (ChatUser user : usersList) {
-            if (user.getChatId() == msg.getChatId()) {
-                user.getSession().getAsyncRemote().sendObject(msg);
+            if (user.getChatId() == chatId) {
+                user.getSession().getAsyncRemote().sendObject(msgObj);
             }
         }
     }
@@ -55,6 +79,7 @@ public class ChatEndpoint {
     @OnClose
     public void onClose(Session session) {
         usersList.remove(getWebSocketUser(session));
+        // уведомить что вышел
     }
 
     @OnError

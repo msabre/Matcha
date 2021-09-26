@@ -42,6 +42,7 @@ public class LikeServlet extends HttpServlet {
             case "takeLike":
                 userController.deleteLike(user.getId(), toUserId);
                 break;
+                // TODO добавить дизлайк в онлайне (не дизить заранее)
             default:
                 HttpService.putBody(resp, "UNEXPECTED ACTION PARAMETER");
                 return;
