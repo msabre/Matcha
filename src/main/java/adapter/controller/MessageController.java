@@ -1,5 +1,6 @@
 package adapter.controller;
 
+import config.MyConfiguration;
 import domain.entity.Message;
 import usecase.ClearAllMessages;
 import usecase.GetMessages;
@@ -8,14 +9,25 @@ import usecase.SaveMessage;
 import java.util.List;
 
 public class MessageController {
-    private final SaveMessage saveMessage;
-    private final ClearAllMessages clearAllMessages;
-    private final GetMessages getMessages;
+    private static MessageController instance;
 
-    public MessageController(SaveMessage saveMessage, ClearAllMessages clearAllMessages, GetMessages getMessages) {
-        this.saveMessage = saveMessage;
-        this.clearAllMessages = clearAllMessages;
-        this.getMessages = getMessages;
+    private SaveMessage saveMessage;
+    private ClearAllMessages clearAllMessages;
+    private GetMessages getMessages;
+
+    private MessageController() {
+    }
+
+    public static MessageController getController() {
+        if (instance == null) {
+            instance = new MessageController();
+
+            instance.saveMessage = MyConfiguration.saveMessage();
+            instance.clearAllMessages = MyConfiguration.clearAllMessages();
+            instance.getMessages = MyConfiguration.getMessages();
+        }
+
+        return instance;
     }
 
     public Message save(Message msg) {

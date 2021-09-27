@@ -97,6 +97,22 @@ public class MyConfiguration {
     }
 
 
+    public static MessageController messageController() {
+        return MessageController.getController();
+    }
+
+    public static SaveMessage saveMessage() {
+        return new SaveMessage(messageRepository());
+    }
+
+    public static GetMessages getMessages() {
+        return new GetMessages(messageRepository());
+    }
+
+    public static ClearAllMessages clearAllMessages() {
+        return new ClearAllMessages(messageRepository());
+    }
+
 
     public static UserRepository userRepository() {
         return UserRepositoryImpl.getRepository();

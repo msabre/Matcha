@@ -1,5 +1,6 @@
 package adapter.port.chat;
 
+import application.services.json.JsonService;
 import domain.entity.model.chat.TransportMessage;
 
 import javax.websocket.Encoder;
@@ -9,7 +10,7 @@ public class MessageEncoder implements Encoder.Text<TransportMessage> {
 
     @Override
     public String encode(TransportMessage transportMessage) {
-        return new String(transportMessage.getMessage().getContent());
+        return JsonService.getJson(transportMessage);
     }
 
     @Override

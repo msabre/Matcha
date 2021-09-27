@@ -72,7 +72,7 @@ public class MessageRepositoryImpl implements MessageRepository {
     @Override
     public List<Message> getFirstNMatches(int chatId, int size) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
-             PreparedStatement state = connection.prepareStatement("SELECT * FROM matcha.web_socket_message WHERE chat_id = ? AND LIMIT ?")) {
+             PreparedStatement state = connection.prepareStatement("SELECT * FROM matcha.web_socket_message WHERE chat_id = ? ORDER BY CREATION_TIME DESC LIMIT ?")) {
             state.setInt(1, chatId);
             state.setInt(2, size);
             state.execute();

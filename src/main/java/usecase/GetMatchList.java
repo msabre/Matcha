@@ -23,7 +23,7 @@ public class GetMatchList {
     public List<UserMatch> get(int id) {
         List<Integer> matchIds = likesActionRepository.getMatchUserIds(id);
         List<Photo> photoList = userCardRepository.getIconsByIds(matchIds);
-        List<ChatAffiliation> chatAffiliation = affiliationRepository.getByUserId();
+        List<ChatAffiliation> chatAffiliation = affiliationRepository.getByUserId(id);
 
         List<UserMatch> userMatches = new LinkedList<>();
         for (int userId : matchIds) {

@@ -1,10 +1,12 @@
 package adapter.port.chat;
 
 import adapter.controller.MessageController;
+import config.MyConfiguration;
 import domain.entity.model.chat.ChatUser;
 import domain.entity.model.chat.GetMessageRq;
 import domain.entity.Message;
 import domain.entity.model.chat.MessageNotification;
+import domain.entity.model.chat.TransportMessage;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
@@ -19,7 +21,7 @@ public class ChatEndpoint {
     private static final int MESSAGE_SIZE_PACK = 10;
     private static final List<ChatUser> usersList = new ArrayList<>();
 
-    MessageController messageController;
+    MessageController messageController = MyConfiguration.messageController();
 
     @OnOpen
     public void onOpen(Session session, @PathParam("userdata") String userdata) {
@@ -37,23 +39,28 @@ public class ChatEndpoint {
 
         List<Message> messages = messageController.getFirstNMatches(chatId, MESSAGE_SIZE_PACK);
         if (messages != null) {
-            messages.forEach(mess -> onMessage(session, mess));
+            messages.forEach(mess -> {
+                TransportMessage transportMessage = new TransportMessage();
+                transportMessage.setMessage(mess);
+                onMessage(session, transportMessage);
+            });
         }
     }
 
     @OnMessage
-    public void onMessage(final Session session, Object msgObj) {
+    public void onMessage(final Session session, TransportMessage msgObj) {
         try {
             int chatId = 0;
-            if (msgObj instanceof Message) {
-                Message message = (Message) msgObj;
+            if (msgObj.getMessage() != null) {
+                Message message = msgObj.getMessage();
                 message = messageController.save(message);
                 send(message.getChatId(), createNotification(message));
 
-            } else if (msgObj instanceof GetMessageRq) {
-                GetMessageRq getMessageRq = (GetMessageRq) msgObj;
+            } else if (msgObj.getGetMessageRq() != null) {
+                GetMessageRq getMessageRq = msgObj.getGetMessageRq();
                 List<Message> messageList = messageController.getNByIds(chatId, getMessageRq.getMessageIds());
                 messageList.forEach(msg -> send(getMessageRq.getChatId(), msg));
+
             }
         } catch (Exception e) {
             e.printStackTrace();
