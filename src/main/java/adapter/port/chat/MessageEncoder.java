@@ -10,7 +10,7 @@ public class MessageEncoder implements Encoder.Text<TransportMessage> {
 
     @Override
     public String encode(TransportMessage transportMessage) {
-        return JsonService.getJson(transportMessage);
+        return JsonService.getJsonChat(transportMessage);
     }
 
     @Override

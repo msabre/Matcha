@@ -1,8 +1,8 @@
 package domain.entity.model.types;
 
 public enum MessageStatus {
-    RECEIVED(""),
-    DELIVERED("");
+    RECEIVED("RECEIVED"),
+    DELIVERED("DELIVERED");
 
     private final String value;
 

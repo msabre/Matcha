@@ -7,6 +7,7 @@ import domain.entity.model.chat.GetMessageRq;
 import domain.entity.Message;
 import domain.entity.model.chat.MessageNotification;
 import domain.entity.model.chat.TransportMessage;
+import domain.entity.model.types.MessageStatus;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
@@ -38,11 +39,12 @@ public class ChatEndpoint {
         usersList.add(newUser);
 
         List<Message> messages = messageController.getFirstNMatches(chatId, MESSAGE_SIZE_PACK);
-        if (messages != null) {
+        if (!messages.isEmpty()) {
+            int finalChatId = chatId;
             messages.forEach(mess -> {
                 TransportMessage transportMessage = new TransportMessage();
                 transportMessage.setMessage(mess);
-                onMessage(session, transportMessage);
+                send(finalChatId, transportMessage);
             });
         }
     }
@@ -50,16 +52,23 @@ public class ChatEndpoint {
     @OnMessage
     public void onMessage(final Session session, TransportMessage msgObj) {
         try {
-            int chatId = 0;
             if (msgObj.getMessage() != null) {
                 Message message = msgObj.getMessage();
+                message.setStatus(MessageStatus.RECEIVED);
                 message = messageController.save(message);
-                send(message.getChatId(), createNotification(message));
+
+                TransportMessage transportMessage = new TransportMessage();
+                transportMessage.setMessageNotification(createNotification(message));
+                send(message.getChatId(), transportMessage);
 
             } else if (msgObj.getGetMessageRq() != null) {
                 GetMessageRq getMessageRq = msgObj.getGetMessageRq();
-                List<Message> messageList = messageController.getNByIds(chatId, getMessageRq.getMessageIds());
-                messageList.forEach(msg -> send(getMessageRq.getChatId(), msg));
+                List<Message> messageList = messageController.getNByIds(getMessageRq.getChatId(), getMessageRq.getMessageIds());
+                messageList.forEach(msg -> {
+                    TransportMessage transportMessage = new TransportMessage();
+                    transportMessage.setMessage(msg);
+                    send(getMessageRq.getChatId(), transportMessage);
+                });
 
             }
         } catch (Exception e) {
@@ -75,7 +84,7 @@ public class ChatEndpoint {
         return notification;
     }
 
-    private void send(int chatId, Object msgObj) {
+    private void send(int chatId, TransportMessage msgObj) {
         for (ChatUser user : usersList) {
             if (user.getChatId() == chatId) {
                 user.getSession().getAsyncRemote().sendObject(msgObj);

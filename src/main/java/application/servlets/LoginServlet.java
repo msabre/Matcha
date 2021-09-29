@@ -54,7 +54,7 @@ public class LoginServlet extends HttpServlet {
             claims.put("userId", user.getId());
 
             if (jwtController.issueTokensPair(req, resp, user, claims) != null) {
-                HttpService.putBody(resp, JsonService.getJson(user));
+                HttpService.putBody(resp, JsonService.getJsonWithExposeFields(user));
                 return;
             }
         }

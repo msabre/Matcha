@@ -7,12 +7,11 @@ import domain.entity.model.types.MessageType;
 import usecase.port.MessageRepository;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.Date;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class MessageRepositoryImpl implements MessageRepository {
     private static MessageRepositoryImpl instance;
@@ -34,7 +33,7 @@ public class MessageRepositoryImpl implements MessageRepository {
     public Message save(Message msg) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
              PreparedStatement state = connection.prepareStatement(
-                     "INSERT INTO TABLE match.web_socket_message(chat_id, from_id, to_id, type, status, content) VALUES(?, ?, ?, ?, ?, ?)",
+                     "INSERT INTO matcha.web_socket_message(chat_id, from_id, to_id, web_socket_message.type, status, content) VALUES(?, ?, ?, ?, ?, ?)",
                      Statement.RETURN_GENERATED_KEYS)) {
 
             int i = 1;
@@ -43,13 +42,13 @@ public class MessageRepositoryImpl implements MessageRepository {
             state.setInt(i++, msg.getToId());
             state.setString(i++, msg.getType().getValue());
             state.setString(i++, msg.getStatus().getValue());
-            state.setBlob(i, new ByteArrayInputStream(msg.getContent()));
+            state.setBlob(i, new ByteArrayInputStream(msg.getContent().getBytes()));
 
             state.execute();
 
             ResultSet resultSet = state.getGeneratedKeys();
             if (resultSet.next())
-                msg.setId(resultSet.getInt("ID"));
+                msg.setId(resultSet.getInt(1));
         }
         catch (SQLException e) {
             e.printStackTrace();
@@ -113,9 +112,9 @@ public class MessageRepositoryImpl implements MessageRepository {
     public List<Message> getNByIds(int chatId, int...ids) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
              PreparedStatement state = connection.prepareStatement(
-                     "SELECT * FROM matcha.web_socket_message msg WHERE msg.chat_id = ? AND FIND_IN_SET(?) > 0")) {
+                     "SELECT * FROM matcha.web_socket_message msg WHERE msg.chat_id = ? AND FIND_IN_SET(msg.ID, ?) > 0")) {
 
-            String idsLine = Stream.of(ids).map(String::valueOf).collect(Collectors.joining(","));
+            String idsLine = Arrays.stream(ids).mapToObj(String::valueOf).collect(Collectors.joining(","));
             state.setInt(1, chatId);
             state.setString(2, idsLine);
             state.execute();
@@ -136,6 +135,7 @@ public class MessageRepositoryImpl implements MessageRepository {
     private Message getMessageFromResultSet(ResultSet resultSet) throws SQLException {
         Message msg = new Message();
         msg.setId(resultSet.getInt("ID"));
+        msg.setCreationTime(new Date(resultSet.getTimestamp("CREATION_TIME").getTime()));
         msg.setChatId(resultSet.getInt("CHAT_ID"));
         msg.setFromId(resultSet.getInt("FROM_ID"));
         msg.setToId(resultSet.getInt("TO_ID"));
@@ -143,7 +143,7 @@ public class MessageRepositoryImpl implements MessageRepository {
         msg.setStatus(MessageStatus.fromStr(resultSet.getString("STATUS")));
 
         Blob content = resultSet.getBlob("CONTENT");
-        msg.setContent(resultSet.getBlob("CONTENT").getBytes(0, (int) content.length()));
+        msg.setContent(new String(content.getBytes(1, (int) content.length()), StandardCharsets.UTF_8));
         return msg;
     }
 }

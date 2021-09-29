@@ -3,17 +3,13 @@ package application.servlets;
 import adapter.controller.UserController;
 import application.services.HttpService;
 import application.services.json.JsonService;
-import domain.entity.FilterParams;
 import domain.entity.User;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.List;
 
 import static config.MyConfiguration.userController;
-import static java.util.Objects.isNull;
 
 public class GetUserServlet extends HttpServlet {
 
@@ -35,6 +31,6 @@ public class GetUserServlet extends HttpServlet {
         }
 
         User user = userController.findUser(id);
-        HttpService.putBody(resp, JsonService.getJson(user));
+        HttpService.putBody(resp, JsonService.getJsonWithExposeFields(user));
     }
 }

@@ -3,14 +3,25 @@ package domain.entity;
 import domain.entity.model.types.MessageStatus;
 import domain.entity.model.types.MessageType;
 
+import java.util.Date;
+
 public class Message {
     private int id;
     private int chatId;
     private int fromId;
     private int toId;
-    private byte[] content;
+    private Date creationTime;
+    private String content;
     private MessageType type;
     private MessageStatus status;
+
+    public Date getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(Date creationTime) {
+        this.creationTime = creationTime;
+    }
 
     public int getId() {
         return id;
@@ -60,11 +71,11 @@ public class Message {
         this.status = status;
     }
 
-    public byte[] getContent() {
+    public String getContent() {
         return content;
     }
 
-    public void setContent(byte[] content) {
+    public void setContent(String content) {
         this.content = content;
     }
 }

@@ -26,7 +26,7 @@ public class GetAuthorizedUserServlet extends HttpServlet {
 
         if (jwtController.checkJwt(req, resp)) {
             User user = (User) req.getSession().getAttribute("user");
-            String body = JsonService.getJson(user);
+            String body = JsonService.getJsonWithExposeFields(user);
             HttpService.putBody(resp, body);
 
             return;
