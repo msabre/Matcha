@@ -19,6 +19,9 @@ import java.util.List;
         decoders = MessageDecoder.class,
         encoders = MessageEncoder.class)
 public class ChatEndpoint {
+    private static final String AFTER_LAST = "AFTER_LAST";
+    private static final String BY_IDS = "BY_IDS";
+
     private static final int MESSAGE_SIZE_PACK = 10;
     private static final List<ChatUser> usersList = new ArrayList<>();
 
@@ -39,18 +42,12 @@ public class ChatEndpoint {
         usersList.add(newUser);
 
         List<Message> messages = messageController.getFirstNMatches(chatId, MESSAGE_SIZE_PACK);
-        if (!messages.isEmpty()) {
-            int finalChatId = chatId;
-            messages.forEach(mess -> {
-                TransportMessage transportMessage = new TransportMessage();
-                transportMessage.setMessage(mess);
-                send(finalChatId, transportMessage);
-            });
-        }
+        if (!messages.isEmpty())
+            sendMessageList(chatId, messages);
     }
 
     @OnMessage
-    public void onMessage(final Session session, TransportMessage msgObj) {
+    public void onMessage(TransportMessage msgObj) {
         try {
             if (msgObj.getMessage() != null) {
                 Message message = msgObj.getMessage();
@@ -63,13 +60,19 @@ public class ChatEndpoint {
 
             } else if (msgObj.getGetMessageRq() != null) {
                 GetMessageRq getMessageRq = msgObj.getGetMessageRq();
-                List<Message> messageList = messageController.getNByIds(getMessageRq.getChatId(), getMessageRq.getMessageIds());
-                messageList.forEach(msg -> {
-                    TransportMessage transportMessage = new TransportMessage();
-                    transportMessage.setMessage(msg);
-                    send(getMessageRq.getChatId(), transportMessage);
-                });
+                List<Message> messageList;
 
+                switch (getMessageRq.getType()) {
+                    case BY_IDS:
+                        messageList = messageController.getNByIds(getMessageRq.getChatId(), getMessageRq.getMessageIds());
+                        break;
+                    case AFTER_LAST:
+                        messageList = messageController.getListOfNSizeAfterSpecificId(getMessageRq.getChatId(), getMessageRq.getLastId(), MESSAGE_SIZE_PACK);
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + getMessageRq.getType());
+                }
+                sendMessageList(getMessageRq.getChatId(), messageList);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -84,11 +87,17 @@ public class ChatEndpoint {
         return notification;
     }
 
+    private void sendMessageList(int chatId, List<Message> messageList) {
+        TransportMessage transportMessage = new TransportMessage();
+        transportMessage.setMessageAnswer(new ArrayList<>(messageList.size()));
+        messageList.forEach(m -> transportMessage.getMessageAnswer().add(m));
+        send(chatId, transportMessage);
+    }
+
     private void send(int chatId, TransportMessage msgObj) {
         for (ChatUser user : usersList) {
-            if (user.getChatId() == chatId) {
+            if (user.getChatId() == chatId)
                 user.getSession().getAsyncRemote().sendObject(msgObj);
-            }
         }
     }
 

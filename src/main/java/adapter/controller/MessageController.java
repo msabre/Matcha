@@ -45,4 +45,8 @@ public class MessageController {
     public List<Message> getNByIds(int chatId, int...ids) {
         return getMessages.getNByIds(chatId, ids);
     }
+
+    public List<Message> getListOfNSizeAfterSpecificId(int chatId, int lastMessageId, int size) {
+        return getMessages.getListOfNSizeAfterSpecificId(chatId, lastMessageId, size);
+    }
 }

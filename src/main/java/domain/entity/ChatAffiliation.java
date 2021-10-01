@@ -5,7 +5,8 @@ import java.util.Date;
 public class ChatAffiliation {
     private int id;
     private Date creationTime;
-    private int userId;
+    private int from_urs;
+    private int to_usr;
     private int chatId;
 
     public int getId() {
@@ -24,12 +25,20 @@ public class ChatAffiliation {
         this.creationTime = creationTime;
     }
 
-    public int getUserId() {
-        return userId;
+    public int getFrom_urs() {
+        return from_urs;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setFrom_urs(int from_urs) {
+        this.from_urs = from_urs;
+    }
+
+    public int getTo_usr() {
+        return to_usr;
+    }
+
+    public void setTo_usr(int to_usr) {
+        this.to_usr = to_usr;
     }
 
     public int getChatId() {

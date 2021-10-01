@@ -181,15 +181,20 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
 
     public List<Integer> getMatchUserIds(int id) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION acts WHERE acts.FROM_ID = ? AND ACTION = ?")) {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION acts WHERE (acts.FROM_USR = ? OR acts.TO_USR = ?) AND ACTION = ?")) {
             statement.setInt(1, id);
             statement.setInt(2, id);
             statement.setString(3, Action.MATCH.getValue());
+            statement.execute();
 
             try (ResultSet rs = statement.getResultSet()) {
                 List<Integer> ids = new LinkedList<>();
-                while (rs.next())
-                    ids.add(rs.getInt("TO_ID"));
+                while (rs.next()) {
+                    int whoId = rs.getInt("TO_USR");
+                    if (whoId == id)
+                        whoId = rs.getInt("FROM_USR");
+                    ids.add(whoId);
+                }
                 return ids;
             }
 

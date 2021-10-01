@@ -278,7 +278,7 @@ public class UserCardRepositoryImpl implements UserCardRepository {
     @Override
     public List<Photo> getIconsByIds(Collection<Integer> ids) {
         try(Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-            PreparedStatement statement = connection.prepareStatement("SELECT usr.PHOTOS_PARAMS, usr.MAIN_PHOTO FROM matcha.user usr WHERE FIND_IN_SET(?) > 0")) {
+            PreparedStatement statement = connection.prepareStatement("SELECT usr.PHOTOS_PARAMS, usr.MAIN_PHOTO FROM matcha.user usr WHERE FIND_IN_SET(usr.ID, ?) > 0")) {
 
             String idsLine = Stream.of(ids).map(String::valueOf).collect(Collectors.joining(","));
             statement.setString(1, idsLine);
@@ -308,6 +308,6 @@ public class UserCardRepositoryImpl implements UserCardRepository {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-        return null;
+        return Collections.emptyList();
     }
 }
