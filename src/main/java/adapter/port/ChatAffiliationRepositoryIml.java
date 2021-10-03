@@ -11,6 +11,7 @@ import java.sql.*;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ChatAffiliationRepositoryIml implements ChatAffiliationRepository {
 
@@ -64,11 +65,13 @@ public class ChatAffiliationRepositoryIml implements ChatAffiliationRepository {
     }
 
     @Override
-    public List<ChatAffiliation> getByUserId(int id) {
+    public List<ChatAffiliation> getByIdsWithToUsr(List<Integer> ids, int toUsr) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
-             PreparedStatement state = connection.prepareStatement("SELECT * FROM matcha.CHAT_AFFILIATION where FROM_USR = ?"))
+             PreparedStatement state = connection.prepareStatement("SELECT * FROM matcha.CHAT_AFFILIATION chat where FIND_IN_SET(chat.FROM_USR, ?) > 0 AND TO_USR = ?"))
         {
-            state.setInt(1, id);
+            String idsLine = ids.stream().map(String::valueOf).collect(Collectors.joining(","));
+            state.setString(1, idsLine);
+            state.setInt(2, toUsr);
             state.execute();
 
             try (ResultSet resultSet = state.getResultSet()) {

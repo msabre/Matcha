@@ -1,11 +1,9 @@
 package application.servlets;
 
-
 import adapter.controller.UserController;
 import application.services.HttpService;
 import application.services.json.JsonService;
 
-import config.MyProperties;
 import domain.entity.FilterParams;
 import domain.entity.User;
 import domain.entity.model.UserMatch;
@@ -16,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static config.MyConfiguration.userController;
 import static java.util.Objects.isNull;
@@ -48,7 +47,7 @@ public class MainServlet extends HttpServlet {
                 break;
             case "getMatches":
                 List<UserMatch> userMatches;
-                int afterId = Integer.parseInt(req.getParameter("after"));
+                int afterId = Integer.parseInt(Optional.ofNullable(req.getParameter("after")).orElse("-1"));
                 if (afterId >= 0)
                     userMatches = userController.getUserMatchListWithSizeAfterSpecificId(user.getId(), afterId, USER_MATCH_SIZE);
                 else

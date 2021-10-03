@@ -1,5 +1,7 @@
 package usecase.port;
 
+import domain.entity.LikeAction;
+
 import java.util.List;
 
 public interface LikesActionRepository {
@@ -16,7 +18,7 @@ public interface LikesActionRepository {
 
     void deleteLike(int from, int to);
 
-    List<Integer> getNMatchUserIds(int id, int size);
+    List<LikeAction> getNMatchUserIds(int id, int size);
 
-    List<Integer> getNMatchUserIdsAfterSpecificId(int id, int specificId, int size);
+    List<LikeAction> getNMatchUserIdsAfterSpecificId(int id, int specificId, int size);
 }

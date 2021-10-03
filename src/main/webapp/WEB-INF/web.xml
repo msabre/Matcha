@@ -103,6 +103,11 @@
     <servlet-class>application.servlets.GetUserServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>ChatCreateServlet</servlet-name>
+    <servlet-class>application.servlets.ChatCreateServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
     <servlet-name>RegistrationFormServlet</servlet-name>
     <url-pattern>/registration</url-pattern>
@@ -157,6 +162,11 @@
   <servlet-mapping>
     <servlet-name>GetUserServlet</servlet-name>
     <url-pattern>/main/getuser</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>ChatCreateServlet</servlet-name>
+    <url-pattern>/main/chatcreate</url-pattern>
   </servlet-mapping>
 
 </web-app>

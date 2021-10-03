@@ -1,11 +1,13 @@
 package adapter.port;
 
 import adapter.port.model.DBConfiguration;
+import domain.entity.LikeAction;
 import domain.entity.model.types.Action;
 import usecase.port.LikesActionRepository;
 
 import java.sql.*;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -51,19 +53,21 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
 
     @Override
     public void match(int from, int to) {
-        putUpdateAction(from, to, Action.MATCH);
-        insertLike(to, from);
+        updateOrInsertMatch(from, to);
+        updateOrInsertMatch(to, from);
     }
 
-    private void insertLike(int from, int to) {
+    private void updateOrInsertMatch(int from, int to) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword())) {
             boolean putAlready;
-            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION WHERE FROM_USR = ?")) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION WHERE FROM_USR = ? AND TO_USR = ?",
+                    ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
                 statement.setInt(1, from);
+                statement.setInt(2, to);
                 statement.execute();
 
                 ResultSet resultSet = statement.getResultSet();
-                putAlready = resultSet.next();
+                putAlready = resultSet.first();
             }
 
             int i = 1;
@@ -179,13 +183,12 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
         }
     }
 
-    public List<Integer> getNMatchUserIds(int id, int size) {
+    public List<LikeAction> getNMatchUserIds(int id, int size) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION acts WHERE (acts.FROM_USR = ? OR acts.TO_USR = ?) AND ACTION = ? LIMIT ?")) {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION acts WHERE acts.FROM_USR = ? AND ACTION = ? ORDER BY acts.CREATION_TIME DESC LIMIT ?")) {
             statement.setInt(1, id);
-            statement.setInt(2, id);
-            statement.setString(3, Action.MATCH.getValue());
-            statement.setInt(4, size);
+            statement.setString(2, Action.MATCH.getValue());
+            statement.setInt(3, size);
             statement.execute();
 
             return getIds(statement, id);
@@ -197,14 +200,14 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
     }
 
     @Override
-    public List<Integer> getNMatchUserIdsAfterSpecificId(int id, int specificId, int size) {
+    public List<LikeAction> getNMatchUserIdsAfterSpecificId(int id, int specificId, int size) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-             PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION acts WHERE (acts.FROM_USR = ? OR acts.TO_USR = ?) AND acts.ACTION = ? AND acts.ID > ? LIMIT ?")) {
+             PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION acts WHERE acts.FROM_USR = ? " +
+                     "AND acts.ACTION = ? AND acts.ID > ? ORDER BY acts.CREATION_TIME DESC LIMIT ?")) {
             statement.setInt(1, id);
-            statement.setInt(2, id);
-            statement.setString(3, Action.MATCH.getValue());
-            statement.setInt(4, specificId);
-            statement.setInt(5, size);
+            statement.setString(2, Action.MATCH.getValue());
+            statement.setInt(3, specificId);
+            statement.setInt(4, size);
             statement.execute();
 
             return getIds(statement, id);
@@ -215,14 +218,17 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
         return Collections.emptyList();
     }
 
-    private List<Integer> getIds(Statement statement, int id) throws SQLException {
+    private List<LikeAction> getIds(Statement statement, int id) throws SQLException {
         try (ResultSet rs = statement.getResultSet()) {
-            List<Integer> ids = new LinkedList<>();
+            List<LikeAction> ids = new LinkedList<>();
             while (rs.next()) {
-                int whoId = rs.getInt("TO_USR");
-                if (whoId == id)
-                    whoId = rs.getInt("FROM_USR");
-                ids.add(whoId);
+                LikeAction likeAction = new LikeAction();
+                likeAction.setId(rs.getInt("ID"));
+                likeAction.setCreationTime(new Date(rs.getTimestamp("CREATION_TIME").getTime()));
+                likeAction.setFromUsr(rs.getInt("FROM_USR"));
+                likeAction.setToUsr(rs.getInt("TO_USR"));
+                likeAction.setAction(Action.MATCH);
+                ids.add(likeAction);
             }
             return ids;
         }

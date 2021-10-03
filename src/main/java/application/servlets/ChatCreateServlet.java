@@ -20,13 +20,13 @@ public class ChatCreateServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setCharacterEncoding("UTF-8");
 
         String body = HttpService.getBody(req);
-        int toUsr = Integer.parseInt(Optional.ofNullable(JsonService.getParameter(body, "toUsr")).orElse(""));
+        int toUsr = Integer.parseInt(Optional.ofNullable(JsonService.getParameter(body, "toUsr")).orElse("-1"));
         if (toUsr < 0) {
-            HttpService.putBody(resp, "wrong 'toUsr' param");
+            HttpService.putBody(resp, "WRONG 'toUsr' PARAM VALUE");
             return;
         }
 

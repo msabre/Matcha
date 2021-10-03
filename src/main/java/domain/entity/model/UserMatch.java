@@ -1,11 +1,21 @@
 package domain.entity.model;
 
+import com.google.gson.annotations.Expose;
 import domain.entity.Photo;
 
 public class UserMatch {
-    private int userId;
-    private Integer chatId;
-    private Photo icon;
+    @Expose private int id;
+    @Expose private int userId;
+    @Expose private Integer chatId;
+    @Expose private Photo icon;
+
+    public int getMatchId() {
+        return id;
+    }
+
+    public void setMatchId(int matchId) {
+        this.id = matchId;
+    }
 
     public int getUserId() {
         return userId;

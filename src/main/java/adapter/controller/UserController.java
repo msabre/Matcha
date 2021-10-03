@@ -135,8 +135,8 @@ public class UserController {
         return getMatchList.getN(id, size);
     }
 
-    public List<UserMatch> getUserMatchListWithSizeAfterSpecificId(int id, int lastId, int size) {
-        return getMatchList.getNAfterSpecificId(id, lastId, size);
+    public List<UserMatch> getUserMatchListWithSizeAfterSpecificId(int id, int lastMatchId, int size) {
+        return getMatchList.getNAfterSpecificId(id, lastMatchId, size);
     }
 
     public int createChatBetweenTwoUsers(int fromUsr, int toUsr) {
