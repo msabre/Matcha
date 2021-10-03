@@ -179,28 +179,52 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
         }
     }
 
-    public List<Integer> getMatchUserIds(int id) {
+    public List<Integer> getNMatchUserIds(int id, int size) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION acts WHERE (acts.FROM_USR = ? OR acts.TO_USR = ?) AND ACTION = ?")) {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION acts WHERE (acts.FROM_USR = ? OR acts.TO_USR = ?) AND ACTION = ? LIMIT ?")) {
             statement.setInt(1, id);
             statement.setInt(2, id);
             statement.setString(3, Action.MATCH.getValue());
+            statement.setInt(4, size);
             statement.execute();
 
-            try (ResultSet rs = statement.getResultSet()) {
-                List<Integer> ids = new LinkedList<>();
-                while (rs.next()) {
-                    int whoId = rs.getInt("TO_USR");
-                    if (whoId == id)
-                        whoId = rs.getInt("FROM_USR");
-                    ids.add(whoId);
-                }
-                return ids;
-            }
+            return getIds(statement, id);
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return Collections.emptyList();
+    }
+
+    @Override
+    public List<Integer> getNMatchUserIdsAfterSpecificId(int id, int specificId, int size) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION acts WHERE (acts.FROM_USR = ? OR acts.TO_USR = ?) AND acts.ACTION = ? AND acts.ID > ? LIMIT ?")) {
+            statement.setInt(1, id);
+            statement.setInt(2, id);
+            statement.setString(3, Action.MATCH.getValue());
+            statement.setInt(4, specificId);
+            statement.setInt(5, size);
+            statement.execute();
+
+            return getIds(statement, id);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
+    }
+
+    private List<Integer> getIds(Statement statement, int id) throws SQLException {
+        try (ResultSet rs = statement.getResultSet()) {
+            List<Integer> ids = new LinkedList<>();
+            while (rs.next()) {
+                int whoId = rs.getInt("TO_USR");
+                if (whoId == id)
+                    whoId = rs.getInt("FROM_USR");
+                ids.add(whoId);
+            }
+            return ids;
+        }
     }
 }

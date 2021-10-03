@@ -8,7 +8,6 @@ import usecase.port.LikesActionRepository;
 import usecase.port.UserCardRepository;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 public class GetMatchList {
     private final LikesActionRepository likesActionRepository;
@@ -21,13 +20,22 @@ public class GetMatchList {
         this.affiliationRepository = affiliationRepository;
     }
 
-    // TODO тут что то не то
-    // Тяжелый запрос нужно ограничить, лйков может быть очень много
+    public List<UserMatch> getN(int id, int size) {
+        List<Integer> matchIds = likesActionRepository.getNMatchUserIds(id, size);
+        return formUserMatches(id, matchIds);
+    }
+
+    public List<UserMatch> getNAfterSpecificId(int id, int lastId, int size) {
+        List<Integer> matchIds = likesActionRepository.getNMatchUserIdsAfterSpecificId(id, lastId, size);
+        return formUserMatches(id, matchIds);
+    }
+
+    // TODO int size
+    // Тяжелый запрос нужно ограничить, лайков может быть очень много
     // Как вариант сделать получение по примеру чата
-    public List<UserMatch> get(int id) {
-        List<Integer> matchIds = likesActionRepository.getMatchUserIds(id);
+    private List<UserMatch> formUserMatches(int id, List<Integer> matchIds) {
         List<Photo> photoList = userCardRepository.getIconsByIds(matchIds);
-        List<ChatAffiliation> chatAffiliation = affiliationRepository.getByUserId(id);
+        List<ChatAffiliation> chatAffiliation = affiliationRepository.getByUserId(id); // TODO получать только тех пользователей котрые есть в matchIds
 
         List<UserMatch> userMatches = new LinkedList<>();
         for (int userId : matchIds) {
@@ -35,7 +43,7 @@ public class GetMatchList {
             match.setUserId(userId);
 
             Photo icon = photoList.stream().filter(p -> p.getUserId() == userId).findFirst().orElse(null);
-            Integer chat = chatAffiliation.stream().filter(c -> c.getTo_usr() == userId).findFirst().map(ChatAffiliation::getChatId).orElse(null);
+            Integer chat = chatAffiliation.stream().filter(c -> c.getToUsr() == userId).findFirst().map(ChatAffiliation::getChatId).orElse(null);
 
             match.setIcon(icon);
             match.setChatId(chat);

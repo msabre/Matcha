@@ -5,6 +5,7 @@ import adapter.controller.UserController;
 import application.services.HttpService;
 import application.services.json.JsonService;
 
+import config.MyProperties;
 import domain.entity.FilterParams;
 import domain.entity.User;
 import domain.entity.model.UserMatch;
@@ -21,6 +22,7 @@ import static java.util.Objects.isNull;
 
 
 public class MainServlet extends HttpServlet {
+    private static final int USER_MATCH_SIZE = 20;
 
     private UserController userController;
 
@@ -45,7 +47,12 @@ public class MainServlet extends HttpServlet {
                 HttpService.putBody(resp, JsonService.getJsonArray(usersList));
                 break;
             case "getMatches":
-                List<UserMatch> userMatches = userController.getUserMatchList(user.getId());
+                List<UserMatch> userMatches;
+                int afterId = Integer.parseInt(req.getParameter("after"));
+                if (afterId >= 0)
+                    userMatches = userController.getUserMatchListWithSizeAfterSpecificId(user.getId(), afterId, USER_MATCH_SIZE);
+                else
+                    userMatches = userController.getUserMatchListWithSize(user.getId(), USER_MATCH_SIZE);
                 userMatches.forEach(m -> userController.uploadPhotosContent(Collections.singleton(m.getIcon())));
                 HttpService.putBody(resp, JsonService.getJsonArray(userMatches));
                 break;

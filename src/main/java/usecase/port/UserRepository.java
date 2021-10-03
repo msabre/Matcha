@@ -24,8 +24,6 @@ public interface UserRepository {
 
     LinkedList<User> getAllUserInSameLocation(String location, int id, int age_by, int age_to, List<String> preferencesParams);
 
-    void createChatBetweenTwoUsers(int usr1, int usr2);
-
     void updateEmail(int id, String email);
 
     void updateFio(int id, String[] fio);

@@ -57,8 +57,6 @@ public class HttpService {
                 while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
                     stringBuilder.append(charBuffer, 0, bytesRead);
                 }
-            } else {
-                stringBuilder.append("");
             }
         } catch (IOException ex) {
             return "";

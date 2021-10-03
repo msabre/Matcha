@@ -37,7 +37,7 @@ public class MyConfiguration {
 
     public static RecommendUsersList recommendUsersList() { return new RecommendUsersList(userRepository(), likesActionRepository(), userCardRepository()); }
 
-    public static PutLikeAction putLikeAction() { return new PutLikeAction(likesActionRepository(), userRepository(), userCardRepository()); }
+    public static PutLikeAction putLikeAction() { return new PutLikeAction(likesActionRepository(), userCardRepository(), userRepository()); }
 
     public static UpdatePhotoParams updatePhotoParams() { return new UpdatePhotoParams(userCardRepository()); }
 
@@ -55,6 +55,10 @@ public class MyConfiguration {
 
     public static GetMatchList getMatchList() {
         return new GetMatchList(likesActionRepository(), userCardRepository(), chatAffiliationRepository());
+    }
+
+    public static ChatCreate chatCreate() {
+        return new ChatCreate(chatAffiliationRepository());
     }
 
 

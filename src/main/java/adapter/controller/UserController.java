@@ -37,6 +37,7 @@ public class UserController {
     private BirthDateUpdate birthDateUpdate;
     private UploadPhotoContent uploadPhotoContent;
     private GetMatchList getMatchList;
+    private ChatCreate chatCreate;
 
     private UserController() {
     }
@@ -60,6 +61,7 @@ public class UserController {
             instance.birthDateUpdate = MyConfiguration.birthDateUpdate();
             instance.uploadPhotoContent = MyConfiguration.uploadPhotoContent();
             instance.getMatchList = MyConfiguration.getMatchList();
+            instance.chatCreate = MyConfiguration.chatCreate();
         }
 
         return instance;
@@ -129,7 +131,15 @@ public class UserController {
         uploadPhotoContent.upload(photos);
     }
 
-    public List<UserMatch> getUserMatchList(int id) {
-        return getMatchList.get(id);
+    public List<UserMatch> getUserMatchListWithSize(int id, int size) {
+        return getMatchList.getN(id, size);
+    }
+
+    public List<UserMatch> getUserMatchListWithSizeAfterSpecificId(int id, int lastId, int size) {
+        return getMatchList.getNAfterSpecificId(id, lastId, size);
+    }
+
+    public int createChatBetweenTwoUsers(int fromUsr, int toUsr) {
+        return chatCreate.create(fromUsr, toUsr);
     }
 }
