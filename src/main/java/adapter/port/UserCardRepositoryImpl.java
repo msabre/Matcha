@@ -278,7 +278,7 @@ public class UserCardRepositoryImpl implements UserCardRepository {
     @Override
     public List<Photo> getIconsByIds(Collection<Integer> ids) {
         try(Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-            PreparedStatement statement = connection.prepareStatement("SELECT usr.PHOTOS_PARAMS, usr.MAIN_PHOTO FROM matcha.user_card usr WHERE FIND_IN_SET(usr.ID, ?) > 0")) {
+            PreparedStatement statement = connection.prepareStatement("SELECT usr.PHOTOS_PARAMS, usr.MAIN_PHOTO, usr.USER_ID FROM matcha.user_card usr WHERE FIND_IN_SET(usr.ID, ?) > 0")) {
 
             String idsLine = ids.stream().map(Object::toString).collect(Collectors.joining(","));
             statement.setString(1, idsLine);
@@ -287,8 +287,12 @@ public class UserCardRepositoryImpl implements UserCardRepository {
             ResultSet resultSet = statement.getResultSet();
             List<Photo> photoList = new LinkedList<>();
             while (resultSet.next()) {
+                String mainPhotoNum = String.valueOf(resultSet.getInt("MAIN_PHOTO"));
+                if (mainPhotoNum.equals("0"))
+                    continue;
+
                 Photo photo = new Photo();
-                photo.setNumber(String.valueOf(resultSet.getInt("MAIN_PHOTO")));
+                photo.setNumber(mainPhotoNum);
 
                 String[] photosParams = Optional.ofNullable(resultSet.getString("PHOTOS_PARAMS")).orElse("").split(";");
                 String format = null;
@@ -299,6 +303,7 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                         break;
                     }
                 }
+                photo.setUserId(resultSet.getInt("USER_ID"));
                 photo.setFormat(format);
                 photo.setMain(true);
                 photoList.add(photo);

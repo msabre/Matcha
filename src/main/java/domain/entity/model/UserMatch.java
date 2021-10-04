@@ -4,17 +4,17 @@ import com.google.gson.annotations.Expose;
 import domain.entity.Photo;
 
 public class UserMatch {
-    @Expose private int id;
+    @Expose private int matchId;
     @Expose private int userId;
     @Expose private Integer chatId;
     @Expose private Photo icon;
 
     public int getMatchId() {
-        return id;
+        return matchId;
     }
 
     public void setMatchId(int matchId) {
-        this.id = matchId;
+        this.matchId = matchId;
     }
 
     public int getUserId() {

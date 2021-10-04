@@ -91,10 +91,12 @@ public class MessageRepositoryImpl implements MessageRepository {
     @Override
     public List<Message> getListOfNSizeAfterSpecificId(int chatId, int messageId, int size) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
-             PreparedStatement state = connection.prepareStatement("SELECT * FROM matcha.web_socket_message msg WHERE msg.chat_id = ? AND msg.ID > ? LIMIT ?")) {
-            state.setInt(1, chatId);
-            state.setInt(2, messageId);
-            state.setInt(3, size);
+             PreparedStatement state = connection.prepareStatement("WITH lastIdTime as (SELECT msg.CREATION_TIME FROM matcha.web_socket_message msg WHERE msg.ID = ?) " +
+                     "SELECT * FROM matcha.web_socket_message msg, lastIdTime tm WHERE msg.chat_id = ? AND msg.CREATION_TIME < tm.CREATION_TIME ORDER BY msg.CREATION_TIME DESC LIMIT ?")) {
+            int i = 1;
+            state.setInt(i++, messageId);
+            state.setInt(i++, chatId);
+            state.setInt(i, size);
             state.execute();
 
             ResultSet resultSet = state.getResultSet();

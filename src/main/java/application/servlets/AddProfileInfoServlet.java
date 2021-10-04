@@ -60,7 +60,7 @@ public class AddProfileInfoServlet extends HttpServlet {
         List<Photo> current = Optional.ofNullable(user.getCard().getPhotos()).orElse(new ArrayList<>(Collections.nCopies(5, null)));
 
         for (Photo photo : photos) {
-            String path = String.format("%sIMG_%s_%s_photo.jpg", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), user.getId(), photo.getNumber());
+            String path = String.format("%sIMG_%s_photo_%s.jpg", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), user.getId(), photo.getNumber());
             int index = Optional.ofNullable(photo.getNumber()).map(Integer::parseInt).orElse(0) - 1;
             if (index < 0)
                 continue;

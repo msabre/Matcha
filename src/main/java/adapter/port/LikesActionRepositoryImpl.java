@@ -202,12 +202,15 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
     @Override
     public List<LikeAction> getNMatchUserIdsAfterSpecificId(int id, int specificId, int size) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-             PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION acts WHERE acts.FROM_USR = ? " +
-                     "AND acts.ACTION = ? AND acts.ID > ? ORDER BY acts.CREATION_TIME DESC LIMIT ?")) {
-            statement.setInt(1, id);
-            statement.setString(2, Action.MATCH.getValue());
-            statement.setInt(3, specificId);
-            statement.setInt(4, size);
+             PreparedStatement statement = connection.prepareStatement(
+                     "WITH lastIdTime as (SELECT acts.ID, acts.CREATION_TIME FROM matcha.LIKES_ACTION acts WHERE acts.ID = ?)" +
+                     "SELECT * FROM matcha.LIKES_ACTION acts, lastIdTime tm WHERE acts.FROM_USR = ? AND acts.ACTION = ? AND acts.CREATION_TIME < tm.CREATION_TIME " +
+                             "ORDER BY acts.CREATION_TIME DESC LIMIT ?")) {
+            int i = 1;
+            statement.setInt(i++, specificId);
+            statement.setInt(i++, id);
+            statement.setString(i++, Action.MATCH.getValue());
+            statement.setInt(i, size);
             statement.execute();
 
             return getIds(statement, id);

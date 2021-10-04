@@ -1,13 +1,15 @@
 package domain.entity;
 
+import com.google.gson.annotations.Expose;
+
 public class Photo {
 
     private int userId;
-    private String content;
-    private String format;
+    @Expose private String content;
+    @Expose private String format;
     private String action;
-    private String number;
-    private boolean main;
+    @Expose private String number;
+    @Expose private boolean main;
 
     public int getUserId() {
         return userId;

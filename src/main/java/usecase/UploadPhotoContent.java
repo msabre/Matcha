@@ -19,7 +19,7 @@ public class UploadPhotoContent {
         for (Photo photo : photos) {
             if (photo == null)
                 continue;
-            String path = String.format("%sIMG_%s_%s_photo.jpg", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), photo.getUserId(), photo.getNumber());
+            String path = String.format("%sIMG_%s_photo_%s.%s", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), photo.getUserId(), photo.getNumber(), photo.getFormat());
             File file =  new File(path);
 
             if (file.exists()) {
