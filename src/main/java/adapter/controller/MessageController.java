@@ -2,7 +2,8 @@ package adapter.controller;
 
 import config.MyConfiguration;
 import domain.entity.Message;
-import usecase.ClearAllMessages;
+import usecase.ChatDelete;
+import usecase.DeleteMessages;
 import usecase.GetMessages;
 import usecase.SaveMessage;
 
@@ -12,8 +13,8 @@ public class MessageController {
     private static MessageController instance;
 
     private SaveMessage saveMessage;
-    private ClearAllMessages clearAllMessages;
     private GetMessages getMessages;
+    private DeleteMessages deleteMessages;
 
     private MessageController() {
     }
@@ -23,7 +24,6 @@ public class MessageController {
             instance = new MessageController();
 
             instance.saveMessage = MyConfiguration.saveMessage();
-            instance.clearAllMessages = MyConfiguration.clearAllMessages();
             instance.getMessages = MyConfiguration.getMessages();
         }
 
@@ -32,10 +32,6 @@ public class MessageController {
 
     public Message save(Message msg) {
         return saveMessage.save(msg);
-    }
-
-    public void clearAll(int chatId) {
-        clearAllMessages.clear(chatId);
     }
 
     public List<Message> getFirstNMatches(int chatId, int size) {
@@ -48,5 +44,9 @@ public class MessageController {
 
     public List<Message> getListOfNSizeAfterSpecificId(int chatId, int lastMessageId, int size) {
         return getMessages.getListOfNSizeAfterSpecificId(chatId, lastMessageId, size);
+    }
+
+    public void deleteNByIds(int chatId, int...ids) {
+        deleteMessages.delete(chatId, ids);
     }
 }

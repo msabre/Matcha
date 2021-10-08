@@ -1,12 +1,11 @@
 package adapter.port.chat;
 
+import adapter.controller.JwtController;
 import adapter.controller.MessageController;
 import config.MyConfiguration;
-import domain.entity.model.chat.ChatUser;
-import domain.entity.model.chat.GetMessageRq;
+import domain.entity.JsonWebToken;
+import domain.entity.model.chat.*;
 import domain.entity.Message;
-import domain.entity.model.chat.MessageNotification;
-import domain.entity.model.chat.TransportMessage;
 import domain.entity.model.types.MessageStatus;
 
 import javax.websocket.*;
@@ -14,8 +13,10 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-@ServerEndpoint(value = "/chat/{userdata}",
+@ServerEndpoint(value = "/chat/{userdata}/{token}",
         decoders = MessageDecoder.class,
         encoders = MessageEncoder.class)
 public class ChatEndpoint {
@@ -26,19 +27,40 @@ public class ChatEndpoint {
     private static final List<ChatUser> usersList = new ArrayList<>();
 
     MessageController messageController = MyConfiguration.messageController();
+    JwtController jwtController = MyConfiguration.jwtController();
 
     @OnOpen
-    public void onOpen(Session session, @PathParam("userdata") String userdata) {
+    public void onOpen(Session session, @PathParam("userdata") String userdata, @PathParam("token") String token) {
 
         int chatId = -1;
         int userId = -1;
+        String jwt = null;
+        String fingerprint = null;
+
         String[] data = userdata.split("_");
+        String[] tokenData = token.split("_");
 
         if (data.length == 2) {
             chatId = Integer.parseInt(data[0]);
             userId = Integer.parseInt(data[1]);
         }
-        ChatUser newUser = new ChatUser(userId, chatId, session);
+        if (tokenData.length == 2) {
+            jwt = tokenData[0];
+            fingerprint = tokenData[1];
+        }
+
+        if (!jwtController.checkAccessToken(tokenData[0], tokenData[1])) {
+            TransportMessage error = new TransportMessage();
+            error.setError(new TransportMessage.Error("JWT ERROR"));
+            send(chatId, error);
+            return;
+        }
+
+        JsonWebToken jsonWebToken = new JsonWebToken();
+        jsonWebToken.setToken(jwt);
+        jsonWebToken.setUserFingerprint(fingerprint);
+
+        ChatUser newUser = new ChatUser(userId, chatId, session, jsonWebToken);
         usersList.add(newUser);
 
         List<Message> messages = messageController.getFirstNMatches(chatId, MESSAGE_SIZE_PACK);
@@ -47,7 +69,18 @@ public class ChatEndpoint {
     }
 
     @OnMessage
-    public void onMessage(TransportMessage msgObj) {
+    public void onMessage(TransportMessage msgObj, Session session) {
+        Map<String, String> params = session.getPathParameters();
+        Integer userId = Optional.ofNullable(params.get("userdata")).map(p -> p.split("_"))
+                .map(p -> Integer.parseInt(p[1])).orElse(null);
+
+        if (!jwtController.checkAccessToken(msgObj.getToken(), msgObj.getFingerprint())) {
+            TransportMessage error = new TransportMessage();
+            error.setError(new TransportMessage.Error("JWT ERROR"));
+            send(msgObj.getChatId(), error);
+            return;
+        }
+
         try {
             if (msgObj.getMessage() != null) {
                 Message message = msgObj.getMessage();
@@ -59,7 +92,7 @@ public class ChatEndpoint {
                 send(message.getChatId(), transportMessage);
 
             } else if (msgObj.getGetMessageRq() != null) {
-                GetMessageRq getMessageRq = msgObj.getGetMessageRq();
+                TransportMessage.GetMessageRq getMessageRq = msgObj.getGetMessageRq();
                 List<Message> messageList;
 
                 switch (getMessageRq.getType()) {
@@ -73,14 +106,18 @@ public class ChatEndpoint {
                         throw new IllegalStateException("Unexpected value: " + getMessageRq.getType());
                 }
                 sendMessageList(getMessageRq.getChatId(), messageList);
+
+            } else if (msgObj.getDeleteMessage() != null) {
+                TransportMessage.DeleteMessage deleteMessage = msgObj.getDeleteMessage();
+                messageController.deleteNByIds(deleteMessage.getChatId(), deleteMessage.getIds());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private MessageNotification createNotification(Message message) {
-        MessageNotification notification = new MessageNotification();
+    private TransportMessage.MessageNotification createNotification(Message message) {
+        TransportMessage.MessageNotification notification = new TransportMessage.MessageNotification();
         notification.setMessageId(message.getId());
         notification.setSenderId(message.getFromId());
 
@@ -104,11 +141,10 @@ public class ChatEndpoint {
     @OnClose
     public void onClose(Session session) {
         usersList.remove(getWebSocketUser(session));
-        // уведомить что вышел
     }
 
     @OnError
-    public void onError(Session session, Throwable t) {
+    public void onError(Throwable t) {
         t.printStackTrace();
     }
 

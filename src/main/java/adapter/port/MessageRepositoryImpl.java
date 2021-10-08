@@ -148,4 +148,19 @@ public class MessageRepositoryImpl implements MessageRepository {
         msg.setContent(new String(content.getBytes(1, (int) content.length()), StandardCharsets.UTF_8));
         return msg;
     }
+
+    public void deleteNByIds(int chatId, int...ids) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
+             PreparedStatement state = connection.prepareStatement(
+                     "DELETE matcha.web_socket_message msg WHERE msg.chat_id = ? AND FIND_IN_SET(msg.ID, ?) > 0")) {
+
+            String idsLine = Arrays.stream(ids).mapToObj(String::valueOf).collect(Collectors.joining(","));
+            state.setInt(1, chatId);
+            state.setString(2, idsLine);
+            state.execute();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

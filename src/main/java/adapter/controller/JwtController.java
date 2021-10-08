@@ -153,7 +153,7 @@ public class JwtController {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId());
 
-        Pair<JsonWebToken, JsonWebToken> tokens = issueTokensPair((HttpServletRequest) req, (HttpServletResponse) resp, user, claims);
+        Pair<JsonWebToken, JsonWebToken> tokens = putTokensPairToCookie((HttpServletRequest) req, (HttpServletResponse) resp, user, claims);
         return Optional.ofNullable(tokens)
                 .map(Pair::getKey)
                 .orElse(null);
@@ -181,10 +181,10 @@ public class JwtController {
         return jws;
     }
 
-    public Pair<JsonWebToken, JsonWebToken> issueTokensPair(HttpServletRequest req, HttpServletResponse resp,
-                                   User user, Map<String, Object> claims) {
+    public Pair<JsonWebToken, JsonWebToken> putTokensPairToCookie(HttpServletRequest req, HttpServletResponse resp,
+                                                                  User user, Map<String, Object> claims) {
 
-        Pair<JsonWebToken, JsonWebToken> pairToken = createJwsPair(user, claims);
+        Pair<JsonWebToken, JsonWebToken> pairToken = createJwsPair(user, claims, 3,  30);
         if (isNull(pairToken)) {
             user.setAuthorized(false);
             return null;
@@ -226,10 +226,24 @@ public class JwtController {
         return cookie;
     }
 
-    private Pair<JsonWebToken, JsonWebToken> createJwsPair(User user, Map<String, Object> claims) {
+    public JsonWebToken getAccessToken(User user, Map<String, Object> claims) {
+        return createToken.getAccessToken(user, claims, 1);
+    }
+
+    public boolean checkAccessToken(String token, String fingerprint) {
+        try {
+            verifyJWT(token, fingerprint);
+        } catch (ExpiredJwtException | NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    private Pair<JsonWebToken, JsonWebToken> createJwsPair(User user, Map<String, Object> claims, int minutes, int days) {
 
         try {
-            return createToken.create(user, claims);
+            return createToken.create(user, claims, minutes, days);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

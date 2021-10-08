@@ -65,6 +65,21 @@ public class ChatAffiliationRepositoryIml implements ChatAffiliationRepository {
     }
 
     @Override
+    public boolean delete(int chatId) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement(
+                     "DELETE matcha.CHAT_AFFILIATION chat where chat.CHAT_ID = ?")) {
+            statement.setInt(1, chatId);
+            statement.execute();
+
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
     public List<ChatAffiliation> getByIdsWithToUsr(List<Integer> ids, int toUsr) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
              PreparedStatement state = connection.prepareStatement("SELECT * FROM matcha.CHAT_AFFILIATION chat where FIND_IN_SET(chat.FROM_USR, ?) > 0 AND TO_USR = ?"))

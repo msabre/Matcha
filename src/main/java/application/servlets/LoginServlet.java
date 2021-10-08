@@ -53,7 +53,7 @@ public class LoginServlet extends HttpServlet {
             Map<String, Object> claims = new HashMap<>();
             claims.put("userId", user.getId());
 
-            if (jwtController.issueTokensPair(req, resp, user, claims) != null) {
+            if (jwtController.putTokensPairToCookie(req, resp, user, claims) != null) {
                 HttpService.putBody(resp, JsonService.getJsonWithExposeFields(user));
                 return;
             }

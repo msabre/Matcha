@@ -30,14 +30,28 @@ public class CreateTokenJWS {
         this.encoder = encoder;
     }
 
-    public Pair<JsonWebToken, JsonWebToken> create(User user, Map<String, Object> claims) {
+    public JsonWebToken getAccessToken(User user, Map<String, Object> claims, int minute) {
+        Calendar c = Calendar.getInstance();
+
+        c.add(Calendar.MINUTE, minute);
+        Date accessDate = c.getTime();
+        JsonWebToken access;
+        try {
+            access = getToken(user, claims, accessDate);
+        } catch (Exception e) {
+            return null;
+        }
+        return access;
+    }
+
+    public Pair<JsonWebToken, JsonWebToken> create(User user, Map<String, Object> claims, int minute, int days) {
 
         Calendar c = Calendar.getInstance();
 
-        c.add(Calendar.MINUTE, 3);
+        c.add(Calendar.MINUTE, minute);
         Date accessDate = c.getTime();
 
-        c.add(Calendar.DAY_OF_YEAR, 30);
+        c.add(Calendar.DAY_OF_YEAR, days);
         Date refreshDate = c.getTime();
 
         JsonWebToken access;
