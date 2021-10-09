@@ -1,17 +1,17 @@
 package usecase.port;
 
-
 import domain.entity.JsonWebToken;
+import domain.entity.model.types.JwtType;
 
 public interface JwtRepository {
 
-    boolean putToken(JsonWebToken token);
+    boolean putToken(JsonWebToken token, JwtType type);
 
     Integer getTokenId(String token);
 
-    void dropTokenById(Integer id);
+    void dropToken(Integer id);
 
-    void dropTokenById(String token);
+    void dropToken(String token);
 
-    void dropTokenByUserId(Integer id);
+    void dropTokenByUserId(Integer userId, JwtType type);
 }

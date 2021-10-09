@@ -108,6 +108,16 @@
     <servlet-class>application.servlets.ChatCreateServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>WebSocketGetAccessServlet</servlet-name>
+    <servlet-class>application.servlets.WebSocketGetAccessServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>ChatDeleteServlet</servlet-name>
+    <servlet-class>application.servlets.ChatDeleteServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
     <servlet-name>RegistrationFormServlet</servlet-name>
     <url-pattern>/registration</url-pattern>
@@ -167,6 +177,16 @@
   <servlet-mapping>
     <servlet-name>ChatCreateServlet</servlet-name>
     <url-pattern>/main/chatcreate</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>ChatDeleteServlet</servlet-name>
+    <url-pattern>/main/chatdelete</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>WebSocketGetAccessServlet</servlet-name>
+    <url-pattern>/main/token</url-pattern>
   </servlet-mapping>
 
 </web-app>

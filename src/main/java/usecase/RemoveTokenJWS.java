@@ -1,5 +1,6 @@
 package usecase;
 
+import domain.entity.model.types.JwtType;
 import usecase.port.JwtRepository;
 
 public class RemoveTokenJWS {
@@ -10,16 +11,16 @@ public class RemoveTokenJWS {
         this.repository = jwtRepository;
     }
 
-    public void removeByUserId(Integer id) {
-        repository.dropTokenByUserId(id);
+    public void removeByUserId(Integer userId, JwtType type) {
+        repository.dropTokenByUserId(userId, type);
     }
 
-    public void remove(Integer id) {
-           repository.dropTokenById(id);
+    public void remove(int id) {
+           repository.dropToken(id);
     }
 
     public void remove(String token) {
-        repository.dropTokenById(token);
+        repository.dropToken(token);
     }
 
 }

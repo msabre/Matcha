@@ -8,6 +8,7 @@ import config.MyConfiguration;
 import config.MyProperties;
 import domain.entity.JsonWebToken;
 import domain.entity.User;
+import domain.entity.model.types.JwtType;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +28,7 @@ public class WebSocketGetAccessServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         resp.setCharacterEncoding("UTF-8");
 
         User user = (User) req.getSession().getAttribute("user");
@@ -35,8 +36,8 @@ public class WebSocketGetAccessServlet extends HttpServlet {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId());
 
-        JsonWebToken jwt = jwtController.getAccessToken(user, claims);
-        HttpService.putBody(resp, jwt.getToken());
+        jwtController.removeTokenByUserId(user.getId(), JwtType.WEBSOCKET);
+        HttpService.putBody(resp, JsonService.getJsonChat(jwtController.getAccessToken(user, claims)));
     }
 
 }

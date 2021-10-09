@@ -5,15 +5,14 @@ import domain.entity.Message;
 import java.util.List;
 
 public class TransportMessage {
+    private Integer chatId;
+
     private Error error;
     private Message message;
     private List<Message> messageAnswer;
     private GetMessageRq getMessageRq;
     private DeleteMessage deleteMessage;
     private MessageNotification messageNotification;
-    private int chatId;
-    private String token;
-    private String fingerprint;
 
     public Error getError() {
         return error;
@@ -69,22 +68,6 @@ public class TransportMessage {
 
     public void setChatId(int chatId) {
         this.chatId = chatId;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public String getFingerprint() {
-        return fingerprint;
-    }
-
-    public void setFingerprint(String fingerprint) {
-        this.fingerprint = fingerprint;
     }
 
     /**

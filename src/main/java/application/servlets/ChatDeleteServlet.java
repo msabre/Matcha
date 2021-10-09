@@ -3,6 +3,7 @@ package application.servlets;
 import adapter.controller.UserController;
 import application.services.HttpService;
 import application.services.json.JsonService;
+import config.MyConfiguration;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -12,14 +13,15 @@ import java.util.Optional;
 
 public class ChatDeleteServlet extends HttpServlet {
 
-    private final UserController userController;
+    private UserController userController;
 
-    public ChatDeleteServlet(UserController userController) {
-        this.userController = userController;
+    @Override
+    public void init() {
+        userController = MyConfiguration.userController();
     }
 
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setCharacterEncoding("UTF-8");
 
         String body = HttpService.getBody(req);
@@ -29,7 +31,7 @@ public class ChatDeleteServlet extends HttpServlet {
             return;
         }
 
-        int chatId = Integer.parseInt(Optional.ofNullable(JsonService.getParameter(body, "toUsr")).orElse("-1"));
+        int chatId = Integer.parseInt(Optional.ofNullable(JsonService.getParameter(body, "chatId")).orElse("-1"));
         if (chatId < 0) {
             HttpService.putBody(resp, "'chatId' VALUE MUST BE MORE 0");
             return;

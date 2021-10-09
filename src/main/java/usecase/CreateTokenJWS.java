@@ -3,6 +3,7 @@ package usecase;
 import config.MyProperties;
 import domain.entity.JsonWebToken;
 import domain.entity.User;
+import domain.entity.model.types.JwtType;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -38,6 +39,7 @@ public class CreateTokenJWS {
         JsonWebToken access;
         try {
             access = getToken(user, claims, accessDate);
+            jwtRepository.putToken(access, JwtType.WEBSOCKET);
         } catch (Exception e) {
             return null;
         }
@@ -60,7 +62,7 @@ public class CreateTokenJWS {
             access = getToken(user, claims, accessDate);
             refresh = getToken(user, claims, refreshDate);
 
-            jwtRepository.putToken(refresh);
+            jwtRepository.putToken(refresh, JwtType.HTTP);
 
         } catch (Exception e) {
             return null;

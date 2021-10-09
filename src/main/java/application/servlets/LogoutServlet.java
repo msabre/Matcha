@@ -3,6 +3,7 @@ package application.servlets;
 import adapter.controller.JwtController;
 import config.MyConfiguration;
 import domain.entity.User;
+import domain.entity.model.types.JwtType;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -22,7 +23,7 @@ public class LogoutServlet extends HttpServlet {
         User user = (User) req.getSession().getAttribute("user");
         if (user == null)
             return ;
-        jwtController.removeTokenByUserId(user.getId());
+        jwtController.removeTokenByUserId(user.getId(), JwtType.HTTP);
         jwtController.deleteJwtCookies(req, resp);
     }
 

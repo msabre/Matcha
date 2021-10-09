@@ -4,9 +4,11 @@ import application.services.HttpService;
 import config.MyConfiguration;
 import domain.entity.JsonWebToken;
 import domain.entity.User;
+import domain.entity.model.types.JwtType;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.InvalidClaimException;
 import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import usecase.CreateTokenJWS;
 import usecase.GetTokenId;
 import usecase.RemoveTokenJWS;
@@ -230,14 +232,15 @@ public class JwtController {
         return createToken.getAccessToken(user, claims, 1);
     }
 
-    public boolean checkAccessToken(String token, String fingerprint) {
+    public ImmutablePair<Boolean, String> checkAccessToken(String token, String fingerprint) {
         try {
             verifyJWT(token, fingerprint);
-        } catch (ExpiredJwtException | NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return false;
+        } catch (ExpiredJwtException e) {
+            return new ImmutablePair<>(false, "JWT EXPIRE");
+        } catch (Exception e) {
+            return new ImmutablePair<>(false, "AUTHENTICATION ERROR, TRY LATER");
         }
-        return true;
+        return new ImmutablePair<>(true, "SUCCESS");
     }
 
     private Pair<JsonWebToken, JsonWebToken> createJwsPair(User user, Map<String, Object> claims, int minutes, int days) {
@@ -262,11 +265,11 @@ public class JwtController {
         return token;
     }
 
-    public void removeTokenByUserId(Integer id) {
-        removeTokenJWS.remove(id);
+    public void removeTokenByUserId(Integer userId, JwtType type) {
+        removeTokenJWS.removeByUserId(userId, type);
     }
 
-    public void removeToken(Integer id) {
+    public void removeToken(int id) {
         removeTokenJWS.remove(id);
     }
 

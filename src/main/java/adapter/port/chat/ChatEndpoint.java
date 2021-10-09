@@ -7,19 +7,19 @@ import domain.entity.JsonWebToken;
 import domain.entity.model.chat.*;
 import domain.entity.Message;
 import domain.entity.model.types.MessageStatus;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @ServerEndpoint(value = "/chat/{userdata}/{token}",
         decoders = MessageDecoder.class,
         encoders = MessageEncoder.class)
 public class ChatEndpoint {
+    private static final String DELIMITER = "&&";
     private static final String AFTER_LAST = "AFTER_LAST";
     private static final String BY_IDS = "BY_IDS";
 
@@ -37,8 +37,8 @@ public class ChatEndpoint {
         String jwt = null;
         String fingerprint = null;
 
-        String[] data = userdata.split("_");
-        String[] tokenData = token.split("_");
+        String[] data = userdata.split(DELIMITER);
+        String[] tokenData = token.split(DELIMITER);
 
         if (data.length == 2) {
             chatId = Integer.parseInt(data[0]);
@@ -49,16 +49,18 @@ public class ChatEndpoint {
             fingerprint = tokenData[1];
         }
 
-        if (!jwtController.checkAccessToken(tokenData[0], tokenData[1])) {
+        Pair<Boolean, String> checkDesc = jwtController.checkAccessToken(tokenData[0], tokenData[1]);
+        if (!checkDesc.getLeft()) {
             TransportMessage error = new TransportMessage();
-            error.setError(new TransportMessage.Error("JWT ERROR"));
-            send(chatId, error);
+            error.setError(new TransportMessage.Error(checkDesc.getRight()));
+            session.getAsyncRemote().sendObject(error);
             return;
         }
 
         JsonWebToken jsonWebToken = new JsonWebToken();
         jsonWebToken.setToken(jwt);
         jsonWebToken.setUserFingerprint(fingerprint);
+        jsonWebToken.setUserId(userId);
 
         ChatUser newUser = new ChatUser(userId, chatId, session, jsonWebToken);
         usersList.add(newUser);
@@ -69,18 +71,7 @@ public class ChatEndpoint {
     }
 
     @OnMessage
-    public void onMessage(TransportMessage msgObj, Session session) {
-        Map<String, String> params = session.getPathParameters();
-        Integer userId = Optional.ofNullable(params.get("userdata")).map(p -> p.split("_"))
-                .map(p -> Integer.parseInt(p[1])).orElse(null);
-
-        if (!jwtController.checkAccessToken(msgObj.getToken(), msgObj.getFingerprint())) {
-            TransportMessage error = new TransportMessage();
-            error.setError(new TransportMessage.Error("JWT ERROR"));
-            send(msgObj.getChatId(), error);
-            return;
-        }
-
+    public void onMessage(TransportMessage msgObj) {
         try {
             if (msgObj.getMessage() != null) {
                 Message message = msgObj.getMessage();
