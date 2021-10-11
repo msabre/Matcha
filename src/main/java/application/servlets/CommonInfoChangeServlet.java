@@ -75,7 +75,7 @@ public class CommonInfoChangeServlet extends HttpServlet {
 
         switch (act) {
             case "emailRqSend":
-                sendMail(userSession.getEmail(), getEmailRqSendText(userSession, confirmLinkGenerate(userSession.getId())),
+                sendMail(userSession.getEmail(), getEmailRqSendText(userSession, confirmLinkGenerate(userSession.getId(), "confirmCurrentEmail")),
                         "Изменение параметров учетной записи Match");
                 break;
 
@@ -101,7 +101,7 @@ public class CommonInfoChangeServlet extends HttpServlet {
                     return;
                 }
                 operationController.confirmLink(linkId);
-                sendMail(newEmail, getConfirmNewEmailText(user, confirmLinkGenerate(id) + "&email=" + newEmail),
+                sendMail(newEmail, getConfirmNewEmailText(user, confirmLinkGenerate(id, "confirmNewEmail") + "&email=" + newEmail),
                         "Подтверждение почтового адреса Match");
                 break;
 
@@ -188,10 +188,10 @@ public class CommonInfoChangeServlet extends HttpServlet {
         return String.format(ConfirmNewEmailTextForm, fio, link);
     }
 
-    private String confirmLinkGenerate(int userId) {
+    private String confirmLinkGenerate(int userId, String action) {
         String token = passwordEncoder.getToken(MatchUtils.generateRqUid());
-        String link = String.format("%s://%s/main/accountsettings?act=emailChangeConfirm&id=%s&token=%s&linkId=",
-                MyProperties.HTTP_PROTOCOL, MyProperties.CLIENT_HOST, userId, token);
+        String link = String.format("%s://%s/main/accountsettings?act=%s&id=%s&token=%s&linkId=",
+                MyProperties.HTTP_PROTOCOL, MyProperties.CLIENT_HOST, action, userId, token);
         return link + operationController.addLink(token);
     }
 
