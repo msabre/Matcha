@@ -7,13 +7,13 @@ import java.util.List;
 public interface MessageRepository {
     Message save(Message msg);
 
-    void clearAllById(int chatId);
+    List<Message> getFirstNMatches(int chatId, int userId, int size);
 
-    List<Message> getFirstNMatches(int chatId, int size);
-
-    List<Message> getListOfNSizeAfterSpecificId(int chatId, int messageId, int size);
+    List<Message> getListOfNSizeAfterSpecificId(int chatId, int userId, int messageId, int size);
 
     List<Message> getNByIds(int chatId, int...ids);
 
-    void deleteNByIds(int chatId, int...ids);
+    void deleteNByIdsForUser(int chatId, int userId, int...ids);
+
+    boolean deleteAllByUserId(int chatId, int userId);
 }

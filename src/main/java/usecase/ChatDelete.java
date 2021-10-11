@@ -12,8 +12,8 @@ public class ChatDelete {
         this.chatAffiliationRepository = chatAffiliationRepository;
     }
 
-    public boolean delete(Integer chatId) {
-        messageRepository.clearAllById(chatId);
-        return chatAffiliationRepository.delete(chatId);
+    public boolean delete(int chatId, int userId) {
+        return messageRepository.deleteAllByUserId(chatId, userId);
+//        return chatAffiliationRepository.delete(chatId);
     }
 }

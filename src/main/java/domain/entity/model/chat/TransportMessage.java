@@ -102,7 +102,7 @@ public class TransportMessage {
         private int lastId;
         private int[] messageIds;
 
-        private String type;
+        private GetMessageRqType type;
 
         public int getChatId() {
             return chatId;
@@ -128,12 +128,17 @@ public class TransportMessage {
             this.lastId = lastId;
         }
 
-        public String getType() {
+        public GetMessageRqType getType() {
             return type;
         }
 
-        public void setType(String type) {
+        public void setType(GetMessageRqType type) {
             this.type = type;
+        }
+
+        public enum GetMessageRqType {
+            AFTER_LAST,
+            BY_IDS
         }
     }
 
@@ -162,6 +167,15 @@ public class TransportMessage {
     public static class DeleteMessage {
         private int chatId;
         private int[] ids;
+        private DeleteMessageType type;
+
+        public DeleteMessageType getType() {
+            return type;
+        }
+
+        public void setType(DeleteMessageType type) {
+            this.type = type;
+        }
 
         public int getChatId() {
             return chatId;
@@ -177,6 +191,11 @@ public class TransportMessage {
 
         public void setIds(int[] ids) {
             this.ids = ids;
+        }
+
+        public enum DeleteMessageType {
+            ALL,
+            BY_IDS
         }
     }
 }

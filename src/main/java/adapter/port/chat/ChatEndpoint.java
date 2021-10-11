@@ -14,15 +14,12 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-@ServerEndpoint(value = "/chat/{userdata}/{token}",
+@ServerEndpoint(value = "/chat/{chatId}/{userId}/{token}/{fingerprint}",
         decoders = MessageDecoder.class,
         encoders = MessageEncoder.class)
 public class ChatEndpoint {
-    private static final String DELIMITER = "&&";
-    private static final String AFTER_LAST = "AFTER_LAST";
-    private static final String BY_IDS = "BY_IDS";
-
     private static final int MESSAGE_SIZE_PACK = 10;
     private static final List<ChatUser> usersList = new ArrayList<>();
 
@@ -30,26 +27,13 @@ public class ChatEndpoint {
     JwtController jwtController = MyConfiguration.jwtController();
 
     @OnOpen
-    public void onOpen(Session session, @PathParam("userdata") String userdata, @PathParam("token") String token) {
+    public void onOpen(Session session, @PathParam("chatId") String chat, @PathParam("userId") String user, @PathParam("token") String token,
+                       @PathParam("fingerprint") String fingerprint) {
 
-        int chatId = -1;
-        int userId = -1;
-        String jwt = null;
-        String fingerprint = null;
+        int chatId = Optional.ofNullable(chat).map(Integer::parseInt).orElse(-1);
+        int userId = Optional.ofNullable(user).map(Integer::parseInt).orElse(-1);
 
-        String[] data = userdata.split(DELIMITER);
-        String[] tokenData = token.split(DELIMITER);
-
-        if (data.length == 2) {
-            chatId = Integer.parseInt(data[0]);
-            userId = Integer.parseInt(data[1]);
-        }
-        if (tokenData.length == 2) {
-            jwt = tokenData[0];
-            fingerprint = tokenData[1];
-        }
-
-        Pair<Boolean, String> checkDesc = jwtController.checkAccessToken(tokenData[0], tokenData[1]);
+        Pair<Boolean, String> checkDesc = jwtController.checkAccessToken(token, fingerprint);
         if (!checkDesc.getLeft()) {
             TransportMessage error = new TransportMessage();
             error.setError(new TransportMessage.Error(checkDesc.getRight()));
@@ -58,21 +42,25 @@ public class ChatEndpoint {
         }
 
         JsonWebToken jsonWebToken = new JsonWebToken();
-        jsonWebToken.setToken(jwt);
+        jsonWebToken.setToken(token);
         jsonWebToken.setUserFingerprint(fingerprint);
         jsonWebToken.setUserId(userId);
 
         ChatUser newUser = new ChatUser(userId, chatId, session, jsonWebToken);
         usersList.add(newUser);
 
-        List<Message> messages = messageController.getFirstNMatches(chatId, MESSAGE_SIZE_PACK);
+        List<Message> messages = messageController.getFirstNMatches(chatId, userId, MESSAGE_SIZE_PACK);
         if (!messages.isEmpty())
             sendMessageList(chatId, messages);
     }
 
+    // TODO Фиксить и Тестить чтобы все работало на новый лад
     @OnMessage
-    public void onMessage(TransportMessage msgObj) {
+    public void onMessage(TransportMessage msgObj, Session session) {
         try {
+            int userId = Optional.ofNullable(session.getPathParameters().get("userId")).map(Integer::parseInt).orElse(-1);
+            int chatId = Optional.ofNullable(session.getPathParameters().get("chatId")).map(Integer::parseInt).orElse(-1);
+
             if (msgObj.getMessage() != null) {
                 Message message = msgObj.getMessage();
                 message.setStatus(MessageStatus.RECEIVED);
@@ -80,7 +68,7 @@ public class ChatEndpoint {
 
                 TransportMessage transportMessage = new TransportMessage();
                 transportMessage.setMessageNotification(createNotification(message));
-                send(message.getChatId(), transportMessage);
+                send(chatId, transportMessage);
 
             } else if (msgObj.getGetMessageRq() != null) {
                 TransportMessage.GetMessageRq getMessageRq = msgObj.getGetMessageRq();
@@ -88,19 +76,29 @@ public class ChatEndpoint {
 
                 switch (getMessageRq.getType()) {
                     case BY_IDS:
-                        messageList = messageController.getNByIds(getMessageRq.getChatId(), getMessageRq.getMessageIds());
+                        messageList = messageController.getNByIds(chatId, getMessageRq.getMessageIds());
                         break;
                     case AFTER_LAST:
-                        messageList = messageController.getListOfNSizeAfterSpecificId(getMessageRq.getChatId(), getMessageRq.getLastId(), MESSAGE_SIZE_PACK);
+                        messageList = messageController.getListOfNSizeAfterSpecificId(chatId, userId, getMessageRq.getLastId(), MESSAGE_SIZE_PACK);
                         break;
                     default:
-                        throw new IllegalStateException("Unexpected value: " + getMessageRq.getType());
+                        throw new IllegalStateException("Unexpected TYPE value: ");
                 }
-                sendMessageList(getMessageRq.getChatId(), messageList);
+                sendMessageList(chatId, messageList);
 
             } else if (msgObj.getDeleteMessage() != null) {
                 TransportMessage.DeleteMessage deleteMessage = msgObj.getDeleteMessage();
-                messageController.deleteNByIds(deleteMessage.getChatId(), deleteMessage.getIds());
+
+                switch (deleteMessage.getType()) {
+                    case BY_IDS:
+                        messageController.deleteByIdsForUser(chatId, userId, deleteMessage.getIds());
+                        break;
+                    case ALL:
+                        messageController.deleteAllForUser(chatId, userId);
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected TYPE value: ");
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

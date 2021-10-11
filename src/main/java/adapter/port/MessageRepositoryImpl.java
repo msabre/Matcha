@@ -57,23 +57,15 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
-    public void clearAllById(int chatId) {
+    public List<Message> getFirstNMatches(int chatId, int userId, int size) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
-             PreparedStatement state = connection.prepareStatement("DELETE FROM matcha.web_socket_message WHERE chatId = ?")) {
-            state.setInt(1, chatId);
-            state.execute();
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public List<Message> getFirstNMatches(int chatId, int size) {
-        try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
-             PreparedStatement state = connection.prepareStatement("SELECT * FROM matcha.web_socket_message msg WHERE msg.chat_id = ? ORDER BY msg.CREATION_TIME DESC LIMIT ?")) {
-            state.setInt(1, chatId);
-            state.setInt(2, size);
+             PreparedStatement state = connection.prepareStatement("SELECT * FROM matcha.web_socket_message msg WHERE msg.chat_id = ? " +
+                     "AND ((msg.FROM_ID = ? AND SENDER_AVAIL = 1) OR (msg.TO_ID = ? AND RECEIPT_AVAIL = 1)) ORDER BY msg.CREATION_TIME DESC LIMIT ?")) {
+            int i = 1;
+            state.setInt(i++, chatId);
+            state.setInt(i++, userId);
+            state.setInt(i++, userId);
+            state.setInt(i, size);
             state.execute();
 
             ResultSet resultSet = state.getResultSet();
@@ -89,12 +81,20 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
-    public List<Message> getListOfNSizeAfterSpecificId(int chatId, int messageId, int size) {
+    public List<Message> getListOfNSizeAfterSpecificId(int chatId, int userId, int messageId, int size) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
-             PreparedStatement state = connection.prepareStatement("WITH lastIdTime as (SELECT msg.CREATION_TIME FROM matcha.web_socket_message msg WHERE msg.ID = ?) " +
-                     "SELECT * FROM matcha.web_socket_message msg, lastIdTime tm WHERE msg.chat_id = ? AND msg.CREATION_TIME < tm.CREATION_TIME ORDER BY msg.CREATION_TIME DESC LIMIT ?")) {
+             PreparedStatement state = connection.prepareStatement(
+                     "WITH lastIdTime as " +
+                             "(SELECT msg.CREATION_TIME FROM matcha.web_socket_message msg WHERE msg.ID = ?) " +
+                     "SELECT * FROM matcha.web_socket_message msg, lastIdTime tm " +
+                     "WHERE " +
+                         "AND ((msg.FROM_ID = ? AND SENDER_AVAIL = 1) OR (msg.TO_ID = ? AND RECEIPT_AVAIL = 1)) " +
+                         "AND msg.chat_id = ? AND msg.CREATION_TIME < tm.CREATION_TIME " +
+                     "ORDER BY msg.CREATION_TIME DESC LIMIT ?")) {
             int i = 1;
             state.setInt(i++, messageId);
+            state.setInt(i++, userId);
+            state.setInt(i++, userId);
             state.setInt(i++, chatId);
             state.setInt(i, size);
             state.execute();
@@ -134,6 +134,51 @@ public class MessageRepositoryImpl implements MessageRepository {
         return Collections.emptyList();
     }
 
+    @Override
+    public void deleteNByIdsForUser(int chatId, int userId, int...ids) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
+             PreparedStatement state = connection.prepareStatement(
+                     "UPDATE matcha.web_socket_message msg SET " +
+                             "SENDER_AVAIL = CASE WHEN msg.FROM_ID = ? THEN 0 ELSE msg.FROM_ID.Value, " +
+                             "RECEIPT_AVAIL = CASE WHEN msg.TO_ID = ? THEN 0 ELSE msg.FROM_ID.Value, " +
+                         "WHERE msg.chat_id = ? AND FIND_IN_SET(msg.ID, ?) > 0")) {
+
+            String idsLine = Arrays.stream(ids).mapToObj(String::valueOf).collect(Collectors.joining(","));
+
+            int i = 1;
+            state.setInt(i++, userId);
+            state.setInt(i++, userId);
+            state.setInt(i++, chatId);
+            state.setString(i, idsLine);
+            state.execute();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean deleteAllByUserId(int chatId, int userId) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
+             PreparedStatement state = connection.prepareStatement(
+                     "UPDATE matcha.web_socket_message msg SET " +
+                             "SENDER_AVAIL = CASE WHEN msg.FROM_ID = ? THEN 0 ELSE msg.FROM_ID.Value, " +
+                             "RECEIPT_AVAIL = CASE WHEN msg.TO_ID = ? THEN 0 ELSE msg.FROM_ID.Value, " +
+                         "WHERE msg.chat_id = ?")) {
+            int i = 1;
+            state.setInt(i++, userId);
+            state.setInt(i++, userId);
+            state.setInt(i, chatId);
+            state.execute();
+
+            return true;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     private Message getMessageFromResultSet(ResultSet resultSet) throws SQLException {
         Message msg = new Message();
         msg.setId(resultSet.getInt("ID"));
@@ -147,20 +192,5 @@ public class MessageRepositoryImpl implements MessageRepository {
         Blob content = resultSet.getBlob("CONTENT");
         msg.setContent(new String(content.getBytes(1, (int) content.length()), StandardCharsets.UTF_8));
         return msg;
-    }
-
-    public void deleteNByIds(int chatId, int...ids) {
-        try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
-             PreparedStatement state = connection.prepareStatement(
-                     "DELETE matcha.web_socket_message msg WHERE msg.chat_id = ? AND FIND_IN_SET(msg.ID, ?) > 0")) {
-
-            String idsLine = Arrays.stream(ids).mapToObj(String::valueOf).collect(Collectors.joining(","));
-            state.setInt(1, chatId);
-            state.setString(2, idsLine);
-            state.execute();
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
 }

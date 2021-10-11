@@ -9,7 +9,11 @@ public class DeleteMessages {
         this.repository = repository;
     }
 
-    public void delete(int chatId, int...ids) {
-        repository.deleteNByIds(chatId, ids);
+    public void deleteNByIdsForUser(int chatId, int userId, int...ids) {
+        repository.deleteNByIdsForUser(chatId, userId, ids);
+    }
+
+    public void deleteAllByUserId(int chatId, int userId) {
+        repository.deleteAllByUserId(chatId, userId);
     }
 }

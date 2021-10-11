@@ -144,7 +144,7 @@ public class UserController {
         return chatCreate.create(fromUsr, toUsr);
     }
 
-    public boolean deleteChat(int chatId) {
-        return chatDelete.delete(chatId);
+    public boolean deleteChat(int chatId, int userId) {
+        return chatDelete.delete(chatId, userId);
     }
 }
