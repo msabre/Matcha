@@ -12,8 +12,17 @@ public class Message {
     private int toId;
     private Date creationTime;
     private String content;
+    private String typeInfo;
     private MessageType type;
     private MessageStatus status;
+
+    public String getTypeInfo() {
+        return typeInfo;
+    }
+
+    public void setTypeInfo(String typeInfo) {
+        this.typeInfo = typeInfo;
+    }
 
     public Date getCreationTime() {
         return creationTime;

@@ -11,7 +11,8 @@ import java.util.Iterator;
 public class TEST {
     public static void main(String[] args) throws Exception {
         byte[] fileBytes = getBase64("C:\\Users\\Андрей\\Desktop\\фронт.psd");
-        compressImage(fileBytes, "psd", "Casd");
+        System.out.println(new String(fileBytes));
+//        compressImage(fileBytes, "psd", "Casd");
 
 
 //        Properties props = MatchUtils.getProps(

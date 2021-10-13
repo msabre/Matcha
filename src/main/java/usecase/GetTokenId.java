@@ -10,7 +10,10 @@ public class GetTokenId {
         this.jwtRepository = jwtRepository;
     }
 
-    public Integer get(String token) {
-        return jwtRepository.getTokenId(token);
+    public Integer get(String token) throws Exception {
+        Integer tokenId = jwtRepository.getTokenId(token);
+        if (tokenId == null)
+            throw new Exception();
+        return tokenId;
     }
 }

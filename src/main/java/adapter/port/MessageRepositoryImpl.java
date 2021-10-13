@@ -33,7 +33,7 @@ public class MessageRepositoryImpl implements MessageRepository {
     public Message save(Message msg) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
              PreparedStatement state = connection.prepareStatement(
-                     "INSERT INTO matcha.web_socket_message(chat_id, from_id, to_id, web_socket_message.type, status, content) VALUES(?, ?, ?, ?, ?, ?)",
+                     "INSERT INTO matcha.web_socket_message(chat_id, from_id, to_id, web_socket_message.type, type_info, status, content) VALUES(?, ?, ?, ?, ?, ?, ?)",
                      Statement.RETURN_GENERATED_KEYS)) {
 
             int i = 1;
@@ -41,6 +41,7 @@ public class MessageRepositoryImpl implements MessageRepository {
             state.setInt(i++, msg.getFromId());
             state.setInt(i++, msg.getToId());
             state.setString(i++, msg.getType().getValue());
+            state.setString(i++, msg.getTypeInfo());
             state.setString(i++, msg.getStatus().getValue());
             state.setBlob(i, new ByteArrayInputStream(msg.getContent().getBytes()));
 
@@ -207,6 +208,7 @@ public class MessageRepositoryImpl implements MessageRepository {
         msg.setFromId(resultSet.getInt("FROM_ID"));
         msg.setToId(resultSet.getInt("TO_ID"));
         msg.setType(MessageType.fromStr(resultSet.getString("TYPE")));
+        msg.setTypeInfo(resultSet.getString("TYPE_INFO"));
         msg.setStatus(MessageStatus.fromStr(resultSet.getString("STATUS")));
 
         Blob content = resultSet.getBlob("CONTENT");

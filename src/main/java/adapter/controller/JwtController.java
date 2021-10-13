@@ -162,9 +162,13 @@ public class JwtController {
     }
 
     private JsonWebToken checkRsToken(String token, String fingerprint) {
-        Integer id = getTokenId.get(token);
-        if (isNull(id))
+        Integer id;
+        try {
+            id = getTokenId.get(token);
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
+        }
 
         JsonWebToken jws;
         try {
@@ -234,6 +238,7 @@ public class JwtController {
 
     public ImmutablePair<Boolean, String> checkAccessToken(String token, String fingerprint) {
         try {
+            getTokenId.get(token);
             verifyJWT(token, fingerprint);
         } catch (ExpiredJwtException e) {
             return new ImmutablePair<>(false, "JWT EXPIRE");
