@@ -139,8 +139,8 @@ public class MessageRepositoryImpl implements MessageRepository {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
              PreparedStatement state = connection.prepareStatement(
                      "UPDATE matcha.web_socket_message msg SET " +
-                             "SENDER_AVAIL = CASE WHEN msg.FROM_ID = ? THEN 0 ELSE msg.FROM_ID.Value, " +
-                             "RECEIPT_AVAIL = CASE WHEN msg.TO_ID = ? THEN 0 ELSE msg.FROM_ID.Value, " +
+                             "SENDER_AVAIL = CASE WHEN msg.FROM_ID = ? THEN 0 ELSE SENDER_AVAIL END, " +
+                             "RECEIPT_AVAIL = CASE WHEN msg.TO_ID = ? THEN 0 ELSE RECEIPT_AVAIL END " +
                          "WHERE msg.chat_id = ? AND FIND_IN_SET(msg.ID, ?) > 0")) {
 
             String idsLine = Arrays.stream(ids).mapToObj(String::valueOf).collect(Collectors.joining(","));
@@ -162,13 +162,33 @@ public class MessageRepositoryImpl implements MessageRepository {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
              PreparedStatement state = connection.prepareStatement(
                      "UPDATE matcha.web_socket_message msg SET " +
-                             "SENDER_AVAIL = CASE WHEN msg.FROM_ID = ? THEN 0 ELSE msg.FROM_ID.Value, " +
-                             "RECEIPT_AVAIL = CASE WHEN msg.TO_ID = ? THEN 0 ELSE msg.FROM_ID.Value, " +
+                             "SENDER_AVAIL = CASE WHEN msg.FROM_ID = ? THEN 0 ELSE SENDER_AVAIL END, " +
+                             "RECEIPT_AVAIL = CASE WHEN msg.TO_ID = ? THEN 0 ELSE RECEIPT_AVAIL END " +
                          "WHERE msg.chat_id = ?")) {
             int i = 1;
             state.setInt(i++, userId);
             state.setInt(i++, userId);
             state.setInt(i, chatId);
+            state.execute();
+
+            return true;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean markAsRead(int...messageIds) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
+             PreparedStatement state = connection.prepareStatement(
+                     "UPDATE matcha.web_socket_message msg SET STATUS = ? WHERE FIND_IN_SET(msg.ID, ?)")) {
+            String idsLine = Arrays.stream(messageIds).mapToObj(String::valueOf).collect(Collectors.joining(","));
+
+            int i = 1;
+            state.setString(i++, MessageStatus.DELIVERED.getValue());
+            state.setString(i, idsLine);
             state.execute();
 
             return true;

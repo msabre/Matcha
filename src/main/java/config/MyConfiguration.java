@@ -113,8 +113,12 @@ public class MyConfiguration {
         return new GetMessages(messageRepository());
     }
 
-    public static ChatDelete clearAllMessages() {
-        return new ChatDelete(messageRepository(), chatAffiliationRepository());
+    public static DeleteMessages deleteMessage() {
+        return new DeleteMessages(messageRepository());
+    }
+
+    public static MarkAsRead markAsRead() {
+        return new MarkAsRead(messageRepository());
     }
 
 

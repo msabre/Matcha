@@ -229,7 +229,7 @@ public class JwtController {
     }
 
     public JsonWebToken getAccessToken(User user, Map<String, Object> claims) {
-        return createToken.getAccessToken(user, claims, 1);
+        return createToken.getAccessToken(user, claims, 70);
     }
 
     public ImmutablePair<Boolean, String> checkAccessToken(String token, String fingerprint) {

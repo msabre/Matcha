@@ -36,7 +36,7 @@ public class ChatEndpoint {
         Pair<Boolean, String> checkDesc = jwtController.checkAccessToken(token, fingerprint);
         if (!checkDesc.getLeft()) {
             TransportMessage error = new TransportMessage();
-            error.setError(new TransportMessage.Error(checkDesc.getRight()));
+            error.setAnswer(new TransportMessage.Answer(checkDesc.getRight()));
             session.getAsyncRemote().sendObject(error);
             return;
         }
@@ -54,7 +54,6 @@ public class ChatEndpoint {
             sendMessageList(chatId, messages);
     }
 
-    // TODO Фиксить и Тестить чтобы все работало на новый лад
     @OnMessage
     public void onMessage(TransportMessage msgObj, Session session) {
         try {
@@ -82,7 +81,8 @@ public class ChatEndpoint {
                         messageList = messageController.getListOfNSizeAfterSpecificId(chatId, userId, getMessageRq.getLastId(), MESSAGE_SIZE_PACK);
                         break;
                     default:
-                        throw new IllegalStateException("Unexpected TYPE value: ");
+                        send(chatId, newAnswer("WRONG"));
+                        return;
                 }
                 sendMessageList(chatId, messageList);
 
@@ -97,12 +97,27 @@ public class ChatEndpoint {
                         messageController.deleteAllForUser(chatId, userId);
                         break;
                     default:
-                        throw new IllegalStateException("Unexpected TYPE value: ");
+                        send(chatId, newAnswer("WRONG"));
+                        return;
                 }
+                send(chatId, newAnswer("SUCCESS"));
+
+            } else if (msgObj.getDeliveryNotification() != null) {
+                TransportMessage.DeliveryNotification deliveryNotification = msgObj.getDeliveryNotification();
+                if (messageController.markAsRead(deliveryNotification.getIds()))
+                    send(chatId, newAnswer("SUCCESS"));
+                else
+                    send(chatId, newAnswer("WRONG"));
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private TransportMessage newAnswer(String text) {
+        TransportMessage answer = new TransportMessage();
+        answer.setAnswer(new TransportMessage.Answer(text));
+        return answer;
     }
 
     private TransportMessage.MessageNotification createNotification(Message message) {

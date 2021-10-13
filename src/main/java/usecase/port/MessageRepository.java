@@ -16,4 +16,6 @@ public interface MessageRepository {
     void deleteNByIdsForUser(int chatId, int userId, int...ids);
 
     boolean deleteAllByUserId(int chatId, int userId);
+
+    boolean markAsRead(int...messageIds);
 }

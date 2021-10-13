@@ -2,10 +2,7 @@ package adapter.controller;
 
 import config.MyConfiguration;
 import domain.entity.Message;
-import usecase.ChatDelete;
-import usecase.DeleteMessages;
-import usecase.GetMessages;
-import usecase.SaveMessage;
+import usecase.*;
 
 import java.util.List;
 
@@ -15,6 +12,7 @@ public class MessageController {
     private SaveMessage saveMessage;
     private GetMessages getMessages;
     private DeleteMessages deleteMessages;
+    private MarkAsRead markAsRead;
 
     private MessageController() {
     }
@@ -25,6 +23,8 @@ public class MessageController {
 
             instance.saveMessage = MyConfiguration.saveMessage();
             instance.getMessages = MyConfiguration.getMessages();
+            instance.deleteMessages = MyConfiguration.deleteMessage();
+            instance.markAsRead = MyConfiguration.markAsRead();
         }
 
         return instance;
@@ -48,6 +48,10 @@ public class MessageController {
 
     public void deleteByIdsForUser(int chatId, int userId, int...ids) {
         deleteMessages.deleteNByIdsForUser(chatId, userId, ids);
+    }
+
+    public boolean markAsRead(int...ids) {
+        return markAsRead.markAsRead(ids);
     }
 
     public void deleteAllForUser(int chatId, int userId) {

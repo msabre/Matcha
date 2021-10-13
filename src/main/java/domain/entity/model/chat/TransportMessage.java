@@ -5,21 +5,20 @@ import domain.entity.Message;
 import java.util.List;
 
 public class TransportMessage {
-    private Integer chatId;
-
-    private Error error;
+    private Answer answer;
     private Message message;
     private List<Message> messageAnswer;
     private GetMessageRq getMessageRq;
     private DeleteMessage deleteMessage;
     private MessageNotification messageNotification;
+    private DeliveryNotification deliveryNotification;
 
-    public Error getError() {
-        return error;
+    public Answer getAnswer() {
+        return answer;
     }
 
-    public void setError(Error error) {
-        this.error = error;
+    public void setAnswer(Answer answer) {
+        this.answer = answer;
     }
 
     public Message getMessage() {
@@ -62,12 +61,12 @@ public class TransportMessage {
         this.messageNotification = messageNotification;
     }
 
-    public int getChatId() {
-        return chatId;
+    public DeliveryNotification getDeliveryNotification() {
+        return deliveryNotification;
     }
 
-    public void setChatId(int chatId) {
-        this.chatId = chatId;
+    public void setDeliveryNotification(DeliveryNotification deliveryNotification) {
+        this.deliveryNotification = deliveryNotification;
     }
 
     /**
@@ -98,19 +97,10 @@ public class TransportMessage {
      * Заявка на получение сообщения(й)
      * */
     public static class GetMessageRq {
-        private int chatId;
         private int lastId;
         private int[] messageIds;
 
         private GetMessageRqType type;
-
-        public int getChatId() {
-            return chatId;
-        }
-
-        public void setChatId(int chatId) {
-            this.chatId = chatId;
-        }
 
         public int[] getMessageIds() {
             return messageIds;
@@ -145,19 +135,19 @@ public class TransportMessage {
     /**
      * Сообщение о ошибке
      * */
-    public static class Error {
-        private String errorText;
+    public static class Answer {
+        private String text;
 
-        public Error(String errorText) {
-            this.errorText = errorText;
+        public Answer(String errorText) {
+            this.text = errorText;
         }
 
-        public String getErrorText() {
-            return errorText;
+        public String getText() {
+            return text;
         }
 
-        public void setErrorText(String errorText) {
-            this.errorText = errorText;
+        public void setText(String text) {
+            this.text = text;
         }
     }
 
@@ -165,7 +155,6 @@ public class TransportMessage {
      * Заявка на удаление сообщения
      * */
     public static class DeleteMessage {
-        private int chatId;
         private int[] ids;
         private DeleteMessageType type;
 
@@ -175,14 +164,6 @@ public class TransportMessage {
 
         public void setType(DeleteMessageType type) {
             this.type = type;
-        }
-
-        public int getChatId() {
-            return chatId;
-        }
-
-        public void setChatId(int chatId) {
-            this.chatId = chatId;
         }
 
         public int[] getIds() {
@@ -196,6 +177,21 @@ public class TransportMessage {
         public enum DeleteMessageType {
             ALL,
             BY_IDS
+        }
+    }
+
+    /**
+     * Уведомление о прочитанных сообщениях
+     * */
+    public static class DeliveryNotification {
+        private int[] ids;
+
+        public int[] getIds() {
+            return ids;
+        }
+
+        public void setIds(int[] ids) {
+            this.ids = ids;
         }
     }
 }

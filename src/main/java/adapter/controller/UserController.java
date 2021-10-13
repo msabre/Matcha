@@ -38,7 +38,6 @@ public class UserController {
     private UploadPhotoContent uploadPhotoContent;
     private GetMatchList getMatchList;
     private ChatCreate chatCreate;
-    private ChatDelete chatDelete;
 
     private UserController() {
     }
@@ -142,9 +141,5 @@ public class UserController {
 
     public int createChatBetweenTwoUsers(int fromUsr, int toUsr) {
         return chatCreate.create(fromUsr, toUsr);
-    }
-
-    public boolean deleteChat(int chatId, int userId) {
-        return chatDelete.delete(chatId, userId);
     }
 }
