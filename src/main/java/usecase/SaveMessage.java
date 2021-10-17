@@ -36,18 +36,22 @@ public class SaveMessage {
                     ByteArrayInputStream bufferedInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(byteContent));
                     BufferedImage img = ImageIO.read(bufferedInputStream);
 
+                    final ByteArrayOutputStream os = new ByteArrayOutputStream();
+                    ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(os);
+
                     Iterator<ImageWriter> writers =  ImageIO.getImageWritersByFormatName("jpg");
                     ImageWriter writer = writers.next();
                     ImageWriteParam param = writer.getDefaultWriteParam();
+                    writer.setOutput(imageOutputStream);
+
                     param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
                     param.setCompressionQuality(0.05f);
                     writer.write( null , new IIOImage(img, null , null ), param);
-
-                    final ByteArrayOutputStream os = new ByteArrayOutputStream();
-                    ImageIO.write(img, "jpg", os);
                     msg.setContent(Base64.getEncoder().encodeToString(os.toByteArray()));
 
+                    os.close();
                     writer.dispose();
+                    imageOutputStream.close();
                 }
                 catch (final IOException ioe) {
                     ioe.printStackTrace();
