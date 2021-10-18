@@ -4,13 +4,14 @@ import config.MyProperties;
 import domain.entity.User;
 
 import usecase.port.LikesActionRepository;
-import usecase.port.UserCardRepository;
 import usecase.port.UserRepository;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static config.MyProperties.USERS_LIST_SIZE;
 
 public class RecommendUsersList {
 
@@ -19,12 +20,10 @@ public class RecommendUsersList {
 
     private final UserRepository userRepository;
     private final LikesActionRepository likesActionRepository;
-    private final UserCardRepository userCardRepository;
 
-    public RecommendUsersList(UserRepository userRepository, LikesActionRepository likesActionRepository, UserCardRepository userCardRepository) {
+    public RecommendUsersList(UserRepository userRepository, LikesActionRepository likesActionRepository) {
         this.userRepository = userRepository;
         this.likesActionRepository = likesActionRepository;
-        this.userCardRepository = userCardRepository;
 
         String path = MyProperties.class.getResource("/sexualPreference.properties").getPath();
 
@@ -47,36 +46,49 @@ public class RecommendUsersList {
         }
     }
 
-    public List<User> get(User user) {
+    public List<User> get(List<User> resultList, List<User> alreadyFind, User user) {
         this.user = user;
-        List<User> userList = userRepository.getAllUserInSameLocation(
+
+        List<User> newUserList = getNewForActionUsers(alreadyFind);
+        if (newUserList.isEmpty() && (newUserList = getDislikesUsers(alreadyFind)).isEmpty()) // Выход из рекурсии
+            return resultList;
+
+        alreadyFind.addAll(newUserList);
+
+        newUserList = customFilter(newUserList);
+        resultList.addAll(newUserList);
+        if (resultList.size() < USERS_LIST_SIZE)
+            return get(resultList, alreadyFind, user);
+
+        fixSize(resultList);
+        sortUserList(resultList);
+
+        return resultList;
+    }
+
+    private List<String> getUserSexualPreferences() {
+        return sexualConformity.get(String.format("%s;%s", user.getCard().getGender().getValue(),
+                user.getCard().getSexualPreference().getValue()));
+    }
+
+    private List<User> getNewForActionUsers(List<User> resultList) {
+        return userRepository.getNewForActionUsersWithParams(resultList.stream().map(User::getId).collect(Collectors.toList()),
                 user.getFilter().getLocation(),
                 user.getId(),
                 user.getFilter().getAgeBy(),
                 user.getFilter().getAgeTo(),
-                sexualConformity.get(
-                        String.format("%s;%s",
-                        user.getCard().getGender().getValue(),
-                        user.getCard().getSexualPreference().getValue())));
+                getUserSexualPreferences(),
+                USERS_LIST_SIZE * 3);
+    }
 
-        if (userList == null)
-            return null;
-
-        userCardRepository.updateUserActions(user.getCard());
-        userList = customFilter(userList);
-        if (userList == null)
-            return null;
-
-        fixSize(userList);
-        sortUserList(userList);
-
-        // поставили всем отобранным пользователям дизлайк
-        likesActionRepository.putDislikeForUsers(user.getId(),
-                userList.stream().map(User::getId).collect(Collectors.toList()),
-                user.getCard().getDisLikes()
-        );
-
-        return userList;
+    private List<User> getDislikesUsers(List<User> resultList) {
+        return userRepository.getDislikeUsersWithParams(resultList.stream().map(User::getId).collect(Collectors.toList()),
+                user.getFilter().getLocation(),
+                user.getId(),
+                user.getFilter().getAgeBy(),
+                user.getFilter().getAgeTo(),
+                getUserSexualPreferences(),
+                USERS_LIST_SIZE * 3);
     }
 
     private List<User> customFilter(List<User> userList) {
@@ -90,7 +102,7 @@ public class RecommendUsersList {
                     .collect(Collectors.toList());
 
             if (userList.size() == 0)
-                return null;
+                return userList;
         }
 
         // Фильтр на рейтинг
@@ -102,7 +114,7 @@ public class RecommendUsersList {
                     .collect(Collectors.toList());
 
             if (userList.size() == 0)
-                return null;
+                return userList;
         }
 
         return userList;
@@ -117,19 +129,20 @@ public class RecommendUsersList {
     }
 
     private void fixSize(List<User> userList) {
+        List<Integer> dislikesByIds = likesActionRepository.getToUserDislikesByIds(user.getId(), userList.stream().map(User::getId).collect(Collectors.toList()));
         List<User> dislikesUsers = userList.stream()
-                .filter(userObj-> user.getCard().getDisLikes().contains(userObj.getId())) // Отсортированы в базе
-                .sorted(Comparator.comparingInt(u -> user.getCard().getDisLikes().indexOf(u.getId())))
+                .filter(userObj-> dislikesByIds.contains(user.getId())) // Отсортированы в базе
+                .sorted(Comparator.comparingInt(u -> dislikesByIds.indexOf(u.getId())))
                 .collect(Collectors.toList());
 
         // убирает из списка пользоватлей, которых дизлайкали раньше
         userList.removeAll(dislikesUsers);
 
-        if (userList.size() >= MyProperties.USERS_LIST_SIZE)
-            userList.subList(MyProperties.USERS_LIST_SIZE, userList.size()).clear();
+        if (userList.size() >= USERS_LIST_SIZE)
+            userList.subList(USERS_LIST_SIZE, userList.size()).clear();
 
         // Добиваем пачку пользователями, которых уже дизлайкали (Самыми старыми)
-        for (int i = 0; i < dislikesUsers.size() && userList.size() < MyProperties.USERS_LIST_SIZE; i++) {
+        for (int i = 0; i < dislikesUsers.size() && userList.size() < USERS_LIST_SIZE; i++) {
             userList.add(dislikesUsers.get(i));
         }
     }

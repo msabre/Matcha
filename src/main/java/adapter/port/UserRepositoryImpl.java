@@ -242,23 +242,6 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public void setPhotosParams(List<Photo> photos) {
-        try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
-             PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user_card SET PHOTOS_PARAMS = ? where ID = ?");)
-        {
-            String param = photos.stream()
-                    .map(p -> p.getNumber() + "_" + p.getFormat())
-                    .collect(Collectors.joining());
-
-            statement.setString(1, param);
-            statement.execute();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
     public void confirmById(int id) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
              PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user SET CONFIRM = NULL where ID = ?"))
@@ -292,39 +275,66 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
 
+//    "AND acts.ACTION IN ('LIKE', 'MATCH')
+
     @Override
-    public LinkedList<User> getAllUserInSameLocation(String location, int id, int age_by, int age_to, List<String> preferencesParams) {
-        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-            PreparedStatement statement = connection.prepareStatement(
-                    "SELECT DISTINCT usr.ID FROM matcha.user usr " +
-                    "INNER JOIN matcha.user_card card ON card.ID = usr.USER_CARD " +
-                    "WHERE usr.LOCATION = ? " +
+    public LinkedList<User> getNewForActionUsersWithParams(List<Integer> currentIds, String location, int id, int age_by, int age_to, List<String> preferencesParams, int limit) {
+        String query =
+                "SELECT DISTINCT usr.ID FROM matcha.user usr " +
+                        "INNER JOIN matcha.user_card card ON card.ID = usr.USER_CARD " +
+                        "WHERE FIND_IN_SET(usr.ID, ?) <= 0 " +
+                        "AND usr.LOCATION = ? " +
                         "AND usr.ID != ? " +
                         "AND usr.YEARS_OLD >= ? " +
                         "AND usr.YEARS_OLD <= ? " +
                         "AND FIND_IN_SET(card.GENDER, ?) > 0 " +
                         "AND FIND_IN_SET(card.SEXUAL_PREFERENCE, ?) > 0 " +
-                        "AND usr.ID NOT IN (SELECT acts.TO_USR FROM matcha.LIKES_ACTION acts " +
-                                            "WHERE acts.FROM_USR = ? " +
-                                            "AND acts.ACTION IN ('LIKE', 'MATCH'))"))
+                        "AND usr.ID NOT IN (SELECT acts.ID FROM matcha.LIKES_ACTION acts WHERE acts.FROM_USR = ?) LIMIT ?";
+
+        return getList(currentIds, query, location, id, age_by, age_to, preferencesParams, limit);
+    }
+
+    @Override
+    public LinkedList<User> getDislikeUsersWithParams(List<Integer> currentIds, String location, int id, int age_by, int age_to, List<String> preferencesParams, int limit) {
+        String query =
+                "SELECT DISTINCT usr.ID FROM matcha.user usr " +
+                "INNER JOIN matcha.user_card card ON card.ID = usr.USER_CARD " +
+                "WHERE FIND_IN_SET(usr.ID, ?) <= 0 " +
+                "AND usr.LOCATION = ? " +
+                "AND usr.ID != ? " +
+                "AND usr.YEARS_OLD >= ? " +
+                "AND usr.YEARS_OLD <= ? " +
+                "AND FIND_IN_SET(card.GENDER, ?) > 0 " +
+                "AND FIND_IN_SET(card.SEXUAL_PREFERENCE, ?) > 0 " +
+                "AND usr.ID IN (SELECT acts.TO_USR FROM matcha.LIKES_ACTION acts WHERE acts.FROM_USR = ? AND acts.ACTION IN ('DISLIKE')) LIMIT ?";
+
+        return getList(currentIds, query, location, id, age_by, age_to, preferencesParams, limit);
+    }
+
+    private LinkedList<User> getList(List<Integer> currentIds, String query, String location, int id, int age_by, int age_to, List<String> preferencesParams, int limit) {
+        LinkedList<User> usersList = new LinkedList<>();
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+            PreparedStatement statement = connection.prepareStatement(query))
         {
+            String currentIdsLine = currentIds.stream().map(String::valueOf).collect(Collectors.joining(","));
             String gender = preferencesParams.stream().map(s -> s.split(";")[0]).distinct().collect(Collectors.joining(","));
             String sexualPreferences = preferencesParams.stream().map(s -> s.split(";")[1]).distinct().collect(Collectors.joining(","));
 
             int i = 1;
+            statement.setString(i++, currentIdsLine);
             statement.setString(i++, location);
             statement.setInt(i++, id);
             statement.setInt(i++, age_by);
             statement.setInt(i++, age_to);
             statement.setString(i++, gender);
             statement.setString(i++, sexualPreferences);
-            statement.setInt(i, id);
+            statement.setInt(i++, id);
+            statement.setInt(i, limit);
             statement.execute();
 
             ResultSet rs = null;
             try {
                 rs = statement.getResultSet();
-                LinkedList<User> usersList = new LinkedList<>();
                 while (rs.next()) {
                     User user = findById(rs.getInt(1));
                     usersList.add(user);
@@ -339,24 +349,12 @@ public class UserRepositoryImpl implements UserRepository {
                 else
                     System.err.println("Пользователи по данному запросы не найдены!");
             }
-            return null;
+            return usersList;
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
-    }
-
-    public void getUsersChatList(int userId) {
-        try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
-             PreparedStatement statement = connection.prepareStatement("SELECT CHAT_ID FROM ",
-                     Statement.RETURN_GENERATED_KEYS)) {
-
-            statement.execute();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        return usersList;
     }
 
     @Override

@@ -1,9 +1,6 @@
 package usecase.port;
 
-import domain.entity.Photo;
 import domain.entity.User;
-import domain.entity.UserCard;
-import domain.entity.model.UserMatch;
 
 import java.util.Date;
 import java.util.LinkedList;
@@ -16,13 +13,13 @@ public interface UserRepository {
 
     User findById(int id);
 
-    void setPhotosParams(List<Photo> photos);
-
     void confirmById(int id);
 
     boolean passwordUpdate(int id, String password);
 
-    LinkedList<User> getAllUserInSameLocation(String location, int id, int age_by, int age_to, List<String> preferencesParams);
+    LinkedList<User> getNewForActionUsersWithParams(List<Integer> currentIds, String location, int id, int age_by, int age_to, List<String> preferencesParams, int limit);
+
+    LinkedList<User> getDislikeUsersWithParams(List<Integer> currentIds, String location, int id, int age_by, int age_to, List<String> preferencesParams, int limit);
 
     void updateEmail(int id, String email);
 

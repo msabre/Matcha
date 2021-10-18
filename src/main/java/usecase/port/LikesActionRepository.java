@@ -18,6 +18,8 @@ public interface LikesActionRepository {
 
     void deleteLike(int from, int to);
 
+    List<Integer> getToUserDislikesByIds(int from, List<Integer> ids);
+
     List<LikeAction> getNMatchUserIds(int id, int size);
 
     List<LikeAction> getNMatchUserIdsAfterSpecificId(int id, int specificId, int size);

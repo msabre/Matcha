@@ -96,7 +96,7 @@ public class UserController {
     }
 
     public List<User> getRecommendUsersList(User user) {
-        return recommendUsersList.get(user);
+        return recommendUsersList.get(new ArrayList<>(), new ArrayList<>(), user);
     }
 
     public boolean putMatchOrLike(int from, int to) {

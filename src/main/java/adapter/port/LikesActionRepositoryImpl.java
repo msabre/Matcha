@@ -6,10 +6,9 @@ import domain.entity.model.types.Action;
 import usecase.port.LikesActionRepository;
 
 import java.sql.*;
-import java.util.Collections;
+import java.util.*;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.stream.Collectors;
 
 public class LikesActionRepositoryImpl implements LikesActionRepository {
 
@@ -235,5 +234,28 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
             }
             return ids;
         }
+    }
+
+    public List<Integer> getToUserDislikesByIds(int from, List<Integer> ids) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement(
+                             "SELECT acts.TO_USR FROM matcha.LIKES_ACTION acts WHERE acts.FROM_USR = ? " +
+                                     "AND FIND_IN_SET(acts.TO_USR, ?) > 0 AND acts.ACTION = 'DISLIKE' ORDER BY acts.CREATION_TIME")) {
+            int i = 1;
+            statement.setInt(i++, from);
+            statement.setString(i, ids.stream().map(String::valueOf).collect(Collectors.joining(",")));
+            statement.execute();
+
+            try (ResultSet resultSet = statement.getResultSet()) {
+                List<Integer> toUsrIds = new ArrayList<>();
+                while (resultSet.next())
+                    toUsrIds.add(resultSet.getInt("TO_USR"));
+                return toUsrIds;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
     }
 }
