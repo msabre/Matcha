@@ -131,7 +131,7 @@ public class RecommendUsersList {
     private void fixSize(List<User> userList) {
         List<Integer> dislikesByIds = likesActionRepository.getToUserDislikesByIds(user.getId(), userList.stream().map(User::getId).collect(Collectors.toList()));
         List<User> dislikesUsers = userList.stream()
-                .filter(userObj-> dislikesByIds.contains(user.getId())) // Отсортированы в базе
+                .filter(userObj-> dislikesByIds.contains(userObj.getId())) // Отсортированы в базе
                 .sorted(Comparator.comparingInt(u -> dislikesByIds.indexOf(u.getId())))
                 .collect(Collectors.toList());
 
