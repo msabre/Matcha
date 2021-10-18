@@ -39,6 +39,9 @@ public class LikeServlet extends HttpServlet {
                     return;
                 }
                 break;
+            case "disLike":
+                userController.disLike(user.getId(), toUserId);
+                break;
             case "takeLike":
                 userController.deleteLike(user.getId(), toUserId);
                 break;

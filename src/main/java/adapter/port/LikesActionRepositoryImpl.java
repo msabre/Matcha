@@ -52,11 +52,11 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
 
     @Override
     public void match(int from, int to) {
-        updateOrInsertMatch(from, to);
-        updateOrInsertMatch(to, from);
+        updateOrInsertAction(from, to, Action.MATCH);
+        updateOrInsertAction(to, from, Action.MATCH);
     }
 
-    private void updateOrInsertMatch(int from, int to) {
+    private void updateOrInsertAction(int from, int to, Action action) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword())) {
             boolean putAlready;
             try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION WHERE FROM_USR = ? AND TO_USR = ?",
@@ -75,24 +75,24 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
                         "INSERT INTO matcha.LIKES_ACTION(FROM_USR, TO_USR, ACTION) VALUES(?, ?, ?)")) {
                     insert.setInt(i++, from);
                     insert.setInt(i++, to);
-                    insert.setString(i, Action.MATCH.toString());
+                    insert.setString(i, action.toString());
 
                     insert.execute();
                 } catch (SQLException e) {
-                    System.err.println("Не удалось добавить лайк от пользователя с id: " + from +
+                    System.err.println("Не удалось добавить" + action.toString() + " от пользователя с id: " + from +
                             " пользователю: " + to);
                 }
             }
             else {
                 try (PreparedStatement update = connection.prepareStatement(
                         "UPDATE matcha.LIKES_ACTION acts SET CREATION_TIME = NOW(), acts.ACTION = ? WHERE acts.FROM_USR = ? AND acts.TO_USR = ?")) {
-                    update.setString(i++, Action.MATCH.toString());
+                    update.setString(i++, action.toString());
                     update.setInt(i++, from);
                     update.setInt(i, to);
 
                     update.execute();
                 } catch (SQLException e) {
-                    System.err.println("Не удалось обновить лайк от пользователя с id: " + from +
+                    System.err.println("Не удалось обновить " + action.toString() + " от пользователя с id: " + from +
                             " пользователю: " + to);
                 }
             }
@@ -109,7 +109,7 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
 
     @Override
     public void dislike(int from, int to) {
-        putUpdateAction(from, to, Action.DISLIKE);
+        updateOrInsertAction(from, to, Action.DISLIKE);
     }
 
     private void putUpdateAction(int from, int to, Action action) {

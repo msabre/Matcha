@@ -30,6 +30,11 @@ public class PutLikeAction {
         return isMatch;
     }
 
+    public void disLike(int from, int to) {
+        likesActionRepository.dislike(from, to);
+        userCardRepository.decreaseRating(to, RatingChangesDefaultValue.DECREASE_DISLIKE);
+    }
+
     public void deleteLike(int from, int to) {
         likesActionRepository.deleteLike(from, to);
         userCardRepository.decreaseRating(to, RatingChangesDefaultValue.DECREASE_TAKE_LIKE);

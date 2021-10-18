@@ -107,6 +107,10 @@ public class UserController {
         putLikeAction.deleteLike(from, to);
     }
 
+    public void disLike(int from, int to) {
+        putLikeAction.disLike(from, to);
+    }
+
     public void updatePhotoParams(int userId, List<Photo> param) {
         updatePhotoParams.update(userId, param);
     }

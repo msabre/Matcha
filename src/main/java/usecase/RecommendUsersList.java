@@ -66,34 +66,7 @@ public class RecommendUsersList {
         return resultList;
     }
 
-    private List<String> getUserSexualPreferences() {
-        return sexualConformity.get(String.format("%s;%s", user.getCard().getGender().getValue(),
-                user.getCard().getSexualPreference().getValue()));
-    }
-
-    private List<User> getNewForActionUsers(List<User> resultList) {
-        return userRepository.getNewForActionUsersWithParams(resultList.stream().map(User::getId).collect(Collectors.toList()),
-                user.getFilter().getLocation(),
-                user.getId(),
-                user.getFilter().getAgeBy(),
-                user.getFilter().getAgeTo(),
-                getUserSexualPreferences(),
-                USERS_LIST_SIZE * 3);
-    }
-
-    private List<User> getDislikesUsers(List<User> resultList) {
-        return userRepository.getDislikeUsersWithParams(resultList.stream().map(User::getId).collect(Collectors.toList()),
-                user.getFilter().getLocation(),
-                user.getId(),
-                user.getFilter().getAgeBy(),
-                user.getFilter().getAgeTo(),
-                getUserSexualPreferences(),
-                USERS_LIST_SIZE * 3);
-    }
-
     private List<User> customFilter(List<User> userList) {
-
-        // Фильтр на количетсво общих интересов
         if (user.getFilter().getCommonTagsCount() > 0)
         {
             int countSameTags = user.getFilter().getCommonTagsCount();
@@ -105,7 +78,6 @@ public class RecommendUsersList {
                 return userList;
         }
 
-        // Фильтр на рейтинг
         if (user.getFilter().getRating() > 0.0)
         {
             double rating = user.getFilter().getRating();
@@ -135,16 +107,39 @@ public class RecommendUsersList {
                 .sorted(Comparator.comparingInt(u -> dislikesByIds.indexOf(u.getId())))
                 .collect(Collectors.toList());
 
-        // убирает из списка пользоватлей, которых дизлайкали раньше
         userList.removeAll(dislikesUsers);
 
         if (userList.size() >= USERS_LIST_SIZE)
             userList.subList(USERS_LIST_SIZE, userList.size()).clear();
 
-        // Добиваем пачку пользователями, которых уже дизлайкали (Самыми старыми)
         for (int i = 0; i < dislikesUsers.size() && userList.size() < USERS_LIST_SIZE; i++) {
             userList.add(dislikesUsers.get(i));
         }
+    }
+
+    private List<String> getUserSexualPreferences() {
+        return sexualConformity.get(String.format("%s;%s", user.getCard().getGender().getValue(),
+                user.getCard().getSexualPreference().getValue()));
+    }
+
+    private List<User> getNewForActionUsers(List<User> resultList) {
+        return userRepository.getNewForActionUsersWithParams(resultList.stream().map(User::getId).collect(Collectors.toList()),
+                user.getFilter().getLocation(),
+                user.getId(),
+                user.getFilter().getAgeBy(),
+                user.getFilter().getAgeTo(),
+                getUserSexualPreferences(),
+                USERS_LIST_SIZE * 3);
+    }
+
+    private List<User> getDislikesUsers(List<User> resultList) {
+        return userRepository.getDislikeUsersWithParams(resultList.stream().map(User::getId).collect(Collectors.toList()),
+                user.getFilter().getLocation(),
+                user.getId(),
+                user.getFilter().getAgeBy(),
+                user.getFilter().getAgeTo(),
+                getUserSexualPreferences(),
+                USERS_LIST_SIZE * 3);
     }
 
     private int getCommonTagsCount(User userObj) {
