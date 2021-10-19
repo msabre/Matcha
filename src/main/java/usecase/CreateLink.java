@@ -3,7 +3,7 @@ package usecase;
 import usecase.port.UrlRepository;
 
 public class CreateLink {
-    private UrlRepository repository;
+    private final UrlRepository repository;
 
     public CreateLink(UrlRepository repository) {
         this.repository = repository;

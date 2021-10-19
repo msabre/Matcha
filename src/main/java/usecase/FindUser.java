@@ -6,7 +6,7 @@ import usecase.port.UserRepository;
 
 public class FindUser {
 
-    private UserRepository repository;
+    private final UserRepository repository;
 
     public FindUser(UserRepository repository,PasswordEncoder passwordEncoder) {
         this.repository = repository;

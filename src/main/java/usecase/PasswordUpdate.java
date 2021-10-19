@@ -3,7 +3,7 @@ package usecase;
 import usecase.port.UserRepository;
 
 public class PasswordUpdate {
-    private UserRepository repository;
+    private final UserRepository repository;
 
     public PasswordUpdate(UserRepository repository) {
         this.repository = repository;
