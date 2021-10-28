@@ -85,7 +85,7 @@ public class RegistrationServlet extends HttpServlet {
 
     private void sendConfirmMail (User user) {
         String link = String.format("http://%s/confirmAccount?id=%s&conf=%s&linkId=", MyProperties.CLIENT_HOST, user.getId(), user.getTokenConfirm());
-        link +=  operationController.addLink(link);
+        link +=  operationController.addLink(user.getTokenConfirm());
 
         MailService mailService = new MailService(MyProperties.ADMIN_LOGIN, MyProperties.ADMIN_PASSWORD);
 

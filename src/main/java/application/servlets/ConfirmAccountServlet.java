@@ -34,8 +34,8 @@ public class ConfirmAccountServlet extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
 
         Integer linkId = Optional.ofNullable(req.getParameter("linkId")).map(Integer::parseInt).orElse(-1);
-
-        if (!operationController.isCorrectLink(linkId, HttpService.getUrl(req))) {
+        String confirmToken = req.getParameter("conf");
+        if (!operationController.isCorrectLink(linkId, confirmToken)) {
             HttpService.putBody(resp, "ERROR LINK");
             return;
         }
@@ -48,8 +48,7 @@ public class ConfirmAccountServlet extends HttpServlet {
             return ;
         }
 
-        String confirmToken = req.getParameter("conf");
-        if (nonNull(confirmToken) && confirmToken.equals(user.getTokenConfirm())) {
+        if (confirmToken.equals(user.getTokenConfirm())) {
             user.setConfirm(true);
 
             userController.confirmUser(id);
