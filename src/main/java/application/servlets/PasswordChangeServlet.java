@@ -86,7 +86,7 @@ public class PasswordChangeServlet extends HttpServlet {
         String body = HttpService.getBody(req);
         int linkId = Optional.ofNullable(JsonService.getParameter(body,"linkId")).map(Integer::parseInt).orElse(-1);
         if (!operationController.isCorrectLink(linkId, JsonService.getParameter(body, "token"))) {
-            HttpService.putBody(resp, "WRONG");
+            HttpService.putBody(resp, "WRONG LINK");
             return;
         }
         operationController.confirmLink(linkId);

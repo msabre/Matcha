@@ -31,9 +31,9 @@ public class DBConfiguration {
         if (instanse != null)
             return instanse;
         Properties prop = MatchUtils.getProps(PATH_TO_PROPERTIES);
-        user = prop.getProperty("user");
-        password = prop.getProperty("password");
-        url = prop.getProperty("url");
+        user = prop.getProperty("db.mysql.user");
+        password = prop.getProperty("db.mysql.password");
+        url = prop.getProperty("db.mysql.url");
         instanse = new DBConfiguration();
 
         loadDriver();
