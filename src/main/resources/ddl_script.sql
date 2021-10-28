@@ -1,3 +1,20 @@
+CREATE FUNCTION scheme_exists() RETURNS BOOLEAN
+    DETERMINISTIC
+    RETURN (SELECT IF (EXISTS (SELECT *
+                               FROM INFORMATION_SCHEMA.SCHEMATA
+                               WHERE SCHEMA_NAME = 'matchaa'),
+                       TRUE, FALSE))
+;
+create procedure create_scheme()
+    MODIFIES SQL DATA
+    SQL SECURITY DEFINER 
+BEGIN
+    PREPARE stmt FROM 'CREATE DATABASE matchaa';
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END
+;
+
 CREATE FUNCTION table_exists(tabName varchar(30)) RETURNS BOOLEAN 
     DETERMINISTIC 
     RETURN (SELECT IF (EXISTS (SELECT * 
@@ -37,7 +54,10 @@ END
 ;
 
 CREATE PROCEDURE createTabs()  
-BEGIN   
+BEGIN
+    IF NOT scheme_exists() THEN CALL create_scheme();
+    END IF;
+
     IF NOT table_exists('USER') THEN CALL execute_immediate(
             'CREATE TABLE matcha.USER(
                             ID MEDIUMINT AUTO_INCREMENT,
@@ -153,16 +173,22 @@ BEGIN
 END
 ;
 
+
 call createTabs
 ;
-DROP PROCEDURE createTabs
-;
 
+
+DROP FUNCTION scheme_exists
+;
 DROP FUNCTION table_exists
 ;
 DROP FUNCTION column_exists
 ;
+DROP PROCEDURE create_scheme
+;
 DROP PROCEDURE execute_immediate
 ;
 DROP PROCEDURE alert_table
+;
+DROP PROCEDURE createTabs
 ;
