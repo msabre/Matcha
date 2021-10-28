@@ -53,7 +53,7 @@ public class JsonService {
         if (objectList == null)
             return null;
 
-        Gson gson = getGson();
+        Gson gson = getGsonExpose();
         JsonArray array = new JsonArray();
         for (Object obj : objectList) {
             JsonObject o = JsonParser.parseString(gson.toJson(obj)).getAsJsonObject();
