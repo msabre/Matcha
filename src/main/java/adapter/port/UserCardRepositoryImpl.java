@@ -74,26 +74,25 @@ public class UserCardRepositoryImpl implements UserCardRepository {
             try {
                 resultSet = state.getResultSet();
                 while (resultSet.next()) {
-                    int i = 0;
                     UserCard card = new UserCard();
-                    card.setId(resultSet.getInt(++i));
-                    card.setBiography(resultSet.getString(++i));
-                    card.setWorkPlace(resultSet.getString(++i));
-                    card.setPosition(resultSet.getString(++i));
-                    card.setEducation(resultSet.getString(++i));
-                    card.setGender(GenderType.fromStr(resultSet.getString(++i)));
-                    card.setSexualPreference(SexualPreferenceType.fromStr(resultSet.getString(++i)));
+                    card.setId(resultSet.getInt("ID"));
+                    card.setBiography(resultSet.getString("BIOGRAPHY"));
+                    card.setWorkPlace(resultSet.getString("WORKPLACE"));
+                    card.setPosition(resultSet.getString("POSITION"));
+                    card.setEducation(resultSet.getString("EDUCATION"));
+                    card.setGender(GenderType.fromStr(resultSet.getString("GENDER")));
+                    card.setSexualPreference(SexualPreferenceType.fromStr(resultSet.getString("SEXUAL_PREFERENCE")));
 
-                    String[] arrayTags = Optional.ofNullable(resultSet.getString(++i)).
+                    String[] arrayTags = Optional.ofNullable(resultSet.getString("TAGS")).
                             map(regex -> regex.split(";")).orElse(new String[0]);
 
                     List<String> tags = Arrays.asList(arrayTags);
                     card.setTags(tags);
-                    card.setRating(resultSet.getDouble(++i));
+                    card.setRating(resultSet.getDouble("RATING"));
 
                     int userId = resultSet.getInt("USER_ID");
                     
-                    String params = resultSet.getString(++i);
+                    String params = resultSet.getString("PHOTOS_PARAMS");
                     card.setPhotos(new ArrayList<>(Collections.nCopies(5, null)));
                     if (params!= null && !params.isEmpty()) {
                         for (String photoParam : params.split(";")) {
