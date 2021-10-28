@@ -152,7 +152,7 @@ BEGIN
         );
     END IF;
     IF table_exists('CHAT_AFFILIATION') AND NOT column_exists('CHAT_AFFILIATION', 'TO_USR')
-        THEN CALL alert_table('WEB_SOCKET_MESSAGE', 'TO_USR MEDIUMINT');
+        THEN CALL alert_table('CHAT_AFFILIATION', 'TO_USR MEDIUMINT');
     END IF;
     
 END
