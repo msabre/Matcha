@@ -91,6 +91,8 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                     card.setTags(tags);
                     card.setRating(resultSet.getDouble(++i));
 
+                    int userId = resultSet.getInt("USER_ID");
+                    
                     String params = resultSet.getString(++i);
                     card.setPhotos(new ArrayList<>(Collections.nCopies(5, null)));
                     if (params!= null && !params.isEmpty()) {
@@ -100,10 +102,11 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                             Photo photo = new Photo();
                             photo.setNumber(detail[0]);
                             photo.setFormat(detail[1]);
+                            photo.setUserId(userId);
                             card.getPhotos().set(Integer.parseInt(detail[0]) - 1, photo);
                         }
                     }
-                    card.setUserId(resultSet.getInt(++i));
+                    card.setUserId(resultSet.getInt("USER_ID"));
                     return card;
                 }
             }

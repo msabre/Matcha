@@ -79,6 +79,7 @@ public class MainServlet extends HttpServlet {
             userController.filterUpdate(filterParams);
             user.setFilter(filterParams);
             req.getSession().setAttribute("user", user);
+            HttpService.putBody(resp, "SUCCESS");
         }
     }
 }

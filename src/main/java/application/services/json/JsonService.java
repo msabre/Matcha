@@ -96,9 +96,9 @@ public class JsonService {
         return gson.fromJson(json, clazz);
     }
 
-    public static List<Photo> getList(String json) {
+    public static List<Photo> getPhotoList(String json) {
         Type listType = new TypeToken<List<Photo>>(){}.getType();
-        Gson gson = getGsonExpose();
+        Gson gson = getGson();
         return gson.fromJson(json, listType);
     }
 

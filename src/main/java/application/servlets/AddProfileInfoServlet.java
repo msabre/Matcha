@@ -45,7 +45,7 @@ public class AddProfileInfoServlet extends HttpServlet {
                 user.setCard(userController.updateUserCard(card));
                 break;
             case "photo":
-                List<Photo> photos = JsonService.getList(HttpService.getBody(req));
+                List<Photo> photos = JsonService.getPhotoList(HttpService.getBody(req));
                 if (photos != null && !photos.isEmpty()) {
                     if (!processActionPhoto(photos, user)) {
                         HttpService.putBody(resp, "UNEXPECTED PHOTO FORMAT");
@@ -102,7 +102,7 @@ public class AddProfileInfoServlet extends HttpServlet {
         BufferedImage img = ImageIO.read(bufferedInputStream);
 
         File compressedImageFile = new File(destinationPath);
-        OutputStream os =new FileOutputStream(compressedImageFile);
+        OutputStream os = new FileOutputStream(compressedImageFile);
 
         Iterator<ImageWriter> writers =  ImageIO.getImageWritersByFormatName("jpg");
         ImageWriter writer = writers.next();

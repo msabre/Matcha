@@ -54,6 +54,7 @@ public class LoginServlet extends HttpServlet {
             claims.put("userId", user.getId());
 
             if (jwtController.putTokensPairToCookie(req, resp, user, claims) != null) {
+                userController.uploadPhotosContent(user.getCard().getPhotos());
                 HttpService.putBody(resp, JsonService.getJsonWithExposeFields(user));
                 return;
             }
