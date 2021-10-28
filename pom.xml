@@ -17,9 +17,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <db.mysql.url>jdbc:mysql://localhost:3306/matcha</db.mysql.url>
-    <db.mysql.username>root</db.mysql.username>
-    <db.mysql.password>match</db.mysql.password>
   </properties>
 
   <dependencies>
@@ -186,15 +183,6 @@
       <version>3.0</version>
     </dependency>
 
-
-    <!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc -->
-    <dependency>
-      <groupId>com.microsoft.sqlserver</groupId>
-      <artifactId>mssql-jdbc</artifactId>
-      <version>9.4.0.jre16</version>
-    </dependency>
-
-    <!-- https://mvnrepository.com/artifact/org.codehaus.mojo/sql-maven-plugin -->
     <dependency>
       <groupId>org.codehaus.mojo</groupId>
       <artifactId>sql-maven-plugin</artifactId>
@@ -205,28 +193,34 @@
   </dependencies>
 
 
-
   <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+
     <plugins>
-<!--      </plugin>-->
-<!--      <plugin>-->
-<!--        <groupId>org.codehaus.mojo</groupId>-->
-<!--        <artifactId>properties-maven-plugin</artifactId>-->
-<!--        <version>1.0.0</version>-->
-<!--        <executions>-->
-<!--          <execution>-->
-<!--            <phase>pre-clean</phase>-->
-<!--            <goals>-->
-<!--              <goal>read-project-properties</goal>-->
-<!--            </goals>-->
-<!--            <configuration>-->
-<!--              <files>-->
-<!--                <file>${basedir}/src/main/resources/databaseConfiguration.properties</file>-->
-<!--              </files>-->
-<!--            </configuration>-->
-<!--          </execution>-->
-<!--        </executions>-->
-<!--      </plugin>-->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>properties-maven-plugin</artifactId>
+        <version>1.0-alpha-2</version>
+        <executions>
+          <execution>
+            <id>1</id>
+            <phase>initialize</phase>
+            <goals>
+                <goal>read-project-properties</goal>
+              </goals>
+              <configuration>
+                <files>
+                  <file>${project.basedir}/src/main/resources/databaseConfiguration.properties</file>
+                </files>
+              </configuration>
+            </execution>
+        </executions>
+      </plugin>
 
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -238,111 +232,41 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.23</version>
-            <scope>runtime</scope>
           </dependency>
         </dependencies>
 
         <configuration>
-          <driver>com.mysql.jdbc.Driver</driver>
-          <url>${db.mysql.url}</url>
-          <username>${db.mysql.username}</username>
-          <password>${db.mysql.password}</password>
           <delimiterType>row</delimiterType>
+          <driver>com.mysql.cj.jdbc.Driver</driver>
+          <url>${db.mysql.url}</url>
+          <username>${db.mysql.user}</username>
+          <password>${db.mysql.password}</password>
           <srcFiles>
-            <srcFile>${project.basedir}/src/main/resources/ddl_script.sql</srcFile>
+            <srcFile>src/main/resources/ddl_script.sql</srcFile>
           </srcFiles>
         </configuration>
 
         <executions>
           <execution>
             <id>create-schema</id>
-            <phase>install</phase>
+            <phase>package</phase>
             <goals>
               <goal>execute</goal>
             </goals>
             <configuration>
-              <url>${db.mysql.url}</url>
-              <username>${db.mysql.username}</username>
-              <password>${db.mysql.password}</password>
               <autocommit>true</autocommit>
               <srcFiles>
-                <srcFile>${project.basedir}/src/main/resources/ddl_script.sql</srcFile>
+                <srcFile>src/main/resources/ddl_script.sql</srcFile>
               </srcFiles>
             </configuration>
           </execution>
         </executions>
       </plugin>
-
+      
     </plugins>
     
     <pluginManagement>
       <plugins>
-
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>sql-maven-plugin</artifactId>
-          <version>1.5</version>
-
-          <dependencies>
-            <dependency>
-              <groupId>mysql</groupId>
-              <artifactId>mysql-connector-java</artifactId>
-              <version>8.0.23</version>
-            </dependency>
-          </dependencies>
-
-          <configuration>
-            <driver>com.mysql.jdbc.Driver</driver>
-            <url>${db.mysql.url}</url>
-            <username>${db.mysql.username}</username>
-            <password>${db.mysql.password}</password>
-          </configuration>
-
-          <executions>
-            <execution>
-              <id>create-schema</id>
-              <phase>install</phase>
-              <goals>
-                <goal>execute</goal>
-              </goals>
-              <configuration>
-                <url>${db.mysql.url}</url>
-                <username>${db.mysql.username}</username>
-                <password>${db.mysql.password}</password>
-                <autocommit>true</autocommit>
-                <srcFiles>
-                  <srcFile>src/main/resources/ddl_script.sql</srcFile>
-                </srcFiles>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-        
-        
-<!--        <execution>-->
-<!--          <id>create-tables</id>-->
-<!--          <configuration>-->
-<!--            <srcFiles>-->
-<!--              <srcFile>${project.basedir}/sql/create_tables.sql</srcFile>-->
-<!--            </srcFiles>-->
-<!--          </configuration>-->
-<!--        </execution>-->
-
-        <!--        <plugin>-->
-<!--          <groupId>org.apache.maven.plugins</groupId>-->
-<!--          <artifactId>maven-antrun-plugin</artifactId>-->
-<!--          <version>1.8</version>-->
-<!--          <configuration>-->
-<!--            <target>-->
-<!--              <property file="src/main/resources/application.properties" />-->
-<!--              <sql driver="com.mysql.jdbc.Driver" url="${db.mysql.url}" userid="${db.mysql.username}" password="${db.mysql.password}"-->
-<!--                   onerror="abort" failOnConnectionError="true" encoding="${project.build.sourceEncoding}">-->
-<!--                <classpath refid="maven.test.classpath" />-->
-<!--                <transaction src="src/main/resources/ddl_script.sql"/>-->
-<!--              </sql>-->
-<!--            </target>-->
-<!--          </configuration>-->
-<!--        </plugin>-->
 
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>
@@ -358,11 +282,6 @@
               <nonFilteredFileExtension>swf</nonFilteredFileExtension>
             </nonFilteredFileExtensions>
           </configuration>
-        </plugin>
-
-        <plugin>
-          <artifactId>properties-maven-plugin</artifactId>
-          <version>1.0-alpha-2</version>
         </plugin>
 
         <plugin>
