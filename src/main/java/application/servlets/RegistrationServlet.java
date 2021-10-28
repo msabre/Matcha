@@ -61,11 +61,12 @@ public class RegistrationServlet extends HttpServlet {
          user.setTokenConfirm(passwordEncoder.getToken(MatchUtils.generateRqUid()));
 
         String location = null;
-        try {
-            location = LocationService.getPosition("188.255.7.63");
-        } catch (GeoIp2Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+////            location = LocationService.getPosition("188.255.7.63");
+//        } catch (GeoIp2Exception e) {
+//            e.printStackTrace();
+//        }
+        location = "Samara";
 
         user.setLocation(location);
 
