@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS matcha;
-
+CREATE DATABASE IF NOT EXISTS matcha
+;
 CREATE FUNCTION table_exists(tabName varchar(30)) RETURNS BOOLEAN 
     DETERMINISTIC 
     RETURN (SELECT IF (EXISTS (SELECT * 
@@ -74,6 +74,9 @@ BEGIN
                             USER_ID MEDIUMINT,
                     PRIMARY KEY (ID));'
         );
+    END IF;
+    IF table_exists('USER_CARD') AND NOT column_exists('USER_CARD', 'MAIN_PHOTO')
+        THEN CALL alert_table('USER_CARD', 'MAIN_PHOTO MEDIUMINT');
     END IF;
 
     IF NOT table_exists('LINK') THEN CALL execute_immediate(
