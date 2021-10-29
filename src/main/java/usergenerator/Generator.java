@@ -1,9 +1,11 @@
 package usergenerator;
 
 import config.MyConfiguration;
+import domain.entity.Message;
 import domain.entity.User;
 import domain.entity.UserCard;
 import domain.entity.model.types.GenderType;
+import domain.entity.model.types.MessageStatus;
 import domain.entity.model.types.SexualPreferenceType;
 import usecase.port.ChatAffiliationRepository;
 import usecase.port.MessageRepository;
@@ -26,6 +28,7 @@ public class Generator {
     private final MessageRepository messageRepository;
     private final ChatAffiliationRepository chatAffiliationRepository;
     private final List<User> userList;
+    private List<List<String>> dialogs;
 
     public Generator() {
         userRepository = MyConfiguration.userRepository();
@@ -95,17 +98,8 @@ public class Generator {
     }
 
     private void generateMessageHistoryForAllChatFreeUsers(int dialogCount) throws URISyntaxException {
-        List<String> dialogsLines = readFile(Paths.get(Generator.class.getResource("/generator/dialogs.txt").toURI()).toFile().getPath());
-        if (dialogsLines == null)
-            return;
-
-        List<Integer> dialogIndexes = dialogsLines.stream().filter(line -> line.equals(DIALOG_DELIMITER)).map(dialogsLines::indexOf).collect(Collectors.toList());
-        List<List<String>> mess = new ArrayList<>();
-        for (int i = 0; i < (dialogIndexes.size() / 2); i++) {
-            mess.add(dialogsLines.subList(dialogIndexes.get(i), dialogIndexes.get(i + 1)));
-        }
+        readDialogsFromFile();
         
-
         List<Integer> freeChatUsersIds = userList.stream().map(User::getId).sorted(Integer::compareTo).collect(Collectors.toList());
         List<Integer> userIds = new ArrayList<>(freeChatUsersIds);
         int maxUserId = freeChatUsersIds.get(freeChatUsersIds.size() - 1);
@@ -118,20 +112,40 @@ public class Generator {
                 int userId = freeChatUsersIds.get(index);
                 int toUsr = getIntOfRange(userId, maxUserId);
 
-                Date creationTime = new Date();
+                Date creationTime = new Date(new Date().getTime() - ((long) 60 * 60 * 24 * 365 * 1000)); // минус год
                 chatAffiliationRepository.create(userId, toUsr, ++maxChatId);
-                for (List<String> dialog : mess) {
-                    for (String message : dialog) {
-                        if (message.equals(TOPIC_DELIMITER)) {
-                            // TODO уменьшить дату
+                for (List<String> dialog : dialogs) {
+                    for (String content : dialog) {
+                        if (content.equals(TOPIC_DELIMITER)) {
+                            creationTime = new Date(creationTime.getTime() + (long) 60 * 60 * 24 * 2 * 1000); // плюс 2 дня
                             continue;
                         }
+                        Message messageType = new Message();
+                        messageType.setStatus(MessageStatus.DELIVERED);
+                        messageType.setFromId(userId);
+                        messageType.setToId(toUsr);
+                        messageType.setCreationTime(creationTime);
+                        messageType.setChatId(maxChatId);
+                        messageType.setContent(content);
+                        messageRepository.save(messageType);
                     }
                 }
                 
                 freeChatUsersIds.remove(toUsr);
                 counter++;
             }
+        }
+    }
+    
+    private void readDialogsFromFile() throws URISyntaxException {
+        List<String> dialogsLines = readFile(Paths.get(Generator.class.getResource("/generator/dialogs.txt").toURI()).toFile().getPath());
+        if (dialogsLines == null)
+            return;
+
+        List<Integer> dialogIndexes = dialogsLines.stream().filter(line -> line.equals(DIALOG_DELIMITER)).map(dialogsLines::indexOf).collect(Collectors.toList());
+        dialogs = new ArrayList<>();
+        for (int i = 0; i < (dialogIndexes.size() / 2); i++) {
+            dialogs.add(dialogsLines.subList(dialogIndexes.get(i), dialogIndexes.get(i + 1)));
         }
     }
     
