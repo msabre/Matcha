@@ -30,7 +30,6 @@ public class ChatEndpoint {
     public void onOpen(Session session, @PathParam("chatId") String chat, @PathParam("userId") String user, @PathParam("token") String token,
                        @PathParam("fingerprint") String fingerprint) {
 
-//        session.setMaxBinaryMessageBufferSize(30720);
         int chatId = Optional.ofNullable(chat).map(Integer::parseInt).orElse(-1);
         int userId = Optional.ofNullable(user).map(Integer::parseInt).orElse(-1);
 
@@ -103,7 +102,8 @@ public class ChatEndpoint {
                 }
                 send(chatId, newAnswer("SUCCESS"));
 
-            } else if (msgObj.getDeliveryNotification() != null) {
+            }
+            else if (msgObj.getDeliveryNotification() != null) {
                 TransportMessage.DeliveryNotification deliveryNotification = msgObj.getDeliveryNotification();
 
                 if (messageController.markAsRead(deliveryNotification.getIds()))

@@ -5,46 +5,57 @@ import domain.entity.User;
 import domain.entity.UserCard;
 import domain.entity.model.types.GenderType;
 import domain.entity.model.types.SexualPreferenceType;
+import usecase.port.ChatAffiliationRepository;
+import usecase.port.MessageRepository;
 import usecase.port.UserCardRepository;
 import usecase.port.UserRepository;
 
 import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Generator {
 
+    private final static String DIALOG_DELIMITER = "<---------*********--------->";
+    private final static String TOPIC_DELIMITER = "--&&&";
+
     private final UserRepository userRepository;
     private final UserCardRepository userCardRepository;
-
-    private List<String> namesList;
-    private List<String> cityList;
-    private List<String> interestsList;
-    private List<String> sexualPrefeneceList;
+    private final MessageRepository messageRepository;
+    private final ChatAffiliationRepository chatAffiliationRepository;
+    private final List<User> userList;
 
     public Generator() {
         userRepository = MyConfiguration.userRepository();
         userCardRepository = MyConfiguration.userCardRepository();
+        messageRepository = MyConfiguration.messageRepository();
+        chatAffiliationRepository = MyConfiguration.chatAffiliationRepository();
+        userList = new ArrayList<>();
     }
 
     public void generate(String male) throws URISyntaxException {
-        cityList = readFile(Paths.get(Generator.class.getResource("/generator/cityList.txt").toURI()).toFile().getPath());
-        interestsList = readFile(Paths.get(Generator.class.getResource("/generator/interestsList.txt").toURI()).toFile().getPath());
+        List<String> cityList = readFile(Paths.get(Generator.class.getResource("/generator/cityList.txt").toURI()).toFile().getPath());
+        List<String> interestsList = readFile(Paths.get(Generator.class.getResource("/generator/interestsList.txt").toURI()).toFile().getPath());
 
+        List<String> namesList;
+        List<String> sexualPreferenceList;
         switch (male) {
             case "male":
                 namesList = readFile(Paths.get(Generator.class.getResource("/generator/namesListMale.txt").toURI()).toFile().getPath());
-                sexualPrefeneceList = readFile(Paths.get(Generator.class.getResource("/generator/sexualPreferenseMale.txt").toURI()).toFile().getPath());
+                sexualPreferenceList = readFile(Paths.get(Generator.class.getResource("/generator/sexualPreferenseMale.txt").toURI()).toFile().getPath());
                 break;
             case "female":
                 namesList = readFile(Paths.get(Generator.class.getResource("/generator/namesListFemale.txt").toURI()).toFile().getPath());
-                sexualPrefeneceList = readFile(Paths.get(Generator.class.getResource("/generator/sexualPreferenseFemale.txt").toURI()).toFile().getPath());
+                sexualPreferenceList = readFile(Paths.get(Generator.class.getResource("/generator/sexualPreferenseFemale.txt").toURI()).toFile().getPath());
                 break;
             default:
                 return ;
         }
+
+        if (namesList == null || cityList == null || sexualPreferenceList == null || interestsList == null)
+            return;
 
         for (String name : namesList) {
             User user = new User();
@@ -57,7 +68,7 @@ public class Generator {
             user.setYearsOld(getIntOfRange(18, 45));
 
             UserCard card = new UserCard();
-            card.setSexualPreference(SexualPreferenceType.fromStr(getOne(sexualPrefeneceList)));
+            card.setSexualPreference(SexualPreferenceType.fromStr(getOne(sexualPreferenceList)));
             card.setGender(GenderType.fromStr(male));
 
             user.setCard(card);
@@ -78,11 +89,52 @@ public class Generator {
             card.setTags(tags);
             card.setRating(getDoubleOfRange(1.0, 4.7));
 
-
             userCardRepository.save(card);
+            userList.add(user);
         }
     }
 
+    private void generateMessageHistoryForAllChatFreeUsers(int dialogCount) throws URISyntaxException {
+        List<String> dialogsLines = readFile(Paths.get(Generator.class.getResource("/generator/dialogs.txt").toURI()).toFile().getPath());
+        if (dialogsLines == null)
+            return;
+
+        List<Integer> dialogIndexes = dialogsLines.stream().filter(line -> line.equals(DIALOG_DELIMITER)).map(dialogsLines::indexOf).collect(Collectors.toList());
+        List<List<String>> mess = new ArrayList<>();
+        for (int i = 0; i < (dialogIndexes.size() / 2); i++) {
+            mess.add(dialogsLines.subList(dialogIndexes.get(i), dialogIndexes.get(i + 1)));
+        }
+        
+
+        List<Integer> freeChatUsersIds = userList.stream().map(User::getId).sorted(Integer::compareTo).collect(Collectors.toList());
+        List<Integer> userIds = new ArrayList<>(freeChatUsersIds);
+        int maxUserId = freeChatUsersIds.get(freeChatUsersIds.size() - 1);
+        int maxChatId = chatAffiliationRepository.getChatMaxId() + 1;
+
+        for (int index = 0; index < userIds.size(); index++) {
+
+            int counter = 0;
+            while (counter < dialogCount) {
+                int userId = freeChatUsersIds.get(index);
+                int toUsr = getIntOfRange(userId, maxUserId);
+
+                Date creationTime = new Date();
+                chatAffiliationRepository.create(userId, toUsr, ++maxChatId);
+                for (List<String> dialog : mess) {
+                    for (String message : dialog) {
+                        if (message.equals(TOPIC_DELIMITER)) {
+                            // TODO уменьшить дату
+                            continue;
+                        }
+                    }
+                }
+                
+                freeChatUsersIds.remove(toUsr);
+                counter++;
+            }
+        }
+    }
+    
     private int getIntOfRange(int by, int to) {
         return (int) (by + Math.random() * (to - by));
     }
@@ -117,7 +169,10 @@ public class Generator {
 
     public static void main(String[] args) throws URISyntaxException {
         Generator generator = new Generator();
+
         generator.generate("male");
         generator.generate("female");
+
+        
     }
 }

@@ -13,20 +13,12 @@ public class TransportMessage {
     private MessageNotification messageNotification;
     private DeliveryNotification deliveryNotification;
 
-    public Answer getAnswer() {
-        return answer;
-    }
-
     public void setAnswer(Answer answer) {
         this.answer = answer;
     }
 
     public Message getMessage() {
         return message;
-    }
-
-    public void setMessage(Message message) {
-        this.message = message;
     }
 
     public List<Message> getMessageAnswer() {
@@ -41,20 +33,8 @@ public class TransportMessage {
         return getMessageRq;
     }
 
-    public void setGetMessageRq(GetMessageRq getMessageRq) {
-        this.getMessageRq = getMessageRq;
-    }
-
     public DeleteMessage getDeleteMessage() {
         return deleteMessage;
-    }
-
-    public void setDeleteMessage(DeleteMessage deleteMessage) {
-        this.deleteMessage = deleteMessage;
-    }
-
-    public MessageNotification getMessageNotification() {
-        return messageNotification;
     }
 
     public void setMessageNotification(MessageNotification messageNotification) {
@@ -65,8 +45,12 @@ public class TransportMessage {
         return deliveryNotification;
     }
 
-    public void setDeliveryNotification(DeliveryNotification deliveryNotification) {
-        this.deliveryNotification = deliveryNotification;
+    public MessageNotification getMessageNotification() {
+        return messageNotification;
+    }
+
+    public Answer getAnswer() {
+        return answer;
     }
 
     /**
@@ -106,16 +90,8 @@ public class TransportMessage {
             return messageIds;
         }
 
-        public void setMessageIds(int[] messageIds) {
-            this.messageIds = messageIds;
-        }
-
         public int getLastId() {
             return lastId;
-        }
-
-        public void setLastId(int lastId) {
-            this.lastId = lastId;
         }
 
         public GetMessageRqType getType() {

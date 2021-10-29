@@ -1,4 +1,4 @@
-package usergenerator;
+package testTemp;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
