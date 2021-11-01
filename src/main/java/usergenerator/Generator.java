@@ -106,13 +106,15 @@ public class Generator {
         int maxChatId = chatAffiliationRepository.getChatMaxId() + 1;
 
         for (int index = 0; index < userIds.size(); index++) {
+            if (!freeChatUsersIds.contains(index))
+                continue;
 
             int counter = 0;
             while (counter < dialogCount) {
                 int userId = freeChatUsersIds.get(index);
                 int toUsr = getIntOfRange(userId, maxUserId);
 
-                Date creationTime = new Date(new Date().getTime() - ((long) 60 * 60 * 24 * 365 * 1000)); // минус год
+                Date creationTime = new Date(new Date().getTime() - (long) 60 * 60 * 24 * 365 * 1000); // минус год
                 chatAffiliationRepository.create(userId, toUsr, ++maxChatId);
                 for (List<String> dialog : dialogs) {
                     for (String content : dialog) {

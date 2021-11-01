@@ -104,7 +104,7 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
 
     @Override
     public void like(int from, int to) {
-        putUpdateAction(from, to, Action.LIKE);
+        updateOrInsertAction(from, to, Action.LIKE);
     }
 
     @Override
