@@ -79,6 +79,7 @@ public class AddProfileInfoServlet extends HttpServlet {
                         else
                             return false;
 
+                        photo.setFormat(JPG);
                         current.set(index, photo);
 
                     } catch (Exception e) {
