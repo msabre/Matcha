@@ -21,6 +21,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static config.MyConfiguration.userController;
 
@@ -47,17 +48,29 @@ public class AddProfileInfoServlet extends HttpServlet {
             case "photo":
                 List<Photo> photos = JsonService.getPhotoList(HttpService.getBody(req));
                 if (photos != null && !photos.isEmpty()) {
+                    if (photos.stream().filter(Photo::isMain).count() > 1) {
+                        HttpService.putBody(resp, "EXPECTED ONLY 1 MAIN PHOTO");
+                        return;
+                    }
                     if (!processActionPhoto(photos, user)) {
                         HttpService.putBody(resp, "UNEXPECTED PHOTO FORMAT");
                         return;
                     }
                     userController.updatePhotoParams(user.getCard().getId(), photos);
                 }
+                break;
+            default:
+                HttpService.putBody(resp, "UNEXPECTED ACTION");
         }
     }
 
     private boolean processActionPhoto(List<Photo> photos, User user) {
         List<Photo> current = Optional.ofNullable(user.getCard().getPhotos()).orElse(new ArrayList<>(Collections.nCopies(5, null)));
+
+        Optional<Photo> newMainPhoto = photos.stream().filter(Photo::isMain).findFirst();
+        Optional<Photo> oldMainPhoto = current.stream().filter(Objects::nonNull).filter(Photo::isMain).findFirst();
+        if (newMainPhoto.isPresent())
+            oldMainPhoto.ifPresent(photo -> photo.setMain(false));
 
         for (Photo photo : photos) {
             String path = String.format("%sIMG_%s_photo_%s.jpg", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), user.getId(), photo.getNumber());
@@ -94,6 +107,10 @@ public class AddProfileInfoServlet extends HttpServlet {
                     break;
             }
         }
+
+        if (!newMainPhoto.isPresent() && !oldMainPhoto.isPresent())
+            current.stream().filter(Objects::nonNull).collect(Collectors.toList()).get(0).setMain(true);
+
         return true;
     }
 
