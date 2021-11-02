@@ -45,6 +45,7 @@ public class AddProfileInfoServlet extends HttpServlet {
                 card.setId(user.getCard().getId());
                 user.setCard(userController.updateUserCard(card));
                 break;
+
             case "photo":
                 List<Photo> photos = JsonService.getPhotoList(HttpService.getBody(req));
                 if (photos != null && !photos.isEmpty()) {
@@ -56,9 +57,17 @@ public class AddProfileInfoServlet extends HttpServlet {
                         HttpService.putBody(resp, "UNEXPECTED PHOTO FORMAT");
                         return;
                     }
-                    userController.updatePhotoParams(user.getCard().getId(), photos);
+                    List<Photo> currentPhotoList = user.getCard().getPhotos().stream().filter(Objects::nonNull).collect(Collectors.toList());
+                    String photoParams = currentPhotoList.stream().map(ph -> String.format("%s_%s", ph.getNumber(), ph.getFormat())).collect(Collectors.joining(";"));
+                    Integer mainPhoto = currentPhotoList.stream().filter(Photo::isMain).findFirst().map(ph -> Integer.parseInt(ph.getNumber())).orElse(null);
+
+                    if (mainPhoto != null || currentPhotoList.isEmpty())
+                        userController.updateMainPhoto(user.getCard().getId(), mainPhoto);
+
+                    userController.updatePhotoParams(user.getCard().getId(), photoParams);
                 }
                 break;
+
             default:
                 HttpService.putBody(resp, "UNEXPECTED ACTION");
         }
@@ -108,8 +117,11 @@ public class AddProfileInfoServlet extends HttpServlet {
             }
         }
 
-        if (!newMainPhoto.isPresent() && !oldMainPhoto.isPresent())
-            current.stream().filter(Objects::nonNull).collect(Collectors.toList()).get(0).setMain(true);
+        if (!newMainPhoto.isPresent() && !oldMainPhoto.isPresent()) {
+            List<Photo> tmp = current.stream().filter(Objects::nonNull).collect(Collectors.toList());
+            if (tmp.size() > 0)
+                tmp.get(0).setMain(true);
+        }
 
         return true;
     }

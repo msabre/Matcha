@@ -39,7 +39,7 @@ public class MyConfiguration {
 
     public static PutLikeAction putLikeAction() { return new PutLikeAction(likesActionRepository(), userCardRepository(), userRepository()); }
 
-    public static UpdatePhotoParams updatePhotoParams() { return new UpdatePhotoParams(userCardRepository()); }
+    public static UpdatePhotoSettings updatePhotoParams() { return new UpdatePhotoSettings(userCardRepository()); }
 
     public static UpdateFilter updateFilter() { return new UpdateFilter(filterParamsRepository()); }
 

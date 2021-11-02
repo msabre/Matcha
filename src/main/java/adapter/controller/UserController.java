@@ -3,7 +3,6 @@ package adapter.controller;
 
 import config.MyConfiguration;
 
-import config.MyProperties;
 import domain.entity.FilterParams;
 import domain.entity.Photo;
 import domain.entity.User;
@@ -11,12 +10,6 @@ import domain.entity.UserCard;
 import domain.entity.model.UserMatch;
 import usecase.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class UserController {
@@ -30,7 +23,7 @@ public class UserController {
     private UpdateUserCard updateUserCard;
     private RecommendUsersList recommendUsersList;
     private PutLikeAction putLikeAction;
-    private UpdatePhotoParams updatePhotoParams;
+    private UpdatePhotoSettings updatePhotoParams;
     private UpdateFilter updateFilter;
     private UpdateEmail updateEmail;
     private FioUpdate fioUpdate;
@@ -111,8 +104,12 @@ public class UserController {
         putLikeAction.disLike(from, to);
     }
 
-    public void updatePhotoParams(int userId, List<Photo> param) {
-        updatePhotoParams.update(userId, param);
+    public void updatePhotoParams(int userId, String param) {
+        updatePhotoParams.updateParams(userId, param);
+    }
+
+    public void updateMainPhoto(int userId, Integer mainPhoto) {
+        updatePhotoParams.updateMain(userId, mainPhoto);
     }
 
     public void filterUpdate(FilterParams params) {

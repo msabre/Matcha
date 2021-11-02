@@ -11,7 +11,6 @@ import usecase.port.UserCardRepository;
 import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class UserCardRepositoryImpl implements UserCardRepository {
     private static UserCardRepositoryImpl instance;
@@ -232,65 +231,19 @@ public class UserCardRepositoryImpl implements UserCardRepository {
     }
 
     @Override
-    public void updatePhotosParams(int cardId, List<Photo> photoList) {
+    public void updatePhotosParams(int cardId, String params) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-             PreparedStatement statement = connection.prepareStatement("select PHOTOS_PARAMS from matcha.user_card WHERE ID =?")) {
-            statement.setInt(1, cardId);
-            statement.execute();
-
-            ResultSet rs = statement.getResultSet();
-            String oldParams = null;
-            if (rs.next())
-                oldParams = rs.getString(1);
-
-            List<String> listResult = new ArrayList<>(Collections.nCopies(5, null));
-            if (oldParams != null && !oldParams.isEmpty()) {
-                for (String photoParam : oldParams.split(";")) {
-                    String[] detail = photoParam.split("_");
-                    listResult.set(Integer.parseInt(detail[0]) - 1, photoParam);
-                }
-            }
-            photoList.forEach(photo -> {
-                int index = Integer.parseInt(photo.getNumber()) - 1;
-                switch (photo.getAction()) {
-                    case "save":
-                        listResult.set(index, String.format("%s_%s", photo.getNumber(), photo.getFormat()));
-                        break;
-                    case "delete":
-                        listResult.set(index, null);
-                    default:
-                        break;
-                }
-            });
-
-            String result = listResult.stream()
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.joining(";"));
-
-            try (PreparedStatement updateLine = connection.prepareStatement("update matcha.user_card set PHOTOS_PARAMS = ? WHERE ID =?")) {
-                updateLine.setString(1, result);
-                updateLine.setInt(2, cardId);
-                updateLine.execute();
-            }
-
-            Integer main = photoList.stream().filter(Photo::isMain).map(Photo::getNumber).map(Integer::parseInt).findFirst().orElse(null);
-            if (main == null) {
-                main = getActualMain(connection, cardId);
-                if (main == null) {
-                    main = listResult.stream().filter(Objects::nonNull).findFirst().map(ph -> ph.split("_")[0]).map(Integer::parseInt).orElse(-1);
-                    updateMainPhoto(connection, main, cardId);
-                }
-            }
-            else {
-                updateMainPhoto(connection, main, cardId);
-            }
+             PreparedStatement updateLine = connection.prepareStatement("update matcha.user_card set PHOTOS_PARAMS = ? WHERE ID =?")) {
+            updateLine.setString(1, params);
+            updateLine.setInt(2, cardId);
+            updateLine.execute();
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private Integer getActualMain(Connection connection, int userCardId) throws SQLException {
+    public Integer getActualMain(Connection connection, int userCardId) {
         try (PreparedStatement checkMain = connection.prepareStatement("select cr.MAIN_PHOTO from matcha.user_card cr WHERE ID = ?")) {
             checkMain.setInt(1, userCardId);
             checkMain.execute();
@@ -301,14 +254,26 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                     mainPhoto = resultSet.getObject("MAIN_PHOTO");
             }
             return (Integer) mainPhoto;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
-    private void updateMainPhoto(Connection connection, int main, int cardId) throws SQLException {
-        try (PreparedStatement updateLine = connection.prepareStatement("update matcha.user_card set MAIN_PHOTO = ? WHERE ID =?")) {
-            updateLine.setInt(1, main);
+    public void updateMainPhoto(int cardId, Integer main) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement updateLine = connection.prepareStatement("update matcha.user_card set MAIN_PHOTO = ? WHERE ID =?")) {
+
+            if (main == null)
+                updateLine.setNull(1, java.sql.Types.INTEGER);
+            else
+                updateLine.setInt(1, main);
             updateLine.setInt(2, cardId);
             updateLine.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 

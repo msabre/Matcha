@@ -3,6 +3,7 @@ package usecase.port;
 import domain.entity.Photo;
 import domain.entity.UserCard;
 
+import java.sql.Connection;
 import java.util.Collection;
 import java.util.List;
 
@@ -15,9 +16,13 @@ public interface UserCardRepository {
 
     void decreaseRating(int id, double decrease);
 
-    void updatePhotosParams(int cardId, List<Photo> photoList);
+    void updatePhotosParams(int cardId, String params);
+
+    void updateMainPhoto(int cardId, Integer main);
 
     void updateUserActions(UserCard userCard);
 
     List<Photo> getIconsByIds(Collection<Integer> ids);
+
+    Integer getActualMain(Connection connection, int userCardId);
 }
