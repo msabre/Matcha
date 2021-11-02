@@ -289,7 +289,7 @@ public class UserRepositoryImpl implements UserRepository {
                         "AND usr.YEARS_OLD <= ? " +
                         "AND FIND_IN_SET(card.GENDER, ?) > 0 " +
                         "AND FIND_IN_SET(card.SEXUAL_PREFERENCE, ?) > 0 " +
-                        "AND usr.ID NOT IN (SELECT acts.ID FROM matcha.LIKES_ACTION acts WHERE acts.FROM_USR = ?) LIMIT ?";
+                        "AND usr.ID NOT IN (SELECT acts.TO_USR FROM matcha.LIKES_ACTION acts WHERE acts.FROM_USR = ?) LIMIT ?";
 
         return getList(currentIds, query, location, id, age_by, age_to, preferencesParams, limit);
     }
