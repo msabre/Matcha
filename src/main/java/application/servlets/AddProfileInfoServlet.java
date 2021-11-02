@@ -75,11 +75,7 @@ public class AddProfileInfoServlet extends HttpServlet {
 
     private boolean processActionPhoto(List<Photo> photos, User user) {
         List<Photo> current = Optional.ofNullable(user.getCard().getPhotos()).orElse(new ArrayList<>(Collections.nCopies(5, null)));
-
-        Optional<Photo> newMainPhoto = photos.stream().filter(Photo::isMain).findFirst();
-        Optional<Photo> oldMainPhoto = current.stream().filter(Objects::nonNull).filter(Photo::isMain).findFirst();
-        if (newMainPhoto.isPresent())
-            oldMainPhoto.ifPresent(photo -> photo.setMain(false));
+        current.stream().filter(Objects::nonNull).filter(Photo::isMain).findFirst().ifPresent(photo -> photo.setMain(false));
 
         for (Photo photo : photos) {
             String path = String.format("%sIMG_%s_photo_%s.jpg", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), user.getId(), photo.getNumber());
@@ -117,10 +113,9 @@ public class AddProfileInfoServlet extends HttpServlet {
             }
         }
 
-        if (!newMainPhoto.isPresent() && !oldMainPhoto.isPresent()) {
-            List<Photo> tmp = current.stream().filter(Objects::nonNull).collect(Collectors.toList());
-            if (tmp.size() > 0)
-                tmp.get(0).setMain(true);
+        Optional<Photo> mainPhoto = current.stream().filter(Objects::nonNull).filter(Photo::isMain).findFirst();
+        if (!mainPhoto.isPresent()) {
+            current.stream().filter(Objects::nonNull).findFirst().ifPresent(ph -> ph.setMain(true));
         }
 
         return true;
