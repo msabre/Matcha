@@ -36,13 +36,22 @@ public class MessageGenerator extends Generator {
         this.likesActionRepository = MyConfiguration.likesActionRepository();
     }
 
-    private void generateNChatForUser(int userId, int dialogCount, int currentCount) throws URISyntaxException {
+    private void generateNChatForUser(int userId, int dialogCount, int currentCount, int lastMatchId) throws URISyntaxException {
         readDialogsFromFile();
 
-        String haveMatchWithUser = likesActionRepository.getNMatchForUserId(userId, dialogCount).stream()
-                .map(LikeAction::getToUsr)
-                .map(String::valueOf)
-                .collect(Collectors.joining(","));
+        String haveMatchWithUser;
+        List<Integer> matches;
+        if (currentCount == 0)
+            matches = likesActionRepository.getNMatchForUserId(userId, dialogCount).stream().map(LikeAction::getToUsr).collect(Collectors.toList());
+        else
+            matches = likesActionRepository.getNMatchUserIdsAfterSpecificId(userId, lastMatchId,  dialogCount).stream().map(LikeAction::getToUsr).collect(Collectors.toList());
+        
+        if (matches.size() == 0) // Стоп рекурсии
+            return;
+        
+        lastMatchId = matches.get(matches.size() - 1);
+        haveMatchWithUser = matches.stream().map(String::valueOf).collect(Collectors.joining(","));
+
         List<Integer> freeChatUsersIds = userRepository.getNUserIdsWithFreeChatByIds(haveMatchWithUser, dialogCount);
         freeChatUsersIds.remove(new Integer(userId));
 
@@ -75,8 +84,8 @@ public class MessageGenerator extends Generator {
             }
             currentCount++;
         }
-         if (currentCount < dialogCount)
-             generateNChatForUser(userId, dialogCount, currentCount);
+        if (currentCount < dialogCount)
+            generateNChatForUser(userId, dialogCount, currentCount, lastMatchId);
     }
 
     private void readDialogsFromFile() throws URISyntaxException {
@@ -93,6 +102,6 @@ public class MessageGenerator extends Generator {
 
     public static void main(String[] args) throws URISyntaxException {
         MessageGenerator messageGenerator = new MessageGenerator();
-        messageGenerator.generateNChatForUser(182, 10, 0);
+        messageGenerator.generateNChatForUser(182, 10, 0, 0);
     }
 }
