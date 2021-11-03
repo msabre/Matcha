@@ -8,7 +8,7 @@ public class BirthDateUpdate {
     UserRepository userRepository;
 
     public void update(int userId, Date birthDate, int yearsOld) {
-        userRepository.birhDateUpdate(userId, birthDate, yearsOld);
+        userRepository.birthDateUpdate(userId, birthDate, yearsOld);
     }
 
     public BirthDateUpdate(UserRepository userRepository) {

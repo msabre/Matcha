@@ -23,7 +23,7 @@ public class GetMatchList {
     }
 
     public List<UserMatch> getN(int id, int size) {
-        List<LikeAction> matchIds = likesActionRepository.getNMatchUserIds(id, size);
+        List<LikeAction> matchIds = likesActionRepository.getNMatchForUserId(id, size);
         return formUserMatches(id, matchIds);
     }
 

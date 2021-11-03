@@ -25,5 +25,7 @@ public interface UserRepository {
 
     void updateFio(int id, String[] fio);
 
-    void birhDateUpdate(int id, Date birthDate, int yearsOld);
+    void birthDateUpdate(int id, Date birthDate, int yearsOld);
+
+    List<Integer> getNUserIdsWithFreeChatByIds(String ids, int limit);
 }

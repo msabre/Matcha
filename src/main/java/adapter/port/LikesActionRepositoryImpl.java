@@ -182,11 +182,21 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
         }
     }
 
-    public List<LikeAction> getNMatchUserIds(int id, int size) {
+    @Override
+    public List<LikeAction> getNMatchForUserId(int id, int size) {
+        return getNMatchUserIds(id, size, Action.MATCH.getValue());
+    }
+
+    @Override
+    public List<LikeAction> getNLikeForUserId(int id, int size) {
+        return getNMatchUserIds(id, size, Action.LIKE.getValue());
+    }
+
+    private List<LikeAction> getNMatchUserIds(int id, int size, String action) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION acts WHERE acts.FROM_USR = ? AND ACTION = ? ORDER BY acts.CREATION_TIME DESC LIMIT ?")) {
             statement.setInt(1, id);
-            statement.setString(2, Action.MATCH.getValue());
+            statement.setString(2, action);
             statement.setInt(3, size);
             statement.execute();
 

@@ -395,7 +395,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public void birhDateUpdate(int id, java.util.Date birthDate, int yearsOld) {
+    public void birthDateUpdate(int id, java.util.Date birthDate, int yearsOld) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
              PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user SET BIRTHDAY = ?, YEARS_OLD = ? where ID = ?"))
         {
@@ -410,6 +410,33 @@ public class UserRepositoryImpl implements UserRepository {
             e.printStackTrace();
             System.err.println("birthDate change error");
         }
+    }
+
+    // Метод для генератора
+    @Override
+    public List<Integer> getNUserIdsWithFreeChatByIds(String ids, int limit) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement("SELECT usr.ID FROM matcha.USER usr WHERE FIND_IN_SET(usr.ID, ?) > 0 " +
+                     "AND usr.ID NOT IN " +
+                        "(SELECT chat.FROM_USR FROM matcha.CHAT_AFFILIATION chat " +
+                            "UNION " +
+                        "SELECT chat.TO_USR FROM matcha.CHAT_AFFILIATION chat) LIMIT ?"))
+        {
+            statement.setString(1, ids);
+            statement.setInt(2, limit);
+            statement.execute();
+
+            try (ResultSet resultSet = statement.getResultSet()) {
+                List<Integer> result = new ArrayList<>();
+                while (resultSet.next())
+                    result.add(resultSet.getInt("ID"));
+                return result;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
     }
 }
 

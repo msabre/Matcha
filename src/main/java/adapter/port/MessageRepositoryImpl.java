@@ -7,6 +7,7 @@ import domain.entity.model.types.MessageType;
 import usecase.port.MessageRepository;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.*;
@@ -31,6 +32,7 @@ public class MessageRepositoryImpl implements MessageRepository {
 
     @Override
     public Message save(Message msg) {
+        ByteArrayInputStream bos = null;
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
              PreparedStatement state = connection.prepareStatement(
                      "INSERT INTO matcha.web_socket_message(chat_id, from_id, to_id, web_socket_message.type, type_info, status, content) VALUES(?, ?, ?, ?, ?, ?, ?)",
@@ -43,16 +45,27 @@ public class MessageRepositoryImpl implements MessageRepository {
             state.setString(i++, msg.getType().getValue());
             state.setString(i++, msg.getTypeInfo());
             state.setString(i++, msg.getStatus().getValue());
-            state.setBlob(i, new ByteArrayInputStream(msg.getContent().getBytes()));
+            bos = new ByteArrayInputStream(msg.getContent().getBytes());
+            state.setBlob(i, bos);
+            
 
             state.execute();
 
-            ResultSet resultSet = state.getGeneratedKeys();
-            if (resultSet.next())
-                msg.setId(resultSet.getInt(1));
+            try (ResultSet resultSet = state.getGeneratedKeys()) {
+                if (resultSet.next())
+                    msg.setId(resultSet.getInt(1));
+            }
         }
         catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            if (bos != null) {
+                try {
+                    bos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return msg;
     }
