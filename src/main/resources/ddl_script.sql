@@ -130,7 +130,10 @@ BEGIN
                             CHAT_ID MEDIUMINT NOT NULL,
                             FROM_ID MEDIUMINT NOT NULL, 
                             TYPE VARCHAR(30) NOT NULL,
-                            TO_ID MEDIUMINT, TYPE VARCHAR(30),
+                            TO_ID MEDIUMINT,
+                            SENDER_AVAIL MEDIUMINT,
+                            RECEIPT_AVAIL MEDIUMINT,
+                            TYPE VARCHAR(30),
                             TYPE_INFO VARCHAR(30),
                             STATUS VARCHAR(30),
                             CONTENT BLOB,
@@ -139,6 +142,14 @@ BEGIN
     END IF;
     IF table_exists('WEB_SOCKET_MESSAGE') AND NOT column_exists('WEB_SOCKET_MESSAGE', 'FROM_ID')
         THEN CALL alert_table('WEB_SOCKET_MESSAGE', 'FROM_ID MEDIUMINT NOT NULL');
+    END IF;
+
+    IF table_exists('WEB_SOCKET_MESSAGE') AND NOT column_exists('WEB_SOCKET_MESSAGE', 'SENDER_AVAIL')
+    THEN CALL alert_table('WEB_SOCKET_MESSAGE', 'SENDER_AVAIL MEDIUMINT');
+    END IF;
+
+    IF table_exists('WEB_SOCKET_MESSAGE') AND NOT column_exists('WEB_SOCKET_MESSAGE', 'RECEIPT_AVAIL')
+    THEN CALL alert_table('WEB_SOCKET_MESSAGE', 'RECEIPT_AVAIL MEDIUMINT');
     END IF;
 
     IF NOT table_exists('CHAT_AFFILIATION') THEN CALL execute_immediate(
