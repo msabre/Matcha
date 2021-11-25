@@ -1,4 +1,4 @@
-package usergenerator;
+package usergenerator.part;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

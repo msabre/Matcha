@@ -88,8 +88,8 @@ public class UserController {
         return updateUserCard.update(card);
     }
 
-    public List<User> getRecommendUsersList(User user) {
-        return recommendUsersList.get(new ArrayList<>(), new ArrayList<>(), user);
+    public List<User> getRecommendUsersList(User user, int userListSize) {
+        return recommendUsersList.get(new ArrayList<>(), new ArrayList<>(), user, userListSize);
     }
 
     public boolean putMatchOrLike(int from, int to) {

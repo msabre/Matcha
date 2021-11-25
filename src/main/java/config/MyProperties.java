@@ -18,6 +18,7 @@ public class MyProperties {
             = new SecretKeySpec(Base64.getDecoder().decode("4pslXPLYPdRVykZVlonLV+Re4Q8gD3Y/B2ymm/MAZAw="), 0, 32, "HmacSHA256");
     public static String IMAGES_PATH = "/Users/a19184580/Desktop/images";
     public static int USERS_LIST_SIZE = 20;
+    public static int USER_MATCH_SIZE = 20;
     public static double RATING_STEP = 0.2;
     public static double RATING_FALSITY = 0.75;
     public static String CLIENT_HOST = "localhost:3000";
@@ -36,6 +37,7 @@ public class MyProperties {
                 IMAGES_PATH = imagePath;
 
             USERS_LIST_SIZE = Integer.parseInt(props.getProperty("USERS_LIST_SIZE"));
+            USER_MATCH_SIZE = Integer.parseInt(props.getProperty("USER_MATCH_SIZE"));
             RATING_STEP = Double.parseDouble(props.getProperty("RATING_STEP"));
             RATING_FALSITY = Double.parseDouble(props.getProperty("RATING_FALSITY"));
 

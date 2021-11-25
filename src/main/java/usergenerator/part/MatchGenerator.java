@@ -1,40 +1,35 @@
-package usergenerator;
+package usergenerator.part;
 
 import config.MyConfiguration;
 import domain.entity.LikeAction;
-import domain.entity.Message;
-import domain.entity.model.types.MessageStatus;
-import domain.entity.model.types.MessageType;
-import usecase.port.ChatAffiliationRepository;
 import usecase.port.LikesActionRepository;
-import usecase.port.MessageRepository;
-import usecase.port.UserRepository;
 
-import java.net.URISyntaxException;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class MatchGenerator extends Generator {
-    
+
     private final LikesActionRepository likesActionRepository;
 
     public MatchGenerator() {
         likesActionRepository = MyConfiguration.likesActionRepository();
     }
 
-    private void generateNMatchForUser(int userId, int maxMatchCount) {
+    public int generateNMatchForUser(int userId, int maxMatchCount) {
+        int matchCount = 0;
         List<LikeAction> userLikes = likesActionRepository.getNLikeForUserId(userId, maxMatchCount);
         for (LikeAction like : userLikes) {
             likesActionRepository.match(like.getToUsr(), userId);
+            System.out.println("Матч между пользвателями " + userId + " и " + like.getToUsr() + "!");
+            matchCount++;
         }
+        return matchCount;
     }
 
     public static void main(String[] args) {
         MatchGenerator messageGenerator = new MatchGenerator();
-        messageGenerator.generateNMatchForUser(182, 10);
+        int totalMatchCount = messageGenerator.generateNMatchForUser(182, 67);
+
+        System.out.println();
+        System.out.println("Всего Матчей поставлено: " + totalMatchCount);
     }
 }

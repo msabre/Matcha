@@ -7,11 +7,9 @@ import usecase.port.LikesActionRepository;
 import usecase.port.UserRepository;
 
 import java.io.FileInputStream;
-import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static config.MyProperties.USERS_LIST_SIZE;
 
 public class RecommendUsersList {
 
@@ -25,12 +23,11 @@ public class RecommendUsersList {
         this.userRepository = userRepository;
         this.likesActionRepository = likesActionRepository;
 
-        String path = MyProperties.class.getResource("/sexualPreference.properties").getPath();
-
         FileInputStream fileInputStream;
         Properties prop = new Properties();
 
         try {
+            String path = Paths.get(RecommendUsersList.class.getResource("/sexualPreference.properties").toURI()).toFile().getPath();
             fileInputStream = new FileInputStream(path);
             prop.load(fileInputStream);
 
@@ -41,26 +38,26 @@ public class RecommendUsersList {
                 sexualConformity.put(key.toString(), arr);
             }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println("Не удалось загрузить файл");
         }
     }
 
-    public List<User> get(List<User> resultList, List<User> alreadyFind, User user) {
+    public List<User> get(List<User> resultList, List<User> alreadyFind, User user, int userListSize) {
         this.user = user;
 
-        List<User> newUserList = getNewForActionUsers(alreadyFind);
-        if (newUserList.isEmpty() && (newUserList = getDislikesUsers(alreadyFind)).isEmpty()) // Выход из рекурсии
+        List<User> newUserList = getNewForActionUsers(alreadyFind, userListSize);
+        if (newUserList.isEmpty() && (newUserList = getDislikesUsers(alreadyFind, userListSize)).isEmpty()) // Выход из рекурсии
             return resultList;
 
         alreadyFind.addAll(newUserList);
 
         newUserList = customFilter(newUserList);
         resultList.addAll(newUserList);
-        if (resultList.size() < USERS_LIST_SIZE)
-            return get(resultList, alreadyFind, user);
+        if (resultList.size() < userListSize)
+            return get(resultList, alreadyFind, user, userListSize);
 
-        fixSize(resultList);
+        fixSize(resultList, userListSize);
         sortUserList(resultList);
 
         return resultList;
@@ -100,7 +97,7 @@ public class RecommendUsersList {
         );
     }
 
-    private void fixSize(List<User> userList) {
+    private void fixSize(List<User> userList, int userListSize) {
         List<Integer> dislikesByIds = likesActionRepository.getToUserDislikesByIds(user.getId(), userList.stream().map(User::getId).collect(Collectors.toList()));
         List<User> dislikesUsers = userList.stream()
                 .filter(userObj-> dislikesByIds.contains(userObj.getId())) // Отсортированы в базе
@@ -109,10 +106,10 @@ public class RecommendUsersList {
 
         userList.removeAll(dislikesUsers);
 
-        if (userList.size() >= USERS_LIST_SIZE)
-            userList.subList(USERS_LIST_SIZE, userList.size()).clear();
+        if (userList.size() >= userListSize)
+            userList.subList(userListSize, userList.size()).clear();
 
-        for (int i = 0; i < dislikesUsers.size() && userList.size() < USERS_LIST_SIZE; i++) {
+        for (int i = 0; i < dislikesUsers.size() && userList.size() < userListSize; i++) {
             userList.add(dislikesUsers.get(i));
         }
     }
@@ -122,24 +119,24 @@ public class RecommendUsersList {
                 user.getCard().getSexualPreference().getValue()));
     }
 
-    private List<User> getNewForActionUsers(List<User> resultList) {
+    private List<User> getNewForActionUsers(List<User> resultList, int userListSize) {
         return userRepository.getNewForActionUsersWithParams(resultList.stream().map(User::getId).collect(Collectors.toList()),
                 user.getFilter().getLocation(),
                 user.getId(),
                 user.getFilter().getAgeBy(),
                 user.getFilter().getAgeTo(),
                 getUserSexualPreferences(),
-                USERS_LIST_SIZE * 3);
+                userListSize * 3);
     }
 
-    private List<User> getDislikesUsers(List<User> resultList) {
+    private List<User> getDislikesUsers(List<User> resultList, int userListSize) {
         return userRepository.getDislikeUsersWithParams(resultList.stream().map(User::getId).collect(Collectors.toList()),
                 user.getFilter().getLocation(),
                 user.getId(),
                 user.getFilter().getAgeBy(),
                 user.getFilter().getAgeTo(),
                 getUserSexualPreferences(),
-                USERS_LIST_SIZE * 3);
+                userListSize * 3);
     }
 
     private int getCommonTagsCount(User userObj) {

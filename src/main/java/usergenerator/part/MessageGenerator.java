@@ -1,4 +1,4 @@
-package usergenerator;
+package usergenerator.part;
 
 import config.MyConfiguration;
 import domain.entity.LikeAction;
@@ -9,6 +9,7 @@ import usecase.port.ChatAffiliationRepository;
 import usecase.port.LikesActionRepository;
 import usecase.port.MessageRepository;
 import usecase.port.UserRepository;
+import usergenerator.UserGenerator;
 
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
@@ -28,7 +29,7 @@ public class MessageGenerator extends Generator {
     private final ChatAffiliationRepository chatAffiliationRepository;
     private final LikesActionRepository likesActionRepository;
     private List<List<String>> dialogs;
-    
+
     public MessageGenerator() {
         this.userRepository = MyConfiguration.userRepository();
         this.messageRepository = MyConfiguration.messageRepository();
@@ -36,9 +37,7 @@ public class MessageGenerator extends Generator {
         this.likesActionRepository = MyConfiguration.likesActionRepository();
     }
 
-    private void generateNChatForUser(int userId, int dialogCount, int currentCount, int lastMatchId) throws URISyntaxException {
-        readDialogsFromFile();
-
+    public int generateNChatForUser(int userId, int dialogCount, int currentCount, int lastMatchId) throws URISyntaxException {
         String haveMatchWithUser;
         List<Integer> matches;
         if (currentCount == 0)
@@ -47,24 +46,27 @@ public class MessageGenerator extends Generator {
             matches = likesActionRepository.getNMatchUserIdsAfterSpecificId(userId, lastMatchId,  dialogCount).stream().map(LikeAction::getToUsr).collect(Collectors.toList());
         
         if (matches.size() == 0) // Стоп рекурсии
-            return;
-        
+            return currentCount;
+
         lastMatchId = matches.get(matches.size() - 1);
         haveMatchWithUser = matches.stream().map(String::valueOf).collect(Collectors.joining(","));
 
         List<Integer> freeChatUsersIds = userRepository.getNUserIdsWithFreeChatByIds(haveMatchWithUser, dialogCount);
         freeChatUsersIds.remove(new Integer(userId));
 
-        int maxChatId = chatAffiliationRepository.getChatMaxId() + 1;
+        int maxChatId = chatAffiliationRepository.getChatMaxId();
 
         int dialogIndex = 0;
         for (Integer toUsr: freeChatUsersIds) {
+            System.out.println(String.format("Генерирую диалог [%s], с пользователем id: [%s]", maxChatId + 1, toUsr));
+            
             List<String> dialog = dialogs.get(dialogIndex++);
             if (dialogIndex == dialogs.size())
                 dialogIndex = 0;
 
             Date creationTime = new Date(new Date().getTime() - (long) 60 * 60 * 24 * 365 * 1000); // минус год
             chatAffiliationRepository.create(userId, toUsr, ++maxChatId);
+
             for (String content : dialog) {
                 if (content.equals(TOPIC_DELIMITER)) {
                     creationTime = new Date(creationTime.getTime() + (long) 60 * 60 * 24 * getIntOfRange(1, 3) * 1000); // плюс 2 дня
@@ -84,11 +86,14 @@ public class MessageGenerator extends Generator {
             }
             currentCount++;
         }
+
         if (currentCount < dialogCount)
             generateNChatForUser(userId, dialogCount, currentCount, lastMatchId);
+
+        return currentCount;
     }
 
-    private void readDialogsFromFile() throws URISyntaxException {
+    public void readDialogsFromFile() throws URISyntaxException {
         List<String> dialogsLines = readFile(Paths.get(UserGenerator.class.getResource("/generator/dialogs.txt").toURI()).toFile().getPath());
         if (dialogsLines == null)
             return;
@@ -101,7 +106,9 @@ public class MessageGenerator extends Generator {
     }
 
     public static void main(String[] args) throws URISyntaxException {
+
         MessageGenerator messageGenerator = new MessageGenerator();
-        messageGenerator.generateNChatForUser(182, 10, 0, 0);
+        messageGenerator.readDialogsFromFile();
+        messageGenerator.generateNChatForUser(182, 67, 0, 0);
     }
 }

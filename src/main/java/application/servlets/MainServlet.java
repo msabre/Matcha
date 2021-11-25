@@ -4,6 +4,7 @@ import adapter.controller.UserController;
 import application.services.HttpService;
 import application.services.json.JsonService;
 
+import config.MyProperties;
 import domain.entity.FilterParams;
 import domain.entity.User;
 import domain.entity.model.UserMatch;
@@ -21,8 +22,6 @@ import static java.util.Objects.isNull;
 
 
 public class MainServlet extends HttpServlet {
-    private static final int USER_MATCH_SIZE = 20;
-
     private UserController userController;
 
     @Override
@@ -41,7 +40,7 @@ public class MainServlet extends HttpServlet {
         User user = (User) req.getSession().getAttribute("user");
         switch (act) {
             case "getList":
-                List<User> usersList = userController.getRecommendUsersList(user);
+                List<User> usersList = userController.getRecommendUsersList(user, MyProperties.USERS_LIST_SIZE);
                 usersList.forEach(u -> userController.uploadPhotosContent(u.getCard().getPhotos()));
                 HttpService.putBody(resp, JsonService.getJsonArray(usersList));
                 break;
@@ -49,9 +48,9 @@ public class MainServlet extends HttpServlet {
                 List<UserMatch> userMatches;
                 int afterId = Integer.parseInt(Optional.ofNullable(req.getParameter("after")).orElse("-1"));
                 if (afterId >= 0)
-                    userMatches = userController.getUserMatchListWithSizeAfterSpecificId(user.getId(), afterId, USER_MATCH_SIZE);
+                    userMatches = userController.getUserMatchListWithSizeAfterSpecificId(user.getId(), afterId, MyProperties.USER_MATCH_SIZE);
                 else
-                    userMatches = userController.getUserMatchListWithSize(user.getId(), USER_MATCH_SIZE);
+                    userMatches = userController.getUserMatchListWithSize(user.getId(), MyProperties.USER_MATCH_SIZE);
                 userMatches.forEach(m -> userController.uploadPhotosContent(Collections.singleton(m.getIcon())));
                 HttpService.putBody(resp, JsonService.getJsonArray(userMatches));
                 break;

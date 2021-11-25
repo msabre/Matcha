@@ -1,24 +1,17 @@
 package usergenerator;
 
 import config.MyConfiguration;
-import domain.entity.Message;
 import domain.entity.User;
 import domain.entity.UserCard;
 import domain.entity.model.types.GenderType;
-import domain.entity.model.types.MessageStatus;
-import domain.entity.model.types.MessageType;
 import domain.entity.model.types.SexualPreferenceType;
-import usecase.port.ChatAffiliationRepository;
-import usecase.port.MessageRepository;
 import usecase.port.UserCardRepository;
 import usecase.port.UserRepository;
+import usergenerator.part.Generator;
 
-import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class UserGenerator extends Generator {
 
