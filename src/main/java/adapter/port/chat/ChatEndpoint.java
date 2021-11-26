@@ -132,11 +132,13 @@ public class ChatEndpoint {
     private void sendMessageList(int chatId, List<Message> messageList) {
         TransportMessage transportMessage = new TransportMessage();
         transportMessage.setMessageAnswer(new ArrayList<>(messageList.size()));
+
         messageList.forEach(m -> transportMessage.getMessageAnswer().add(m));
         send(chatId, transportMessage);
     }
 
     private void send(int chatId, TransportMessage msgObj) {
+        msgObj.setChatId(chatId);
         for (ChatUser user : usersList) {
             if (user.getUserId() == chatId)
                 user.getSession().getAsyncRemote().sendObject(msgObj);
