@@ -12,6 +12,7 @@ public class TransportMessage {
     private DeleteMessage deleteMessage;
     private MessageNotification messageNotification;
     private DeliveryNotification deliveryNotification;
+    private int chatId;
 
     public void setAnswer(Answer answer) {
         this.answer = answer;
@@ -103,6 +104,7 @@ public class TransportMessage {
         }
 
         public enum GetMessageRqType {
+            GET_FIRST_PACK,
             AFTER_LAST,
             BY_IDS
         }
@@ -169,5 +171,13 @@ public class TransportMessage {
         public void setIds(int[] ids) {
             this.ids = ids;
         }
+    }
+
+    public int getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(int chatId) {
+        this.chatId = chatId;
     }
 }

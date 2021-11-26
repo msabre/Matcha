@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@ServerEndpoint(value = "/chat/{chatId}/{userId}/{token}/{fingerprint}",
+@ServerEndpoint(value = "/chat/{userId}/{token}/{fingerprint}",
         decoders = MessageDecoder.class,
         encoders = MessageEncoder.class)
 public class ChatEndpoint {
@@ -27,10 +27,10 @@ public class ChatEndpoint {
     JwtController jwtController = MyConfiguration.jwtController();
 
     @OnOpen
-    public void onOpen(Session session, @PathParam("chatId") String chat, @PathParam("userId") String user, @PathParam("token") String token,
+    public void onOpen(Session session, @PathParam("userId") String user, @PathParam("token") String token,
                        @PathParam("fingerprint") String fingerprint) {
 
-        int chatId = Optional.ofNullable(chat).map(Integer::parseInt).orElse(-1);
+//        int chatId = Optional.ofNullable(chat).map(Integer::parseInt).orElse(-1);
         int userId = Optional.ofNullable(user).map(Integer::parseInt).orElse(-1);
 
         Pair<Boolean, String> checkDesc = jwtController.checkAccessToken(token, fingerprint);
@@ -46,19 +46,15 @@ public class ChatEndpoint {
         jsonWebToken.setUserFingerprint(fingerprint);
         jsonWebToken.setUserId(userId);
 
-        ChatUser newUser = new ChatUser(userId, chatId, session, jsonWebToken);
+        ChatUser newUser = new ChatUser(userId, session, jsonWebToken);
         usersList.add(newUser);
-
-        List<Message> messages = messageController.getFirstNMatches(chatId, userId, MESSAGE_SIZE_PACK);
-        if (!messages.isEmpty())
-            sendMessageList(chatId, messages);
     }
 
     @OnMessage(maxMessageSize = 3072000)
     public void onMessage(TransportMessage msgObj, Session session) {
         try {
             int userId = Optional.ofNullable(session.getPathParameters().get("userId")).map(Integer::parseInt).orElse(-1);
-            int chatId = Optional.ofNullable(session.getPathParameters().get("chatId")).map(Integer::parseInt).orElse(-1);
+            int chatId = msgObj.getChatId();
 
             if (msgObj.getMessage() != null) {
                 Message message = msgObj.getMessage();
@@ -74,6 +70,9 @@ public class ChatEndpoint {
                 List<Message> messageList;
 
                 switch (getMessageRq.getType()) {
+                    case GET_FIRST_PACK:
+                        messageList = messageController.getFirstNMatches(chatId, userId, MESSAGE_SIZE_PACK);
+                        break;
                     case BY_IDS:
                         messageList = messageController.getNByIds(chatId, getMessageRq.getMessageIds());
                         break;
@@ -139,7 +138,7 @@ public class ChatEndpoint {
 
     private void send(int chatId, TransportMessage msgObj) {
         for (ChatUser user : usersList) {
-            if (user.getChatId() == chatId)
+            if (user.getUserId() == chatId)
                 user.getSession().getAsyncRemote().sendObject(msgObj);
         }
     }
