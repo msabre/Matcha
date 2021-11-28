@@ -102,7 +102,7 @@ public class MessageRepositoryImpl implements MessageRepository {
                              "(SELECT msg.CREATION_TIME FROM matcha.web_socket_message msg WHERE msg.ID = ?) " +
                      "SELECT * FROM matcha.web_socket_message msg, lastIdTime tm " +
                      "WHERE " +
-                         "AND ((msg.FROM_ID = ? AND SENDER_AVAIL = 1) OR (msg.TO_ID = ? AND RECEIPT_AVAIL = 1)) " +
+                         " ((msg.FROM_ID = ? AND SENDER_AVAIL = 1) OR (msg.TO_ID = ? AND RECEIPT_AVAIL = 1)) " +
                          "AND msg.chat_id = ? AND msg.CREATION_TIME < tm.CREATION_TIME " +
                      "ORDER BY msg.CREATION_TIME DESC LIMIT ?")) {
             int i = 1;
@@ -133,9 +133,9 @@ public class MessageRepositoryImpl implements MessageRepository {
                              "(SELECT msg.CREATION_TIME FROM matcha.web_socket_message msg WHERE msg.ID = ?) " +
                              "SELECT * FROM matcha.web_socket_message msg, lastIdTime tm " +
                              "WHERE " +
-                             "AND ((msg.FROM_ID = ? AND SENDER_AVAIL = 1) OR (msg.TO_ID = ? AND RECEIPT_AVAIL = 1)) " +
+                             " ((msg.FROM_ID = ? AND SENDER_AVAIL = 1) OR (msg.TO_ID = ? AND RECEIPT_AVAIL = 1)) " +
                              "AND msg.chat_id = ? AND msg.CREATION_TIME > tm.CREATION_TIME " +
-                             "ORDER BY msg.CREATION_TIME DESC LIMIT ?")) {
+                             "ORDER BY msg.CREATION_TIME LIMIT ?")) {
             int i = 1;
             state.setInt(i++, messageId);
             state.setInt(i++, userId);

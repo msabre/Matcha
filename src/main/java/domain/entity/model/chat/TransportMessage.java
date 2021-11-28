@@ -82,7 +82,7 @@ public class TransportMessage {
      * Заявка на получение сообщения(й)
      * */
     public static class GetMessageRq {
-        private int messageId;
+        private int specificId;
         private int[] messageIds;
 
         private GetMessageRqType type;
@@ -91,8 +91,8 @@ public class TransportMessage {
             return messageIds;
         }
 
-        public int getMessageId() {
-            return messageId;
+        public int getSpecificId() {
+            return specificId;
         }
 
         public GetMessageRqType getType() {

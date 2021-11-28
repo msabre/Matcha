@@ -41,9 +41,13 @@ public class AddProfileInfoServlet extends HttpServlet {
 
         switch (act) {
             case "card":
-                UserCard card = (UserCard) JsonService.getObjectByExposeFields(UserCard.class, HttpService.getBody(req));
-                card.setId(user.getCard().getId());
-                user.setCard(userController.updateUserCard(card));
+                UserCard newCard = (UserCard) JsonService.getObjectByExposeFields(UserCard.class, HttpService.getBody(req));
+                newCard.setPhotos(user.getCard().getPhotos());
+                newCard.setId(user.getCard().getId());
+                newCard.setUserId(user.getId());
+                
+                user.setCard(newCard);
+                userController.updateUserCard(newCard);
                 break;
 
             case "photo":
