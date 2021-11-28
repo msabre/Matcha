@@ -442,7 +442,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Map<Integer, String> getUserNamesByIds(List<Integer> userIds) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-             PreparedStatement statement = connection.prepareStatement("SELECT usr.ID, usr.NAME FROM matcha.user WHERE FIND_IN_SET(usr.ID, ?) > 0 "))
+             PreparedStatement statement = connection.prepareStatement("SELECT usr.ID, usr.NAME FROM matcha.user usr WHERE FIND_IN_SET(usr.ID, ?) > 0 "))
         {
             String idsLine = userIds.stream().map(String::valueOf).collect(Collectors.joining(","));
             statement.setString(1, idsLine);
