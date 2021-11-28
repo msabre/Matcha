@@ -8,6 +8,7 @@ public class UserMatch {
     @Expose private int userId;
     @Expose private Integer chatId;
     @Expose private Photo icon;
+    @Expose private String firstName;
 
     public int getMatchId() {
         return matchId;
@@ -39,5 +40,13 @@ public class UserMatch {
 
     public void setIcon(Photo icon) {
         this.icon = icon;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 }

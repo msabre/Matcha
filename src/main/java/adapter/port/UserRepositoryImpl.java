@@ -438,6 +438,28 @@ public class UserRepositoryImpl implements UserRepository {
         }
         return Collections.emptyList();
     }
+
+    @Override
+    public Map<Integer, String> getUserNamesByIds(List<Integer> userIds) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement("SELECT usr.ID, usr.NAME FROM matcha.user WHERE FIND_IN_SET(usr.ID, ?) > 0 "))
+        {
+            String idsLine = userIds.stream().map(String::valueOf).collect(Collectors.joining(","));
+            statement.setString(1, idsLine);
+            statement.execute();
+            
+            try (ResultSet resultSet = statement.getResultSet()) {
+                Map<Integer, String> result = new HashMap<>();
+                while (resultSet.next())
+                    result.put(resultSet.getInt("ID"), resultSet.getString("NAME"));
+                return result;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyMap();
+    }
 }
 
 

@@ -5,6 +5,7 @@ import domain.entity.User;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public interface UserRepository {
     int save(User user);
@@ -28,4 +29,6 @@ public interface UserRepository {
     void birthDateUpdate(int id, Date birthDate, int yearsOld);
 
     List<Integer> getNUserIdsWithFreeChatByIds(String ids, int limit);
+
+    Map<Integer, String> getUserNamesByIds(List<Integer> userIds);
 }
