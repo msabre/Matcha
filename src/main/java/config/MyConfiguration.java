@@ -54,7 +54,7 @@ public class MyConfiguration {
     }
 
     public static GetMatchList getMatchList() {
-        return new GetMatchList(likesActionRepository(), userCardRepository(), chatAffiliationRepository());
+        return new GetMatchList(likesActionRepository(), userCardRepository(), chatAffiliationRepository(), userRepository());
     }
 
     public static ChatCreate chatCreate() {
