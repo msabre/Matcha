@@ -35,7 +35,7 @@ public class MessageRepositoryImpl implements MessageRepository {
         ByteArrayInputStream bos = null;
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
              PreparedStatement state = connection.prepareStatement(
-                     "INSERT INTO matcha.web_socket_message(chat_id, from_id, to_id, web_socket_message.type, type_info, status, content) VALUES(?, ?, ?, ?, ?, ?, ?)",
+                     "INSERT INTO matcha.web_socket_message(chat_id, from_id, to_id, web_socket_message.type, type_info, status, content, sender_avail, receipt_avail) VALUES(?, ?, ?, ?, ?, ?, ?, 1, 1)",
                      Statement.RETURN_GENERATED_KEYS)) {
 
             int i = 1;
@@ -105,6 +105,37 @@ public class MessageRepositoryImpl implements MessageRepository {
                          "AND ((msg.FROM_ID = ? AND SENDER_AVAIL = 1) OR (msg.TO_ID = ? AND RECEIPT_AVAIL = 1)) " +
                          "AND msg.chat_id = ? AND msg.CREATION_TIME < tm.CREATION_TIME " +
                      "ORDER BY msg.CREATION_TIME DESC LIMIT ?")) {
+            int i = 1;
+            state.setInt(i++, messageId);
+            state.setInt(i++, userId);
+            state.setInt(i++, userId);
+            state.setInt(i++, chatId);
+            state.setInt(i, size);
+            state.execute();
+
+            ResultSet resultSet = state.getResultSet();
+            List<Message> history = new LinkedList<>();
+            while (resultSet.next())
+                history.add(getMessageFromResultSet(resultSet));
+            return history;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<Message> getListOfNSizeBeforeSpecificId(int chatId, int userId, int messageId, int size) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
+             PreparedStatement state = connection.prepareStatement(
+                     "WITH lastIdTime as " +
+                             "(SELECT msg.CREATION_TIME FROM matcha.web_socket_message msg WHERE msg.ID = ?) " +
+                             "SELECT * FROM matcha.web_socket_message msg, lastIdTime tm " +
+                             "WHERE " +
+                             "AND ((msg.FROM_ID = ? AND SENDER_AVAIL = 1) OR (msg.TO_ID = ? AND RECEIPT_AVAIL = 1)) " +
+                             "AND msg.chat_id = ? AND msg.CREATION_TIME > tm.CREATION_TIME " +
+                             "ORDER BY msg.CREATION_TIME DESC LIMIT ?")) {
             int i = 1;
             state.setInt(i++, messageId);
             state.setInt(i++, userId);

@@ -46,6 +46,10 @@ public class MessageController {
         return getMessages.getListOfNSizeAfterSpecificId(chatId, userId, lastMessageId, size);
     }
 
+    public List<Message> getListOfNSizeBeforeSpecificId(int chatId, int userId, int firstMessageId, int size) {
+        return getMessages.getListOfNSizeBeforeSpecificId(chatId, userId, firstMessageId, size);
+    }
+
     public void deleteByIdsForUser(int chatId, int userId, int...ids) {
         deleteMessages.deleteNByIdsForUser(chatId, userId, ids);
     }

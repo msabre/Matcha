@@ -1,3 +1,4 @@
+
 package adapter.port.chat;
 
 import adapter.controller.JwtController;
@@ -17,8 +18,8 @@ import java.util.List;
 import java.util.Optional;
 
 @ServerEndpoint(value = "/chat/{userId}/{token}/{fingerprint}",
-        decoders = MessageDecoder.class,
-        encoders = MessageEncoder.class)
+                decoders = MessageDecoder.class,
+                encoders = MessageEncoder.class)
 public class ChatEndpoint {
     private static final int MESSAGE_SIZE_PACK = 10;
     private static final List<ChatUser> usersList = new ArrayList<>();
@@ -30,7 +31,6 @@ public class ChatEndpoint {
     public void onOpen(Session session, @PathParam("userId") String user, @PathParam("token") String token,
                        @PathParam("fingerprint") String fingerprint) {
 
-//        int chatId = Optional.ofNullable(chat).map(Integer::parseInt).orElse(-1);
         int userId = Optional.ofNullable(user).map(Integer::parseInt).orElse(-1);
 
         Pair<Boolean, String> checkDesc = jwtController.checkAccessToken(token, fingerprint);
@@ -63,7 +63,7 @@ public class ChatEndpoint {
 
                 TransportMessage transportMessage = new TransportMessage();
                 transportMessage.setMessageNotification(createNotification(message));
-                send(chatId, transportMessage);
+                send(chatId, message.getToId() ,transportMessage);
 
             } else if (msgObj.getGetMessageRq() != null) {
                 TransportMessage.GetMessageRq getMessageRq = msgObj.getGetMessageRq();
@@ -77,13 +77,16 @@ public class ChatEndpoint {
                         messageList = messageController.getNByIds(chatId, getMessageRq.getMessageIds());
                         break;
                     case AFTER_LAST:
-                        messageList = messageController.getListOfNSizeAfterSpecificId(chatId, userId, getMessageRq.getLastId(), MESSAGE_SIZE_PACK);
+                        messageList = messageController.getListOfNSizeAfterSpecificId(chatId, userId, getMessageRq.getMessageId(), MESSAGE_SIZE_PACK);
+                        break;
+                    case BEFORE_FIRST:
+                        messageList = messageController.getListOfNSizeBeforeSpecificId(chatId, userId, getMessageRq.getMessageId(), MESSAGE_SIZE_PACK);
                         break;
                     default:
-                        send(chatId, newAnswer("WRONG"));
+                        send(chatId, userId, newAnswer("WRONG"));
                         return;
                 }
-                sendMessageList(chatId, messageList);
+                sendMessageList(chatId, userId, messageList);
 
             } else if (msgObj.getDeleteMessage() != null) {
                 TransportMessage.DeleteMessage deleteMessage = msgObj.getDeleteMessage();
@@ -96,19 +99,19 @@ public class ChatEndpoint {
                         messageController.deleteAllForUser(chatId, userId);
                         break;
                     default:
-                        send(chatId, newAnswer("WRONG"));
+                        send(chatId, userId, newAnswer("WRONG"));
                         return;
                 }
-                send(chatId, newAnswer("SUCCESS"));
+                send(chatId, userId, newAnswer("SUCCESS"));
 
             }
             else if (msgObj.getDeliveryNotification() != null) {
                 TransportMessage.DeliveryNotification deliveryNotification = msgObj.getDeliveryNotification();
 
                 if (messageController.markAsRead(deliveryNotification.getIds()))
-                    send(chatId, newAnswer("SUCCESS"));
+                    send(chatId, userId, newAnswer("SUCCESS"));
                 else
-                    send(chatId, newAnswer("WRONG"));
+                    send(chatId, userId, newAnswer("WRONG"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -129,18 +132,18 @@ public class ChatEndpoint {
         return notification;
     }
 
-    private void sendMessageList(int chatId, List<Message> messageList) {
+    private void sendMessageList(int chatId, int toUserId, List<Message> messageList) {
         TransportMessage transportMessage = new TransportMessage();
         transportMessage.setMessageAnswer(new ArrayList<>(messageList.size()));
 
         messageList.forEach(m -> transportMessage.getMessageAnswer().add(m));
-        send(chatId, transportMessage);
+        send(chatId, toUserId, transportMessage);
     }
 
-    private void send(int chatId, TransportMessage msgObj) {
+    private void send(int chatId, int toUserId, TransportMessage msgObj) {
         msgObj.setChatId(chatId);
         for (ChatUser user : usersList) {
-            if (user.getUserId() == chatId)
+            if (user.getUserId() == toUserId)
                 user.getSession().getAsyncRemote().sendObject(msgObj);
         }
     }

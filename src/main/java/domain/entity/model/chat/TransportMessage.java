@@ -82,7 +82,7 @@ public class TransportMessage {
      * Заявка на получение сообщения(й)
      * */
     public static class GetMessageRq {
-        private int lastId;
+        private int messageId;
         private int[] messageIds;
 
         private GetMessageRqType type;
@@ -91,8 +91,8 @@ public class TransportMessage {
             return messageIds;
         }
 
-        public int getLastId() {
-            return lastId;
+        public int getMessageId() {
+            return messageId;
         }
 
         public GetMessageRqType getType() {
@@ -106,6 +106,7 @@ public class TransportMessage {
         public enum GetMessageRqType {
             GET_FIRST_PACK,
             AFTER_LAST,
+            BEFORE_FIRST,
             BY_IDS
         }
     }

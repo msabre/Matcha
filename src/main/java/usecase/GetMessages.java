@@ -20,6 +20,10 @@ public class GetMessages {
         return repository.getListOfNSizeAfterSpecificId(chatId, userId, messageId, size);
     }
 
+    public List<Message> getListOfNSizeBeforeSpecificId(int chatId, int userId, int messageId, int size) {
+        return repository.getListOfNSizeBeforeSpecificId(chatId, userId, messageId, size);
+    }
+
     public List<Message> getNByIds(int chatId, int...ids) {
         return repository.getNByIds(chatId, ids);
     }

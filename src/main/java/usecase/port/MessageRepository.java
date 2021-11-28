@@ -11,6 +11,8 @@ public interface MessageRepository {
 
     List<Message> getListOfNSizeAfterSpecificId(int chatId, int userId, int messageId, int size);
 
+    List<Message> getListOfNSizeBeforeSpecificId(int chatId, int userId, int messageId, int size);
+    
     List<Message> getNByIds(int chatId, int...ids);
 
     void deleteNByIdsForUser(int chatId, int userId, int...ids);
