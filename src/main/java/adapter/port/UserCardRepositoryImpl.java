@@ -32,7 +32,7 @@ public class UserCardRepositoryImpl implements UserCardRepository {
     @Override
     public UserCard save(UserCard card) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
-             PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user_card SET BIOGRAPHY = ?, WORKPLACE = ?, POSITION = ?, EDUCATION = ?, GENDER = ?, SEXUAL_PREFERENCE = ?, TAGS = ?, RATING = ?, PHOTOS_PARAMS = null WHERE ID = ?", Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user_card SET BIOGRAPHY = ?, WORKPLACE = ?, POSITION = ?, EDUCATION = ?, GENDER = ?, SEXUAL_PREFERENCE = ?, TAGS = ?, RATING = ? WHERE ID = ?", Statement.RETURN_GENERATED_KEYS)) {
 
             int i = 0;
 
