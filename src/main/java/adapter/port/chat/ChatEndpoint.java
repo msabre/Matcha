@@ -76,11 +76,11 @@ public class ChatEndpoint {
                     case BY_IDS:
                         messageList = messageController.getNByIds(chatId, getMessageRq.getMessageIds());
                         break;
-                    case AFTER_LAST:
-                        messageList = messageController.getListOfNSizeAfterSpecificId(chatId, userId, getMessageRq.getSpecificId(), MESSAGE_SIZE_PACK);
-                        break;
                     case BEFORE_FIRST:
                         messageList = messageController.getListOfNSizeBeforeSpecificId(chatId, userId, getMessageRq.getSpecificId(), MESSAGE_SIZE_PACK);
+                        break;
+                    case AFTER_LAST:
+                        messageList = messageController.getListOfNSizeAfterSpecificId(chatId, userId, getMessageRq.getSpecificId(), MESSAGE_SIZE_PACK);
                         break;
                     default:
                         send(chatId, userId, newAnswer("WRONG"));

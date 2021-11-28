@@ -16,12 +16,12 @@ public class GetMessages {
         return repository.getFirstNMatches(chatId, userId, size);
     }
 
-    public List<Message> getListOfNSizeAfterSpecificId(int chatId, int userId, int messageId, int size) {
-        return repository.getListOfNSizeAfterSpecificId(chatId, userId, messageId, size);
+    public List<Message> getListOfNSizeBeforeSpecificId(int chatId, int userId, int messageId, int size) {
+        return repository.getListOfNSizeBefore1SpecificId(chatId, userId, messageId, size);
     }
 
-    public List<Message> getListOfNSizeBeforeSpecificId(int chatId, int userId, int messageId, int size) {
-        return repository.getListOfNSizeBeforeSpecificId(chatId, userId, messageId, size);
+    public List<Message> getListOfNSizeAfterSpecificId(int chatId, int userId, int messageId, int size) {
+        return repository.getListOfNSizeAfter1SpecificId(chatId, userId, messageId, size);
     }
 
     public List<Message> getNByIds(int chatId, int...ids) {

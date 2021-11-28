@@ -95,7 +95,7 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
-    public List<Message> getListOfNSizeAfterSpecificId(int chatId, int userId, int messageId, int size) {
+    public List<Message> getListOfNSizeBefore1SpecificId(int chatId, int userId, int messageId, int size) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
              PreparedStatement state = connection.prepareStatement(
                      "WITH lastIdTime as " +
@@ -126,7 +126,7 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
-    public List<Message> getListOfNSizeBeforeSpecificId(int chatId, int userId, int messageId, int size) {
+    public List<Message> getListOfNSizeAfter1SpecificId(int chatId, int userId, int messageId, int size) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
              PreparedStatement state = connection.prepareStatement(
                      "WITH lastIdTime as " +
