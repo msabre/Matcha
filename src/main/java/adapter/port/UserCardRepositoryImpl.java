@@ -52,7 +52,7 @@ public class UserCardRepositoryImpl implements UserCardRepository {
             statement.setInt(++i, card.getId());
             statement.execute();
 
-            return findById(card.getId());
+            return card;
 
         }catch (SQLException e) {
             e.printStackTrace();
