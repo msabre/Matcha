@@ -31,6 +31,7 @@ public class GetUserServlet extends HttpServlet {
         }
 
         User user = userController.findUser(id);
+        userController.uploadPhotosContent(user.getCard().getPhotos());
         HttpService.putBody(resp, JsonService.getJsonWithExposeFields(user));
     }
 }
