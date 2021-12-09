@@ -17,7 +17,6 @@ import javax.imageio.stream.ImageOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 
@@ -109,7 +108,7 @@ public class AddProfileInfoServlet extends HttpServlet {
                             ImageIO.write(img, photo.getFormat(), new File(path));
                         }
                         else if (compressRequiredFormats.contains(photo.getFormat()))
-                            compressImage(byteContent, path, 600, 800);
+                            compressImage(byteContent, path);
                         else
                             return false;
 
@@ -147,11 +146,17 @@ public class AddProfileInfoServlet extends HttpServlet {
         return true;
     }
 
-    private static void compressImage(byte[] content, String destinationPath, int width, int height) throws IOException {
+    private void compressImage(byte[] content, String destinationPath) throws IOException {
         ByteArrayInputStream bufferedInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(content));
         BufferedImage img = ImageIO.read(bufferedInputStream);
 
-        Image resizeImage = img.getScaledInstance(width, height, Image.SCALE_DEFAULT);
+        int onePart = getOnePart(img.getHeight(), img.getWidth(), 3, 2);
+        double width = onePart * 2;
+        double height = onePart * 3;
+        int x = (int) ((img.getWidth() - width) / 2);
+        int y = (int) ((img.getHeight() - height) / 2);
+        img = img.getSubimage(x, y, (int) width, (int) height);
+
         File compressedImageFile = new File(destinationPath);
         OutputStream os = new FileOutputStream(compressedImageFile);
 
@@ -165,31 +170,13 @@ public class AddProfileInfoServlet extends HttpServlet {
 
         param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
         param.setCompressionQuality(0.08f);
-        writer.write( null , new IIOImage(convertToBufferedImage(resizeImage), null , null ), param);
+        writer.write( null , new IIOImage(img, null , null ), param);
 
         os.close();
         ios.close();
         writer.dispose();
     }
 
-    public static BufferedImage convertToBufferedImage(Image img) {
-
-        if (img instanceof BufferedImage) {
-            return (BufferedImage) img;
-        }
-
-        // Create a buffered image with transparency
-        BufferedImage bi = new BufferedImage(
-                img.getWidth(null), img.getHeight(null),
-                BufferedImage.TYPE_INT_ARGB);
-
-        Graphics2D graphics2D = bi.createGraphics();
-        graphics2D.drawImage(img, 0, 0, null);
-        graphics2D.dispose();
-
-        return bi;
-    }
-    
     private boolean checkAndDeleteIfMain(User user, Photo photo, String oldMain) {
         if (photo.isMain() && photo.getNumber().equals(oldMain)) {
             String mainPhotoPath = getPhotoPath(user, photo.getNumber(), true);
@@ -214,15 +201,41 @@ public class AddProfileInfoServlet extends HttpServlet {
 
             ByteArrayInputStream bufferedInputStream = new ByteArrayInputStream(fileInArray);
             BufferedImage img = ImageIO.read(bufferedInputStream);
-            Image resizeImage = img.getScaledInstance(400, 400, Image.SCALE_DEFAULT);
 
-            ImageIO.write(convertToBufferedImage(resizeImage), "jpg", new File(newMainPath));
+            int onePart = getOnePart(img.getHeight(), img.getWidth(), 1, 1);
+            int x = (img.getWidth() - onePart) / 2;
+            int y = (img.getHeight() - onePart) / 2;
+            img = img.getSubimage(x, y, onePart, onePart);
+
+            ImageIO.write(img, "jpg", new File(newMainPath));
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     
+    private int getOnePart(int height, int width, int heightParts, int widthParts) {
+        if (height < 3)
+            return -1;
+        if (width < 2)
+            return -1;
+
+        int onePart;
+        double x = ((double) widthParts / heightParts) * height;
+
+        if (x * widthParts <= width)
+            onePart = (int) x / widthParts;
+        else 
+            onePart = width / widthParts;
+        
+        while (onePart * heightParts > height)
+            onePart--;
+        while (onePart * widthParts > width)
+            onePart--;
+        
+        return onePart;
+    }
+
     private String getPhotoPath(User user, String photoNum, boolean main) {
         return String.format("%sIMG_%s_%s_photo_%s.jpg", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), main ? "MAIN" : "", user.getId(), photoNum);
     }
