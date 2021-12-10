@@ -213,7 +213,7 @@ public class AddProfileInfoServlet extends HttpServlet {
             e.printStackTrace();
         }
     }
-    
+ 
     private int getOnePart(int height, int width, int heightParts, int widthParts) {
         if (height < 3)
             return -1;
@@ -237,7 +237,7 @@ public class AddProfileInfoServlet extends HttpServlet {
     }
 
     private String getPhotoPath(User user, String photoNum, boolean main) {
-        return String.format("%sIMG_%s_%s_photo_%s.jpg", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), main ? "MAIN" : "", user.getId(), photoNum);
+        return String.format("%sIMG_%s%s_photo_%s.jpg", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), main ? "_MAIN" : "", user.getId(), photoNum);
     }
 
     @Override
