@@ -226,6 +226,7 @@ public class UserRepositoryImpl implements UserRepository {
                         user.setBirthday(resultSet.getDate(++i));
                         user.setYearsOld(resultSet.getInt(++i));
                         user.setEmail(resultSet.getString(++i));
+                        user.setUserName(resultSet.getString(++i));
                         user.setPassword(resultSet.getString(++i));
                         user.setLocation(resultSet.getString(++i));
 
