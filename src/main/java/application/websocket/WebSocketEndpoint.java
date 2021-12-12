@@ -1,5 +1,5 @@
 
-package adapter.port.chat;
+package application.websocket;
 
 import adapter.controller.JwtController;
 import adapter.controller.MessageController;
@@ -21,7 +21,7 @@ import java.util.Optional;
 @ServerEndpoint(value = "/{userId}/{token}/{fingerprint}",
                 decoders = MessageDecoder.class,
                 encoders = MessageEncoder.class)
-public class ChatEndpoint {
+public class WebSocketEndpoint {
     private static final int MESSAGE_SIZE_PACK = 10;
     private static final List<ChatUser> usersList = new ArrayList<>();
 
@@ -83,6 +83,7 @@ public class ChatEndpoint {
             case LIKE:
             case TAKE_LIKE:
             case VISIT:
+            case MATCH:
                 send(likeAction.getToUsr(), webSocketEntity);
                 break;
             default:

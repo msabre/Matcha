@@ -26,6 +26,8 @@ public class User {
     @Expose
     private String email;
     @Expose
+    private String userName;
+    @Expose
     private Date birthday;
 
     private String password;
@@ -105,6 +107,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public UserCard getCard() {

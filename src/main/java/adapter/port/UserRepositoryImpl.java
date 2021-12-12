@@ -5,6 +5,8 @@ import config.MyConfiguration;
 import domain.entity.FilterParams;
 import domain.entity.User;
 import domain.entity.UserCard;
+import usecase.exception.EmailBusyException;
+import usecase.exception.UserNameBusyException;
 import usecase.port.FilterParamsRepository;
 import usecase.port.UserCardRepository;
 import usecase.port.UserRepository;
@@ -36,7 +38,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public int save(User user) {
+    public int save(User user) throws UserNameBusyException, EmailBusyException {
         int userId = -1;
 
         if (!allFieldsUniqal(user))
@@ -44,7 +46,7 @@ public class UserRepositoryImpl implements UserRepository {
 
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword()))
         {
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO matcha.user(CONFIRM, NAME, LASTNAME, MIDDLENAME, BIRTHDAY, YEARS_OLD, EMAIL, PASSWORD, LOCATION) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO matcha.user(CONFIRM, NAME, LASTNAME, MIDDLENAME, BIRTHDAY, YEARS_OLD, EMAIL, USERNAME, PASSWORD, LOCATION) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS);
             int i = 0;
 
@@ -57,6 +59,7 @@ public class UserRepositoryImpl implements UserRepository {
             statement.setDate(++i, date);
             statement.setInt(++i, user.getYearsOld());
             statement.setString(++i, user.getEmail());
+            statement.setString(++i, user.getUserName());
             statement.setString(++i, user.getPassword());
             statement.setString(++i, user.getLocation());
 
@@ -130,15 +133,22 @@ public class UserRepositoryImpl implements UserRepository {
         return userId;
     }
 
-    private boolean allFieldsUniqal(User user) {
+    private boolean allFieldsUniqal(User user) throws UserNameBusyException, EmailBusyException {
         try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
-            PreparedStatement stat = connection.prepareStatement("SELECT * FROM matcha.user WHERE EMAIL = ?"))
+            PreparedStatement stat = connection.prepareStatement("SELECT * FROM matcha.user WHERE EMAIL = ? OR USERNAME = ?"))
         {
             stat.setString(1, user.getEmail());
+            stat.setString(2, user.getUserName());
             stat.execute();
 
             ResultSet resultSet = stat.getResultSet();
-            return !resultSet.next();
+            if (resultSet.next()) {
+                if (resultSet.getString("USERNAME") != null)
+                    throw new UserNameBusyException();
+                if (resultSet.getString("EMAIL") != null)
+                    throw new EmailBusyException();
+            }
+            return true;
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -154,32 +164,43 @@ public class UserRepositoryImpl implements UserRepository {
         {
             state.setString(1, email);
             state.execute();
-            
-            ResultSet resultSet = null;
-            try {
-                resultSet = state.getResultSet();
+
+            try (ResultSet resultSet = state.getResultSet()) {
                 int id;
-                while (resultSet.next()) {
+                if (resultSet.next()) {
+                    id = resultSet.getInt(1);
+                    return findById(id);
+                }
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public User findByUsername(String username) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(),config.getUser(), config.getPassword());
+             PreparedStatement state = connection.prepareStatement("SELECT * FROM matcha.user where USERNAME= ?"))
+        {
+            state.setString(1, username);
+            state.execute();
+
+            try (ResultSet resultSet = state.getResultSet()) {
+                int id;
+                if (resultSet.next()) {
                     id = resultSet.getInt(1);
 
                     return findById(id);
                 }
             }
-            catch (SQLException e) {
-                e.printStackTrace();
-            }
-            finally {
-                if (resultSet != null)
-                    resultSet.close();
-                else
-                    System.err.println("Пользователь с данным email не найден!");
-                }
-            }
-            catch (SQLException e) {
-                e.printStackTrace();
-            }
-            return null;
         }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
         @Override
         public User findById(int id) {

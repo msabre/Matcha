@@ -1,4 +1,4 @@
-package adapter.port.chat;
+package application.websocket;
 
 import application.services.json.JsonService;
 import domain.entity.model.chat.WebSocketEntity;

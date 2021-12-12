@@ -1,6 +1,8 @@
 package usecase;
 
 import domain.entity.User;
+import usecase.exception.EmailBusyException;
+import usecase.exception.UserNameBusyException;
 import usecase.port.PasswordEncoder;
 import usecase.port.UserRepository;
 
@@ -12,7 +14,7 @@ public class CreateUser {
         this.repository = repository;
     }
 
-    public int create(User user) {
+    public int create(User user) throws UserNameBusyException, EmailBusyException {
         return repository.save(user);
     }
 }

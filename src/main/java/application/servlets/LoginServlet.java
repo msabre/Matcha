@@ -39,10 +39,10 @@ public class LoginServlet extends HttpServlet {
         String body = HttpService.getBody(req);
         JsonObject object = JsonParser.parseString(body).getAsJsonObject();
 
-        String email = object.get("email").getAsString();
+        String login = object.get("login").getAsString();
         String password = object.get("password").getAsString();
 
-        User user = userController.loginUser(email, password);
+        User user = userController.loginUser(login, password);
         if (isNull(user)) {
             HttpService.putBody(resp, "INVALID LOGIN OR PASSWORD");
             return;

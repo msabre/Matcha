@@ -1,6 +1,8 @@
 package usecase.port;
 
 import domain.entity.User;
+import usecase.exception.EmailBusyException;
+import usecase.exception.UserNameBusyException;
 
 import java.util.Date;
 import java.util.LinkedList;
@@ -8,9 +10,11 @@ import java.util.List;
 import java.util.Map;
 
 public interface UserRepository {
-    int save(User user);
+    int save(User user) throws UserNameBusyException, EmailBusyException;
 
     User findByEmail(String email);
+
+    User findByUsername(String username);
 
     User findById(int id);
 

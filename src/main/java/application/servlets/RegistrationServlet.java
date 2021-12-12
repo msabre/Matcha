@@ -13,7 +13,10 @@ import application.services.json.JsonService;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import config.MyProperties;
 import domain.entity.User;
-import domain.entity.UserCard;import usecase.port.PasswordEncoder;
+import domain.entity.UserCard;
+import usecase.exception.EmailBusyException;
+import usecase.exception.UserNameBusyException;
+import usecase.port.PasswordEncoder;
 
 import javax.mail.MessagingException;
 
@@ -73,15 +76,21 @@ public class RegistrationServlet extends HttpServlet {
         UserCard userCard = (UserCard) JsonService.getObjectByExposeFields(UserCard.class, json);
         user.setCard(userCard);
 
-        int userId = userController.createUser(user);
-        if (userId < 0)
-            HttpService.putBody(resp, "WRONG");
+        try {
+            int userId = userController.createUser(user);
+            if (userId < 0)
+                HttpService.putBody(resp, "WRONG");
+            user.setId(userId);
+            userCard.setUserId(userId);
+            sendConfirmMail(user);
+            HttpService.putBody(resp, "SUCCESS");
 
-        user.setId(userId);
-        userCard.setUserId(userId);
+        } catch (UserNameBusyException name) {
+            HttpService.putBody(resp, "USERNAME BUSY ALREADY");
 
-        sendConfirmMail(user);
-        HttpService.putBody(resp, "SUCCESS");
+        }  catch (EmailBusyException emailBusyException) {
+            HttpService.putBody(resp, "EMAIL BUSY ALREADY");
+        }
     }
 
     private void sendConfirmMail (User user) {

@@ -7,6 +7,8 @@ import domain.entity.*;
 import domain.entity.model.UserInteraction;
 import domain.entity.model.types.Action;
 import usecase.*;
+import usecase.exception.EmailBusyException;
+import usecase.exception.UserNameBusyException;
 
 import java.util.*;
 
@@ -58,12 +60,12 @@ public class UserController {
         return instance;
     }
 
-    public int createUser(User user) {
+    public int createUser(User user) throws UserNameBusyException, EmailBusyException {
         return createUser.create(user);
     }
 
-    public User loginUser(String email, String password) {
-        return loginUser.login(email, password);
+    public User loginUser(String login, String password) {
+        return loginUser.login(login, password);
     }
 
     public User findUser(int id) {

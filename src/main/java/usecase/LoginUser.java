@@ -16,8 +16,10 @@ public class LoginUser {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User login(String email, String password) {
-        User user = repository.findByEmail(email);
+    public User login(String login, String password) {
+        User user = repository.findByEmail(login);
+        if (isNull(user))
+            user = repository.findByUsername(login);
         if (isNull(user))
             return null;
 
