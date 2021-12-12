@@ -27,6 +27,7 @@ public class UserController {
     private UpdateFilter updateFilter;
     private UpdateEmail updateEmail;
     private FioUpdate fioUpdate;
+    private UserNameUpdate usernameUpdate;
     private BirthDateUpdate birthDateUpdate;
     private UploadPhotoContent uploadPhotoContent;
     private GetInteractionList getInteractionList;
@@ -51,6 +52,7 @@ public class UserController {
             instance.updateFilter = MyConfiguration.updateFilter();
             instance.updateEmail = MyConfiguration.updateEmail();
             instance.fioUpdate = MyConfiguration.fioUpdate();
+            instance.usernameUpdate = MyConfiguration.userNameUpdate();
             instance.birthDateUpdate = MyConfiguration.birthDateUpdate();
             instance.uploadPhotoContent = MyConfiguration.uploadPhotoContent();
             instance.getInteractionList = MyConfiguration.getMatchList();
@@ -126,6 +128,10 @@ public class UserController {
 
     public void fioUpdate(int userId, String[] fio) {
         fioUpdate.update(userId, fio);
+    }
+
+    public void usernameUpdate(int userId, String username) {
+        usernameUpdate.update(userId, username);
     }
 
     public void birthDateUpdate(int userId, Date birthDate, int yearsOld) {

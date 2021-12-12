@@ -30,6 +30,8 @@ public interface UserRepository {
 
     void updateFio(int id, String[] fio);
 
+    void updateUsername(int id, String username);
+
     void birthDateUpdate(int id, Date birthDate, int yearsOld);
 
     List<Integer> getNUserIdsWithFreeChatByIds(String ids, int limit);

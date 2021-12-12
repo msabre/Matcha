@@ -156,6 +156,16 @@ public class CommonInfoChangeServlet extends HttpServlet {
                 userController.fioUpdate(id, fio);
                 break;
 
+            case "username":
+                String username = Optional.ofNullable(JsonService.getParameter(body, "username")).orElse("");
+                if (username.isEmpty()) {
+                    HttpService.putBody(resp, "EMPTY USERNAME");
+                    return;
+                }
+                user.setUserName(username);
+                userController.usernameUpdate(id, username);
+                break;
+
             case "birthDate":
                 String birthDate = JsonService.getParameter(body, "birthDate");
                 Date date;

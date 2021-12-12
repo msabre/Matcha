@@ -47,6 +47,8 @@ public class MyConfiguration {
 
     public static FioUpdate fioUpdate() { return new FioUpdate(userRepository()); }
 
+    public static UserNameUpdate userNameUpdate() { return new UserNameUpdate(userRepository()); }
+
     public static BirthDateUpdate birthDateUpdate() { return new BirthDateUpdate(userRepository()); }
 
     public static UploadPhotoContent uploadPhotoContent() {

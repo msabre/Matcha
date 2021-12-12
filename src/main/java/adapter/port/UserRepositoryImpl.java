@@ -409,6 +409,24 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public void updateUsername(int id, String username) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user SET USERNAME = ? where ID = ?"))
+        {
+            statement.setString(1, username);
+            statement.setInt(2, id);
+
+            statement.execute();
+            System.out.println("username has been changed");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("username change error");
+        }
+    }
+
+
+    @Override
     public void birthDateUpdate(int id, java.util.Date birthDate, int yearsOld) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
              PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user SET BIRTHDAY = ?, YEARS_OLD = ? where ID = ?"))
