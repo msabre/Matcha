@@ -5,6 +5,7 @@ import adapter.controller.JwtController;
 import adapter.controller.MessageController;
 import config.MyConfiguration;
 import domain.entity.JsonWebToken;
+import domain.entity.LikeAction;
 import domain.entity.model.chat.*;
 import domain.entity.Message;
 import domain.entity.model.types.MessageStatus;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@ServerEndpoint(value = "/chat/{userId}/{token}/{fingerprint}",
+@ServerEndpoint(value = "/{userId}/{token}/{fingerprint}",
                 decoders = MessageDecoder.class,
                 encoders = MessageEncoder.class)
 public class ChatEndpoint {
@@ -26,6 +27,7 @@ public class ChatEndpoint {
 
     MessageController messageController = MyConfiguration.messageController();
     JwtController jwtController = MyConfiguration.jwtController();
+//    UserController userController = MyConfiguration.userController();
 
     @OnOpen
     public void onOpen(Session session, @PathParam("userId") String user, @PathParam("token") String token,
@@ -35,9 +37,7 @@ public class ChatEndpoint {
 
         Pair<Boolean, String> checkDesc = jwtController.checkAccessToken(token, fingerprint);
         if (!checkDesc.getLeft()) {
-            TransportMessage error = new TransportMessage();
-            error.setAnswer(new TransportMessage.Answer(checkDesc.getRight()));
-            session.getAsyncRemote().sendObject(error);
+            session.getAsyncRemote().sendObject(newAnswer(checkDesc.getRight()));
             return;
         }
 
@@ -51,77 +51,142 @@ public class ChatEndpoint {
     }
 
     @OnMessage(maxMessageSize = 3072000)
-    public void onMessage(TransportMessage msgObj, Session session) {
+    public void onMessage(WebSocketEntity webSocketEntity, Session session) {
         try {
             int userId = Optional.ofNullable(session.getPathParameters().get("userId")).map(Integer::parseInt).orElse(-1);
-            int chatId = msgObj.getChatId();
 
-            if (msgObj.getMessage() != null) {
-                Message message = msgObj.getMessage();
-                message.setStatus(MessageStatus.RECEIVED);
-                message = messageController.save(message);
-
-                TransportMessage transportMessage = new TransportMessage();
-                transportMessage.setMessageNotification(createNotification(message));
-                send(chatId, message.getToId() ,transportMessage);
-
-            } else if (msgObj.getGetMessageRq() != null) {
-                TransportMessage.GetMessageRq getMessageRq = msgObj.getGetMessageRq();
-                List<Message> messageList;
-
-                switch (getMessageRq.getType()) {
-                    case GET_FIRST_PACK:
-                        messageList = messageController.getFirstNMatches(chatId, userId, MESSAGE_SIZE_PACK);
-                        break;
-                    case BY_IDS:
-                        messageList = messageController.getNByIds(chatId, getMessageRq.getMessageIds());
-                        break;
-                    case BEFORE_FIRST:
-                        messageList = messageController.getListOfNSizeBeforeSpecificId(chatId, userId, getMessageRq.getSpecificId(), MESSAGE_SIZE_PACK);
-                        break;
-                    case AFTER_LAST:
-                        messageList = messageController.getListOfNSizeAfterSpecificId(chatId, userId, getMessageRq.getSpecificId(), MESSAGE_SIZE_PACK);
-                        break;
-                    default:
-                        send(chatId, userId, newAnswer("WRONG"));
-                        return;
-                }
-                sendMessageList(chatId, userId, messageList);
-
-            } else if (msgObj.getDeleteMessage() != null) {
-                TransportMessage.DeleteMessage deleteMessage = msgObj.getDeleteMessage();
-
-                switch (deleteMessage.getType()) {
-                    case BY_IDS:
-                        messageController.deleteByIdsForUser(chatId, userId, deleteMessage.getIds());
-                        break;
-                    case ALL:
-                        messageController.deleteAllForUser(chatId, userId);
-                        break;
-                    default:
-                        send(chatId, userId, newAnswer("WRONG"));
-                        return;
-                }
-                send(chatId, userId, newAnswer("SUCCESS"));
-
+            switch (webSocketEntity.getWebSocketType()) {
+                case CHAT:
+                    TransportMessage transportMessage = webSocketEntity.getTransportMessage();
+                    messageProcess(transportMessage, userId);
+                    break;
+                case LIKE_NOTIFICATION:
+                    LikeAction likeAction = webSocketEntity.getLikeAction();
+                    Optional.ofNullable(likeAction).ifPresent(act -> act.setFromUsr(userId));
+                    likeProcess(webSocketEntity);
+                    break;
+                default:
+                    send(userId, newAnswer("UNEXPECTED TYPE PARAMETER"));
             }
-            else if (msgObj.getDeliveryNotification() != null) {
-                TransportMessage.DeliveryNotification deliveryNotification = msgObj.getDeliveryNotification();
 
-                if (messageController.markAsRead(deliveryNotification.getIds()))
-                    send(chatId, userId, newAnswer("SUCCESS"));
-                else
-                    send(chatId, userId, newAnswer("WRONG"));
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private TransportMessage newAnswer(String text) {
-        TransportMessage answer = new TransportMessage();
-        answer.setAnswer(new TransportMessage.Answer(text));
-        return answer;
+    private void likeProcess(WebSocketEntity webSocketEntity) {
+        LikeAction likeAction = webSocketEntity.getLikeAction();
+        if (likeAction.getAction() == null || likeAction.getToUsr() < 0)
+            return;
+
+        switch (likeAction.getAction()) {
+            case LIKE:
+            case TAKE_LIKE:
+            case VISIT:
+                send(likeAction.getToUsr(), webSocketEntity);
+                break;
+            default:
+                send(likeAction.getFromUsr(), newAnswer("UNEXPECTED ACTION PARAMETER"));
+        }
+    }
+
+//    private void likeProcess(LikeAction likeAction) {
+//        if (likeAction.getAction() == null || likeAction.getToUsr() < 0)
+//            return;
+//
+//        switch (likeAction.getAction()) {
+//            case LIKE:
+//                boolean isMatch = userController.putMatchOrLike(likeAction.getFromUsr(), likeAction.getToUsr());
+//                if (isMatch) {
+//                    send(likeAction.getFromUsr(), newAnswer("MATCH"));
+//                    return;
+//                }
+//                WebSocketEntity likeNotification = new WebSocketEntity();
+//                likeNotification.setLikeAction(likeAction);
+//                send(likeAction.getToUsr(), likeNotification);
+//                break;
+//            case DISLIKE:
+//                userController.disLike(likeAction.getFromUsr(), likeAction.getToUsr());
+//                break;
+//            case TAKE_LIKE:
+//                userController.deleteLike(likeAction.getFromUsr(), likeAction.getToUsr());
+//                break;
+//            default:
+//                send(likeAction.getFromUsr(), newAnswer("UNEXPECTED ACTION PARAMETER"));
+//                return;
+//        }
+//        newAnswer("SUCCESS");
+//    }
+
+    private void messageProcess(TransportMessage transportMessage, int userId) {
+        int chatId = transportMessage.getChatId();
+
+        if (transportMessage.getMessage() != null) {
+            Message message = transportMessage.getMessage();
+            message.setStatus(MessageStatus.RECEIVED);
+            message = messageController.save(message);
+
+            TransportMessage answerMessage = new TransportMessage();
+            answerMessage.setChatId(chatId);
+            answerMessage.setMessageNotification(createNotification(message));
+            WebSocketEntity webSocketEntity = new WebSocketEntity();
+            webSocketEntity.setTransportMessage(answerMessage);
+            send(message.getToId() , webSocketEntity);
+
+        } else if (transportMessage.getGetMessageRq() != null) {
+            TransportMessage.GetMessageRq getMessageRq = transportMessage.getGetMessageRq();
+            List<Message> messageList;
+
+            switch (getMessageRq.getType()) {
+                case GET_FIRST_PACK:
+                    messageList = messageController.getFirstNMatches(chatId, userId, MESSAGE_SIZE_PACK);
+                    break;
+                case BY_IDS:
+                    messageList = messageController.getNByIds(chatId, getMessageRq.getMessageIds());
+                    break;
+                case BEFORE_FIRST:
+                    messageList = messageController.getListOfNSizeBeforeSpecificId(chatId, userId, getMessageRq.getSpecificId(), MESSAGE_SIZE_PACK);
+                    break;
+                case AFTER_LAST:
+                    messageList = messageController.getListOfNSizeAfterSpecificId(chatId, userId, getMessageRq.getSpecificId(), MESSAGE_SIZE_PACK);
+                    break;
+                default:
+                    send(userId, newAnswer("WRONG"));
+                    return;
+            }
+            sendMessageList(chatId, userId, messageList);
+
+        } else if (transportMessage.getDeleteMessage() != null) {
+            TransportMessage.DeleteMessage deleteMessage = transportMessage.getDeleteMessage();
+
+            switch (deleteMessage.getType()) {
+                case BY_IDS:
+                    messageController.deleteByIdsForUser(chatId, userId, deleteMessage.getIds());
+                    break;
+                case ALL:
+                    messageController.deleteAllForUser(chatId, userId);
+                    break;
+                default:
+                    send(userId, newAnswer("WRONG"));
+                    return;
+            }
+            send(userId, newAnswer("SUCCESS"));
+
+        }
+        else if (transportMessage.getDeliveryNotification() != null) {
+            TransportMessage.DeliveryNotification deliveryNotification = transportMessage.getDeliveryNotification();
+
+            if (messageController.markAsRead(deliveryNotification.getIds()))
+                send(userId, newAnswer("SUCCESS"));
+            else
+                send(userId, newAnswer("WRONG"));
+        }
+    }
+
+    private WebSocketEntity newAnswer(String text) {
+        WebSocketEntity webSocketEntity = new WebSocketEntity();
+        webSocketEntity.getAnswer().setText(text);
+        return webSocketEntity;
     }
 
     private TransportMessage.MessageNotification createNotification(Message message) {
@@ -133,15 +198,16 @@ public class ChatEndpoint {
     }
 
     private void sendMessageList(int chatId, int toUserId, List<Message> messageList) {
-        TransportMessage transportMessage = new TransportMessage();
-        transportMessage.setMessageAnswer(new ArrayList<>(messageList.size()));
+        WebSocketEntity webSocketEntity = new WebSocketEntity();
+        webSocketEntity.setTransportMessage(new TransportMessage());
+        webSocketEntity.getTransportMessage().setMessageAnswer(new ArrayList<>(messageList.size()));
 
-        messageList.forEach(m -> transportMessage.getMessageAnswer().add(m));
-        send(chatId, toUserId, transportMessage);
+        messageList.forEach(m -> webSocketEntity.getTransportMessage().getMessageAnswer().add(m));
+        webSocketEntity.getTransportMessage().setChatId(chatId);
+        send(toUserId, webSocketEntity);
     }
 
-    private void send(int chatId, int toUserId, TransportMessage msgObj) {
-        msgObj.setChatId(chatId);
+    private void send(int toUserId, WebSocketEntity msgObj) {
         for (ChatUser user : usersList) {
             if (user.getUserId() == toUserId)
                 user.getSession().getAsyncRemote().sendObject(msgObj);

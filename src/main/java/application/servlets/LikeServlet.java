@@ -4,6 +4,7 @@ import adapter.controller.UserController;
 import application.services.HttpService;
 import application.services.json.JsonService;
 import config.MyConfiguration;
+import domain.entity.LikeAction;
 import domain.entity.User;
 
 import javax.servlet.http.HttpServlet;
@@ -26,24 +27,27 @@ public class LikeServlet extends HttpServlet {
         User user = (User) req.getSession().getAttribute("user");
 
         String body = HttpService.getBody(req);
-        int toUserId = Optional.ofNullable(JsonService.getParameter(body, "toUserId")).map(Integer::parseInt).orElse(-1);
-        String action = JsonService.getParameter(body,"action");
-        if (action == null || toUserId < 0)
+        LikeAction likeAction = (LikeAction) JsonService.getObject(LikeAction.class, body);
+        if (likeAction.getAction() == null || likeAction.getToUsr() < 0)
             return;
 
-        switch (action) {
-            case "like":
-                boolean isMatch = userController.putMatchOrLike(user.getId(), toUserId);
+        likeAction.setFromUsr(user.getId());
+        switch (likeAction.getAction()) {
+            case LIKE:
+                boolean isMatch = userController.putMatchOrLike(likeAction);
                 if (isMatch) {
                     HttpService.putBody(resp, "MATCH");
                     return;
                 }
                 break;
-            case "disLike":
-                userController.disLike(user.getId(), toUserId);
+            case DISLIKE:
+                userController.disLike(likeAction);
                 break;
-            case "takeLike":
-                userController.deleteLike(user.getId(), toUserId);
+            case TAKE_LIKE:
+                userController.deleteLike(likeAction);
+                break;
+            case VISIT:
+                userController.fixVisit(likeAction);
                 break;
             default:
                 HttpService.putBody(resp, "UNEXPECTED ACTION PARAMETER");

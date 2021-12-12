@@ -1,6 +1,7 @@
 package usecase.port;
 
 import domain.entity.LikeAction;
+import domain.entity.model.types.Action;
 
 import java.util.List;
 
@@ -11,6 +12,8 @@ public interface LikesActionRepository {
     void like(int from, int to);
 
     void dislike(int from, int to);
+    
+    void fixVisit(int from, int to);
 
     void match(int from, int to);
 
@@ -20,9 +23,9 @@ public interface LikesActionRepository {
 
     List<Integer> getToUserDislikesByIds(int from, List<Integer> ids);
 
-    List<LikeAction> getNMatchForUserId(int id, int size);
+    List<LikeAction> getNActionForUserId(Action action, int id, int size);
 
-    List<LikeAction> getNLikeForUserId(int id, int size);
+    List<LikeAction> getNLikeForUserId(int id, int size); // генератор
 
-    List<LikeAction> getNMatchUserIdsAfterSpecificId(int id, int specificId, int size);
+    List<LikeAction> getNActionsUserIdsAfterSpecificId(Action action, int id, int specificId, int size);
 }

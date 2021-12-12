@@ -2,21 +2,13 @@ package adapter.port;
 
 import adapter.port.model.DBConfiguration;
 import config.MyConfiguration;
-import config.MyProperties;
 import domain.entity.FilterParams;
-import domain.entity.Photo;
 import domain.entity.User;
 import domain.entity.UserCard;
-import domain.entity.model.UserMatch;
 import usecase.port.FilterParamsRepository;
 import usecase.port.UserCardRepository;
 import usecase.port.UserRepository;
 
-import java.io.*;
-
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;

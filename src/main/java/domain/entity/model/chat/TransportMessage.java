@@ -5,7 +5,6 @@ import domain.entity.Message;
 import java.util.List;
 
 public class TransportMessage {
-    private Answer answer;
     private Message message;
     private List<Message> messageAnswer;
     private GetMessageRq getMessageRq;
@@ -13,10 +12,6 @@ public class TransportMessage {
     private MessageNotification messageNotification;
     private DeliveryNotification deliveryNotification;
     private int chatId;
-
-    public void setAnswer(Answer answer) {
-        this.answer = answer;
-    }
 
     public Message getMessage() {
         return message;
@@ -48,10 +43,6 @@ public class TransportMessage {
 
     public MessageNotification getMessageNotification() {
         return messageNotification;
-    }
-
-    public Answer getAnswer() {
-        return answer;
     }
 
     /**
@@ -108,25 +99,6 @@ public class TransportMessage {
             AFTER_LAST,
             BEFORE_FIRST,
             BY_IDS
-        }
-    }
-
-    /**
-     * Сообщение о ошибке
-     * */
-    public static class Answer {
-        private String text;
-
-        public Answer(String errorText) {
-            this.text = errorText;
-        }
-
-        public String getText() {
-            return text;
-        }
-
-        public void setText(String text) {
-            this.text = text;
         }
     }
 

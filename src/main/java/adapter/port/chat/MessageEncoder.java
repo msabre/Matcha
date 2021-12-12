@@ -1,16 +1,16 @@
 package adapter.port.chat;
 
 import application.services.json.JsonService;
-import domain.entity.model.chat.TransportMessage;
+import domain.entity.model.chat.WebSocketEntity;
 
 import javax.websocket.Encoder;
 import javax.websocket.EndpointConfig;
 
-public class MessageEncoder implements Encoder.Text<TransportMessage> {
+public class MessageEncoder implements Encoder.Text<WebSocketEntity> {
 
     @Override
-    public String encode(TransportMessage transportMessage) {
-        return JsonService.getJsonChat(transportMessage);
+    public String encode(WebSocketEntity webSocketEntity) {
+        return JsonService.getJsonChat(webSocketEntity);
     }
 
     @Override

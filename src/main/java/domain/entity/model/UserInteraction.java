@@ -3,7 +3,7 @@ package domain.entity.model;
 import com.google.gson.annotations.Expose;
 import domain.entity.Photo;
 
-public class UserMatch {
+public class UserInteraction {
     @Expose private int matchId;
     @Expose private int userId;
     @Expose private Integer chatId;

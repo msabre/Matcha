@@ -112,6 +112,11 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
         updateOrInsertAction(from, to, Action.DISLIKE);
     }
 
+    @Override
+    public void fixVisit(int from, int to) {
+        updateOrInsertAction(from, to, Action.VISIT);
+    }
+
     private void putUpdateAction(int from, int to, Action action) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
              PreparedStatement putLikeAct = connection.prepareStatement("UPDATE matcha.LIKES_ACTION SET ACTION = ?, CREATION_TIME = NOW() WHERE FROM_USR = ? AND TO_USR = ?"))
@@ -183,8 +188,8 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
     }
 
     @Override
-    public List<LikeAction> getNMatchForUserId(int id, int size) {
-        return getNMatchUserIds(id, size, Action.MATCH.getValue());
+    public List<LikeAction> getNActionForUserId(Action action, int id, int size) {
+        return getNMatchUserIds(id, size, action.getValue());
     }
 
     @Override
@@ -209,7 +214,7 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
     }
 
     @Override
-    public List<LikeAction> getNMatchUserIdsAfterSpecificId(int id, int specificId, int size) {
+    public List<LikeAction> getNActionsUserIdsAfterSpecificId(Action action, int id, int specificId, int size) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
              PreparedStatement statement = connection.prepareStatement(
                      "WITH lastIdTime as (SELECT acts.ID, acts.CREATION_TIME FROM matcha.LIKES_ACTION acts WHERE acts.ID = ?)" +
@@ -218,7 +223,7 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
             int i = 1;
             statement.setInt(i++, specificId);
             statement.setInt(i++, id);
-            statement.setString(i++, Action.MATCH.getValue());
+            statement.setString(i++, action.getValue());
             statement.setInt(i, size);
             statement.execute();
 

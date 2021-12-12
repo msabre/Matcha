@@ -3,11 +3,9 @@ package adapter.controller;
 
 import config.MyConfiguration;
 
-import domain.entity.FilterParams;
-import domain.entity.Photo;
-import domain.entity.User;
-import domain.entity.UserCard;
-import domain.entity.model.UserMatch;
+import domain.entity.*;
+import domain.entity.model.UserInteraction;
+import domain.entity.model.types.Action;
 import usecase.*;
 
 import java.util.*;
@@ -29,7 +27,7 @@ public class UserController {
     private FioUpdate fioUpdate;
     private BirthDateUpdate birthDateUpdate;
     private UploadPhotoContent uploadPhotoContent;
-    private GetMatchList getMatchList;
+    private GetInteractionList getInteractionList;
     private ChatCreate chatCreate;
 
     private UserController() {
@@ -53,7 +51,7 @@ public class UserController {
             instance.fioUpdate = MyConfiguration.fioUpdate();
             instance.birthDateUpdate = MyConfiguration.birthDateUpdate();
             instance.uploadPhotoContent = MyConfiguration.uploadPhotoContent();
-            instance.getMatchList = MyConfiguration.getMatchList();
+            instance.getInteractionList = MyConfiguration.getMatchList();
             instance.chatCreate = MyConfiguration.chatCreate();
         }
 
@@ -92,16 +90,20 @@ public class UserController {
         return recommendUsersList.get(new ArrayList<>(), new ArrayList<>(), user, userListSize);
     }
 
-    public boolean putMatchOrLike(int from, int to) {
-        return putLikeAction.putMatchOrLike(from, to);
+    public boolean putMatchOrLike(LikeAction likeAction) {
+        return putLikeAction.putMatchOrLike(likeAction);
     }
 
-    public void deleteLike(int from, int to) {
-        putLikeAction.deleteLike(from, to);
+    public void deleteLike(LikeAction likeAction) {
+        putLikeAction.deleteLike(likeAction);
     }
 
-    public void disLike(int from, int to) {
-        putLikeAction.disLike(from, to);
+    public void disLike(LikeAction likeAction) {
+        putLikeAction.disLike(likeAction);
+    }
+
+    public void fixVisit(LikeAction likeAction) {
+        putLikeAction.disLike(likeAction);
     }
 
     public void updatePhotoParams(int userId, String param) {
@@ -132,12 +134,12 @@ public class UserController {
         uploadPhotoContent.upload(photos);
     }
 
-    public List<UserMatch> getUserMatchListWithSize(int id, int size) {
-        return getMatchList.getN(id, size);
+    public List<UserInteraction> getUserActionListWithSize(Action action, int id, int size) {
+        return getInteractionList.getN(action, id, size);
     }
 
-    public List<UserMatch> getUserMatchListWithSizeAfterSpecificId(int id, int lastMatchId, int size) {
-        return getMatchList.getNAfterSpecificId(id, lastMatchId, size);
+    public List<UserInteraction> getUserActionListWithSizeAfterSpecificId(Action action, int id, int lastMatchId, int size) {
+        return getInteractionList.getNAfterSpecificId(action, id, lastMatchId, size);
     }
 
     public int createChatBetweenTwoUsers(int fromUsr, int toUsr) {

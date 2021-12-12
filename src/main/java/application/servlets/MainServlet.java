@@ -7,7 +7,8 @@ import application.services.json.JsonService;
 import config.MyProperties;
 import domain.entity.FilterParams;
 import domain.entity.User;
-import domain.entity.model.UserMatch;
+import domain.entity.model.UserInteraction;
+import domain.entity.model.types.Action;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +23,9 @@ import static java.util.Objects.isNull;
 
 
 public class MainServlet extends HttpServlet {
+    private final String GET_LIST = "getList";
+    private final String GET_ACTIONS = "getActions";
+
     private UserController userController;
 
     @Override
@@ -39,20 +43,22 @@ public class MainServlet extends HttpServlet {
 
         User user = (User) req.getSession().getAttribute("user");
         switch (act) {
-            case "getList":
+            case GET_LIST:
                 List<User> usersList = userController.getRecommendUsersList(user, MyProperties.USERS_LIST_SIZE);
                 usersList.forEach(u -> userController.uploadPhotosContent(u.getCard().getPhotos()));
                 HttpService.putBody(resp, JsonService.getJsonArray(usersList));
                 break;
-            case "getMatches":
-                List<UserMatch> userMatches;
+            case GET_ACTIONS:
+                Action action = Action.valueOf(Optional.ofNullable(req.getParameter("action")).orElse(Action.MATCH.getValue()));
+                List<UserInteraction> userInteractions;
+
                 int afterId = Integer.parseInt(Optional.ofNullable(req.getParameter("after")).orElse("-1"));
                 if (afterId >= 0)
-                    userMatches = userController.getUserMatchListWithSizeAfterSpecificId(user.getId(), afterId, MyProperties.USER_MATCH_SIZE);
+                    userInteractions = userController.getUserActionListWithSizeAfterSpecificId(action, user.getId(), afterId, MyProperties.USER_MATCH_SIZE);
                 else
-                    userMatches = userController.getUserMatchListWithSize(user.getId(), MyProperties.USER_MATCH_SIZE);
-                userMatches.forEach(m -> userController.uploadPhotosContent(Collections.singleton(m.getIcon())));
-                HttpService.putBody(resp, JsonService.getJsonArray(userMatches));
+                    userInteractions = userController.getUserActionListWithSize(action, user.getId(), MyProperties.USER_MATCH_SIZE);
+                userInteractions.forEach(m -> userController.uploadPhotosContent(Collections.singleton(m.getIcon())));
+                HttpService.putBody(resp, JsonService.getJsonArray(userInteractions));
                 break;
         }
     }

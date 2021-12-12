@@ -1,7 +1,7 @@
 package adapter.port.chat;
 
 import application.services.json.JsonService;
-import domain.entity.model.chat.TransportMessage;
+import domain.entity.model.chat.WebSocketEntity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -9,10 +9,10 @@ import org.json.JSONObject;
 import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
 
-public class MessageDecoder implements Decoder.Text<TransportMessage> {
+public class MessageDecoder implements Decoder.Text<WebSocketEntity> {
     @Override
-    public TransportMessage decode(String s) {
-        return (TransportMessage) JsonService.getObject(TransportMessage.class , s);
+    public WebSocketEntity decode(String s) {
+        return (WebSocketEntity) JsonService.getObject(WebSocketEntity.class , s);
     }
 
     @Override

@@ -3,6 +3,7 @@ package usergenerator.part;
 import config.MyConfiguration;
 import domain.entity.LikeAction;
 import domain.entity.Message;
+import domain.entity.model.types.Action;
 import domain.entity.model.types.MessageStatus;
 import domain.entity.model.types.MessageType;
 import usecase.port.ChatAffiliationRepository;
@@ -41,9 +42,9 @@ public class MessageGenerator extends Generator {
         String haveMatchWithUser;
         List<Integer> matches;
         if (currentCount == 0)
-            matches = likesActionRepository.getNMatchForUserId(userId, dialogCount).stream().map(LikeAction::getToUsr).collect(Collectors.toList());
+            matches = likesActionRepository.getNActionForUserId(Action.MATCH, userId, dialogCount).stream().map(LikeAction::getToUsr).collect(Collectors.toList());
         else
-            matches = likesActionRepository.getNMatchUserIdsAfterSpecificId(userId, lastMatchId,  dialogCount).stream().map(LikeAction::getToUsr).collect(Collectors.toList());
+            matches = likesActionRepository.getNActionsUserIdsAfterSpecificId(Action.MATCH, userId, lastMatchId,  dialogCount).stream().map(LikeAction::getToUsr).collect(Collectors.toList());
         
         if (matches.size() == 0) // Стоп рекурсии
             return currentCount;

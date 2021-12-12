@@ -1,6 +1,7 @@
 package usecase;
 
 import adapter.port.model.RatingChangesDefaultValue;
+import domain.entity.LikeAction;
 import usecase.port.ChatAffiliationRepository;
 import usecase.port.LikesActionRepository;
 import usecase.port.UserCardRepository;
@@ -17,7 +18,10 @@ public class PutLikeAction {
         this.userRepository = userRepository;
     }
 
-    public boolean putMatchOrLike(int from, int to) {
+    public boolean putMatchOrLike(LikeAction likeAction) {
+        int to = likeAction.getToUsr();
+        int from = likeAction.getFromUsr();
+
         boolean isMatch = likesActionRepository.checkLike(to, from);
         if (isMatch) {
             likesActionRepository.match(from, to);
@@ -30,13 +34,17 @@ public class PutLikeAction {
         return isMatch;
     }
 
-    public void disLike(int from, int to) {
-        likesActionRepository.dislike(from, to);
-        userCardRepository.decreaseRating(to, RatingChangesDefaultValue.DECREASE_DISLIKE);
+    public void disLike(LikeAction likeAction) {
+        likesActionRepository.dislike(likeAction.getFromUsr(), likeAction.getToUsr());
+        userCardRepository.decreaseRating(likeAction.getToUsr(), RatingChangesDefaultValue.DECREASE_DISLIKE);
     }
 
-    public void deleteLike(int from, int to) {
-        likesActionRepository.deleteLike(from, to);
-        userCardRepository.decreaseRating(to, RatingChangesDefaultValue.DECREASE_TAKE_LIKE);
+    public void fixVisit(LikeAction likeAction) {
+        likesActionRepository.fixVisit(likeAction.getFromUsr(), likeAction.getToUsr());
+    }
+
+    public void deleteLike(LikeAction likeAction) {
+        likesActionRepository.deleteLike(likeAction.getFromUsr(), likeAction.getToUsr());
+        userCardRepository.decreaseRating(likeAction.getToUsr(), RatingChangesDefaultValue.DECREASE_TAKE_LIKE);
     }
 }
