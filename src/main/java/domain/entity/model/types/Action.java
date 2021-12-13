@@ -3,7 +3,7 @@ package domain.entity.model.types;
 public enum Action {
     LIKE("LIKE"),
     DISLIKE("DISLIKE"),
-    TAKE_LIKE("TAKELIKE"),
+    TAKE_LIKE("TAKE_LIKE"),
     MATCH("MATCH"),
     VISIT("VISIT");
 

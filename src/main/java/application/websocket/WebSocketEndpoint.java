@@ -55,12 +55,12 @@ public class WebSocketEndpoint {
         try {
             int userId = Optional.ofNullable(session.getPathParameters().get("userId")).map(Integer::parseInt).orElse(-1);
 
-            switch (webSocketEntity.getWebSocketType()) {
+            switch (webSocketEntity.getType()) {
                 case CHAT:
                     TransportMessage transportMessage = webSocketEntity.getTransportMessage();
                     messageProcess(transportMessage, userId);
                     break;
-                case LIKE_NOTIFICATION:
+                case ACTION_NOTIFICATION:
                     LikeAction likeAction = webSocketEntity.getLikeAction();
                     Optional.ofNullable(likeAction).ifPresent(act -> act.setFromUsr(userId));
                     likeProcess(webSocketEntity);
@@ -186,7 +186,7 @@ public class WebSocketEndpoint {
 
     private WebSocketEntity newAnswer(String text) {
         WebSocketEntity webSocketEntity = new WebSocketEntity();
-        webSocketEntity.getAnswer().setText(text);
+        webSocketEntity.setAnswer(new WebSocketEntity.Answer(text));
         return webSocketEntity;
     }
 

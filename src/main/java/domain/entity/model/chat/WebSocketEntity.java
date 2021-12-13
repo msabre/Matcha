@@ -3,17 +3,17 @@ package domain.entity.model.chat;
 import domain.entity.LikeAction;
 
 public class WebSocketEntity {
-    private WebSocketType webSocketType;
+    private WebSocketType type;
     private TransportMessage transportMessage;
     private LikeAction likeAction;
     private Answer answer;
 
-    public WebSocketType getWebSocketType() {
-        return webSocketType;
+    public WebSocketType getType() {
+        return type;
     }
 
-    public void setWebSocketType(WebSocketType webSocketType) {
-        this.webSocketType = webSocketType;
+    public void setType(WebSocketType type) {
+        this.type = type;
     }
 
     public TransportMessage getTransportMessage() {
@@ -58,6 +58,6 @@ public class WebSocketEntity {
     
     public enum WebSocketType {
         CHAT,
-        LIKE_NOTIFICATION
+        ACTION_NOTIFICATION
     }
 }

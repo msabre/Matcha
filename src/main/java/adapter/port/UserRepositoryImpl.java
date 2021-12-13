@@ -230,10 +230,10 @@ public class UserRepositoryImpl implements UserRepository {
                         user.setLocation(resultSet.getString("LOCATION"));
                         user.setUserName(resultSet.getString("USERNAME"));
 
-                        UserCard userCard = userCardRepository.findById(resultSet.getInt(++i));
+                        UserCard userCard = userCardRepository.findById(resultSet.getInt("USER_CARD"));
                         user.setCard(userCard);
 
-                        FilterParams filter = filterParamsRepository.findById(resultSet.getInt(++i));
+                        FilterParams filter = filterParamsRepository.findById(resultSet.getInt("FILTER_PARAMS"));
                         user.setFilter(filter);
 
                     return user;

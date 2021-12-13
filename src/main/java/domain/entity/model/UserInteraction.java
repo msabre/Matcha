@@ -4,19 +4,10 @@ import com.google.gson.annotations.Expose;
 import domain.entity.Photo;
 
 public class UserInteraction {
-    @Expose private int matchId;
     @Expose private int userId;
     @Expose private Integer chatId;
     @Expose private Photo icon;
     @Expose private String firstName;
-
-    public int getMatchId() {
-        return matchId;
-    }
-
-    public void setMatchId(int matchId) {
-        this.matchId = matchId;
-    }
 
     public int getUserId() {
         return userId;
