@@ -5,6 +5,8 @@ import domain.entity.User;
 import domain.entity.UserCard;
 import domain.entity.model.types.GenderType;
 import domain.entity.model.types.SexualPreferenceType;
+import usecase.exception.EmailBusyException;
+import usecase.exception.UserNameBusyException;
 import usecase.port.UserCardRepository;
 import usecase.port.UserRepository;
 import usergenerator.part.Generator;
@@ -23,7 +25,7 @@ public class UserGenerator extends Generator {
         userCardRepository = MyConfiguration.userCardRepository();
     }
 
-    public void generate(String male) throws URISyntaxException {
+    public void generate(String male) throws URISyntaxException, UserNameBusyException, EmailBusyException {
         List<String> cityList = readFile(Paths.get(UserGenerator.class.getResource("/generator/cityList.txt").toURI()).toFile().getPath());
         List<String> interestsList = readFile(Paths.get(UserGenerator.class.getResource("/generator/interestsList.txt").toURI()).toFile().getPath());
 
@@ -81,10 +83,18 @@ public class UserGenerator extends Generator {
         }
     }
 
-    public static void main(String[] args) throws URISyntaxException {
+    public static void main(String[] args) throws URISyntaxException, UserNameBusyException, EmailBusyException {
         UserGenerator userGenerator = new UserGenerator();
 
         userGenerator.generate("male");
-        userGenerator.generate("female");
+        try {
+            userGenerator.generate("female");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        } catch (UserNameBusyException e) {
+            e.printStackTrace();
+        } catch (EmailBusyException emailBusyException) {
+            emailBusyException.printStackTrace();
+        }
     }
 }

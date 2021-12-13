@@ -217,18 +217,18 @@ public class UserRepositoryImpl implements UserRepository {
                     while (resultSet.next()) {
                         int i = 0;
 
-                        user.setId(resultSet.getInt(++i));
-                        user.setTokenConfirm(resultSet.getString(++i));
+                        user.setId(resultSet.getInt("ID"));
+                        user.setTokenConfirm(resultSet.getString("CONFIRM"));
                         user.setConfirm(user.getTokenConfirm() == null);
-                        user.setFirstName(resultSet.getString(++i));
-                        user.setLastName(resultSet.getString(++i));
-                        user.setMiddleName(resultSet.getString(++i));
-                        user.setBirthday(resultSet.getDate(++i));
-                        user.setYearsOld(resultSet.getInt(++i));
-                        user.setEmail(resultSet.getString(++i));
-                        user.setUserName(resultSet.getString(++i));
-                        user.setPassword(resultSet.getString(++i));
-                        user.setLocation(resultSet.getString(++i));
+                        user.setFirstName(resultSet.getString("NAME"));
+                        user.setLastName(resultSet.getString("LASTNAME"));
+                        user.setMiddleName(resultSet.getString("MIDDLENAME"));
+                        user.setBirthday(resultSet.getDate("BIRTHDAY"));
+                        user.setYearsOld(resultSet.getInt("YEARS_OLD"));
+                        user.setEmail(resultSet.getString("EMAIL"));
+                        user.setPassword(resultSet.getString("PASSWORD"));
+                        user.setLocation(resultSet.getString("LOCATION"));
+                        user.setUserName(resultSet.getString("USERNAME"));
 
                         UserCard userCard = userCardRepository.findById(resultSet.getInt(++i));
                         user.setCard(userCard);
