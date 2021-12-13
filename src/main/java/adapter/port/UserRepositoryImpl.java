@@ -143,10 +143,10 @@ public class UserRepositoryImpl implements UserRepository {
 
             ResultSet resultSet = stat.getResultSet();
             if (resultSet.next()) {
-                if (resultSet.getString("USERNAME") != null)
-                    throw new UserNameBusyException();
                 if (resultSet.getString("EMAIL") != null)
                     throw new EmailBusyException();
+                if (resultSet.getString("USERNAME") != null)
+                    throw new UserNameBusyException();
             }
             return true;
 
