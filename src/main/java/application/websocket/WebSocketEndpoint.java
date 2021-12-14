@@ -121,7 +121,11 @@ public class WebSocketEndpoint {
 
     private void messageProcess(TransportMessage transportMessage, int userId) {
         int chatId = transportMessage.getChatId();
-
+        if (chatId < 1) {
+            send(userId, newAnswer("ENTER CHAT_ID"));
+            return;
+        }
+        
         if (transportMessage.getMessage() != null) {
             Message message = transportMessage.getMessage();
             message.setStatus(MessageStatus.RECEIVED);
