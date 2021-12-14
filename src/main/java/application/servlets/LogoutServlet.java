@@ -25,6 +25,7 @@ public class LogoutServlet extends HttpServlet {
             return ;
         jwtController.removeTokenByUserId(user.getId(), JwtType.HTTP);
         jwtController.deleteJwtCookies(req, resp);
+        req.getSession().invalidate();
     }
 
     @Override

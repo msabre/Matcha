@@ -49,7 +49,7 @@ BEGIN
                             MIDDLENAME VARCHAR(30),
                             BIRTHDAY DATE,
                             YEARS_OLD MEDIUMINT,
-                            EMAIL VARCHAR(30),
+                            EMAIL VARCHAR(100),
                             PASSWORD VARCHAR(255),
                             LOCATION VARCHAR(180),
                             USER_CARD MEDIUMINT,
@@ -57,7 +57,10 @@ BEGIN
                     PRIMARY KEY (ID));'
         );
     END IF;
-
+    IF table_exists('USER') AND NOT column_exists('USER', 'USERNAME')
+        THEN CALL alert_table('USER', 'USERNAME VARCHAR(100)');
+    END IF;
+    
     IF NOT table_exists('USER_CARD') THEN CALL execute_immediate(
             'CREATE TABLE matcha.USER_CARD(
                             ID MEDIUMINT AUTO_INCREMENT,
