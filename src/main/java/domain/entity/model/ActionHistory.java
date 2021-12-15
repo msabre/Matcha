@@ -2,12 +2,22 @@ package domain.entity.model;
 
 import com.google.gson.annotations.Expose;
 import domain.entity.Photo;
+import domain.entity.model.types.Action;
 
 public class ActionHistory {
     @Expose private int userId;
     @Expose private Integer chatId;
     @Expose private Photo icon;
     @Expose private String firstName;
+    @Expose private Action action;
+
+    public Action getAction() {
+        return action;
+    }
+
+    public void setAction(Action action) {
+        this.action = action;
+    }
 
     public int getUserId() {
         return userId;

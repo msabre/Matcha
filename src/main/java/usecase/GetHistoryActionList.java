@@ -60,18 +60,19 @@ public class GetHistoryActionList {
         for (LikeAction action : actionIds) {
             int userId = toMe ? action.getFromUsr() : action.getToUsr();
 
-            ActionHistory match = new ActionHistory();
-            match.setUserId(userId);
-            match.setFirstName(userNames.get(userId));
+            ActionHistory history = new ActionHistory();
+            history.setUserId(userId);
+            history.setFirstName(userNames.get(userId));
+            history.setAction(action.getAction());
 
             Photo icon = photoList.stream().filter(p -> p.getUserId() == userId).findFirst().orElse(null);
             if (Action.MATCH.equals(action.getAction())) {
                 Integer chat = chatAffiliation.stream().filter(c -> c.getFromUsr() == userId).findFirst().map(ChatAffiliation::getChatId).orElse(null);
-                match.setChatId(chat);
+                history.setChatId(chat);
             }
 
-            match.setIcon(icon);
-            actionHistories.add(match);
+            history.setIcon(icon);
+            actionHistories.add(history);
         }
         return actionHistories;
     }
