@@ -69,8 +69,8 @@ public class AddProfileInfoServlet extends HttpServlet {
                     if (mainPhoto != null || currentPhotoList.isEmpty()) {
                         userController.updateMainPhoto(user.getCard().getId(), mainPhoto); 
                     }
-
                     userController.updatePhotoParams(user.getCard().getId(), photoParams);
+                    HttpService.putBody(resp, JsonService.getJsonArray(currentPhotoList));
                 }
                 break;
 
