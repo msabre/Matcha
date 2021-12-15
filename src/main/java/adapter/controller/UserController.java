@@ -107,7 +107,7 @@ public class UserController {
     }
 
     public void fixVisit(LikeAction likeAction) {
-        putLikeAction.disLike(likeAction);
+        putLikeAction.fixVisit(likeAction);
     }
 
     public void updatePhotoParams(int userId, String param) {

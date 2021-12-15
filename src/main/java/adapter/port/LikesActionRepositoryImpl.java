@@ -52,17 +52,20 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
 
     @Override
     public void match(int from, int to) {
-        updateOrInsertAction(from, to, Action.MATCH);
-        updateOrInsertAction(to, from, Action.MATCH);
+        updateByTypeListOrInsert(from, to, Action.MATCH, Collections.singletonList(Action.LIKE));
+        updateByTypeListOrInsert(to, from, Action.MATCH, Collections.singletonList(Action.LIKE));
     }
 
-    private void updateOrInsertAction(int from, int to, Action action) {
+    private void updateByTypeListOrInsert(int from, int to, Action action, Collection<Action> typeList) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword())) {
             boolean putAlready;
-            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION WHERE FROM_USR = ? AND TO_USR = ?",
+            String typesLine = typeList.stream().map(Action::getValue).collect(Collectors.joining(","));
+
+            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION acts WHERE acts.FROM_USR = ? AND acts.TO_USR = ? AND FIND_IN_SET(acts.ACTION, ?) > 0",
                     ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
                 statement.setInt(1, from);
                 statement.setInt(2, to);
+                statement.setString(3, typesLine);
                 statement.execute();
 
                 ResultSet resultSet = statement.getResultSet();
@@ -104,17 +107,17 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
 
     @Override
     public void like(int from, int to) {
-        updateOrInsertAction(from, to, Action.LIKE);
+        updateByTypeListOrInsert(from, to, Action.LIKE, Collections.singletonList(Action.DISLIKE));
     }
 
     @Override
     public void dislike(int from, int to) {
-        updateOrInsertAction(from, to, Action.DISLIKE);
+        updateByTypeListOrInsert(from, to, Action.DISLIKE, Arrays.asList(Action.LIKE, Action.MATCH));
     }
 
     @Override
     public void fixVisit(int from, int to) {
-        updateOrInsertAction(from, to, Action.VISIT);
+        updateByTypeListOrInsert(from, to, Action.VISIT, Collections.singletonList(Action.VISIT));
     }
 
     private void putUpdateAction(int from, int to, Action action) {
