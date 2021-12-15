@@ -226,8 +226,8 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
     public List<LikeAction> getNTo(Action action, int to, int size) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
              PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION acts WHERE acts.TO_USR = ? ACTION = ? ORDER BY acts.CREATION_TIME DESC LIMIT ?")) {
-            statement.setInt(2, to);
-            statement.setString(3, String.valueOf(action));
+            statement.setInt(1, to);
+            statement.setString(2, String.valueOf(action));
             statement.setInt(3, size);
             statement.execute();
 
