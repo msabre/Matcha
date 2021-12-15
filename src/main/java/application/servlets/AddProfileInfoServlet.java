@@ -104,15 +104,18 @@ public class AddProfileInfoServlet extends HttpServlet {
                         if (JPG.equals(photo.getFormat())) {
                             ByteArrayInputStream bufferedInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(byteContent));
                             BufferedImage img = ImageIO.read(bufferedInputStream);
-     
+                            img = cutRegularPhoto(img);
+
                             ImageIO.write(img, photo.getFormat(), new File(path));
+                            byteContent = imageToByteArray(img);
                         }
                         else if (compressRequiredFormats.contains(photo.getFormat()))
-                            compressImage(byteContent, path);
+                            byteContent = compressImage(byteContent, path);
                         else
                             return false;
 
                         photo.setFormat(JPG);
+                        photo.setContent(new String(Base64.getEncoder().encode(byteContent)));
                         current.set(index, photo);
 
                     } catch (Exception e) {
@@ -146,17 +149,12 @@ public class AddProfileInfoServlet extends HttpServlet {
         return true;
     }
 
-    private void compressImage(byte[] content, String destinationPath) throws IOException {
+    private byte[] compressImage(byte[] content, String destinationPath) throws IOException {
         ByteArrayInputStream bufferedInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(content));
         BufferedImage img = ImageIO.read(bufferedInputStream);
 
-        int onePart = getOnePart(img.getHeight(), img.getWidth(), 3, 2);
-        double width = onePart * 2;
-        double height = onePart * 3;
-        int x = (int) ((img.getWidth() - width) / 2);
-        int y = (int) ((img.getHeight() - height) / 2);
-        img = img.getSubimage(x, y, (int) width, (int) height);
-
+        img = cutRegularPhoto(img);
+        
         File compressedImageFile = new File(destinationPath);
         OutputStream os = new FileOutputStream(compressedImageFile);
 
@@ -175,8 +173,25 @@ public class AddProfileInfoServlet extends HttpServlet {
         os.close();
         ios.close();
         writer.dispose();
+
+        return imageToByteArray(img);
     }
 
+    private BufferedImage cutRegularPhoto(BufferedImage img) {
+        int onePart = getOnePart(img.getHeight(), img.getWidth(), 3, 2);
+        double width = onePart * 2;
+        double height = onePart * 3;
+        int x = (int) ((img.getWidth() - width) / 2);
+        int y = (int) ((img.getHeight() - height) / 2);
+        return img.getSubimage(x, y, (int) width, (int) height);
+    }
+
+    private byte[] imageToByteArray(BufferedImage img) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(img, JPG, baos);
+        return baos.toByteArray();
+    }
+    
     private boolean checkAndDeleteIfMain(User user, Photo photo, String oldMain) {
         if (photo.isMain() && photo.getNumber().equals(oldMain)) {
             String mainPhotoPath = getPhotoPath(user, photo.getNumber(), true);
