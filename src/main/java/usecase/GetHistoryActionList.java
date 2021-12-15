@@ -29,44 +29,44 @@ public class GetHistoryActionList {
     // От пользователя
     public List<ActionHistory> getNActions(Action action, int from, int size) {
         List<LikeAction> actions = likesActionRepository.getNFrom(action, from, size);
-        return formUserMatches(from, actions);
+        return formHistory(from, actions, false);
     }
 
     public List<ActionHistory> getNActionsAfterId(Action action, int from, int lastMatchId, int size) {
         List<LikeAction> actions = likesActionRepository.getNFromAfterId(action, from, lastMatchId, size);
-        return formUserMatches(from, actions);
+        return formHistory(from, actions, false);
     }
 
 
     // К пользователю
-    public List<ActionHistory> getNtoUser(Action action, int to, int size) {
-        List<LikeAction> actions = likesActionRepository.getNTo(action, to, size);
-        return formUserMatches(to, actions);
+    public List<ActionHistory> getNtoUser(Action action, int from, int size) {
+        List<LikeAction> actions = likesActionRepository.getNTo(action, from, size);
+        return formHistory(from, actions, true);
     }
 
-    public List<ActionHistory> getNtoUserAfterId(Action action, int to, int lastMatchId, int size) {
-        List<LikeAction> actions = likesActionRepository.getNToAfterId(action, to, lastMatchId, size);
-        return formUserMatches(to, actions);
+    public List<ActionHistory> getNtoUserAfterId(Action action, int from, int lastMatchId, int size) {
+        List<LikeAction> actions = likesActionRepository.getNToAfterId(action, from, lastMatchId, size);
+        return formHistory(from, actions, true);
     }
 
 
-    private List<ActionHistory> formUserMatches(int id, List<LikeAction> actionIds) {
-        List<Integer> ids = actionIds.stream().map(LikeAction::getToUsr).collect(Collectors.toList());
+    private List<ActionHistory> formHistory(int id, List<LikeAction> actionIds, boolean toMe) {
+        List<Integer> ids = actionIds.stream().map(act -> toMe ? act.getFromUsr() : act.getToUsr()).collect(Collectors.toList());
         List<Photo> photoList = userCardRepository.getIconsByIds(ids);
         List<ChatAffiliation> chatAffiliation = affiliationRepository.getByIdsWithToUsr(ids, id);
         Map<Integer, String> userNames = userRepository.getUserNamesByIds(ids);
 
         List<ActionHistory> actionHistories = new LinkedList<>();
         for (LikeAction action : actionIds) {
-            int toUsr = action.getToUsr();
+            int userId = toMe ? action.getFromUsr() : action.getToUsr();
 
             ActionHistory match = new ActionHistory();
-            match.setUserId(toUsr);
-            match.setFirstName(userNames.get(toUsr));
+            match.setUserId(userId);
+            match.setFirstName(userNames.get(userId));
 
-            Photo icon = photoList.stream().filter(p -> p.getUserId() == toUsr).findFirst().orElse(null);
+            Photo icon = photoList.stream().filter(p -> p.getUserId() == userId).findFirst().orElse(null);
             if (Action.MATCH.equals(action.getAction())) {
-                Integer chat = chatAffiliation.stream().filter(c -> c.getFromUsr() == toUsr).findFirst().map(ChatAffiliation::getChatId).orElse(null);
+                Integer chat = chatAffiliation.stream().filter(c -> c.getFromUsr() == userId).findFirst().map(ChatAffiliation::getChatId).orElse(null);
                 match.setChatId(chat);
             }
 
@@ -75,4 +75,5 @@ public class GetHistoryActionList {
         }
         return actionHistories;
     }
+
 }
