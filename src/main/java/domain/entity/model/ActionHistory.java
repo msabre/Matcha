@@ -3,7 +3,7 @@ package domain.entity.model;
 import com.google.gson.annotations.Expose;
 import domain.entity.Photo;
 
-public class UserInteraction {
+public class ActionHistory {
     @Expose private int userId;
     @Expose private Integer chatId;
     @Expose private Photo icon;

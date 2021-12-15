@@ -42,9 +42,9 @@ public class MessageGenerator extends Generator {
         String haveMatchWithUser;
         List<Integer> matches;
         if (currentCount == 0)
-            matches = likesActionRepository.getNActionForUserId(Action.MATCH, userId, dialogCount).stream().map(LikeAction::getToUsr).collect(Collectors.toList());
+            matches = likesActionRepository.getNFrom(Action.MATCH, userId, dialogCount).stream().map(LikeAction::getToUsr).collect(Collectors.toList());
         else
-            matches = likesActionRepository.getNActionsUserIdsAfterSpecificId(Action.MATCH, userId, lastMatchId,  dialogCount).stream().map(LikeAction::getToUsr).collect(Collectors.toList());
+            matches = likesActionRepository.getNFromAfterId(Action.MATCH, userId, lastMatchId,  dialogCount).stream().map(LikeAction::getToUsr).collect(Collectors.toList());
         
         if (matches.size() == 0) // Стоп рекурсии
             return currentCount;

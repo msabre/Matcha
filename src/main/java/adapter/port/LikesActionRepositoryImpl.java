@@ -56,6 +56,21 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
         updateByTypeListOrInsert(to, from, Action.MATCH, Collections.singletonList(Action.LIKE));
     }
 
+    @Override
+    public void like(int from, int to) {
+        updateByTypeListOrInsert(from, to, Action.LIKE, Collections.singletonList(Action.DISLIKE));
+    }
+
+    @Override
+    public void dislike(int from, int to) {
+        updateByTypeListOrInsert(from, to, Action.DISLIKE, Arrays.asList(Action.LIKE, Action.MATCH));
+    }
+
+    @Override
+    public void fixVisit(int from, int to) {
+        updateByTypeListOrInsert(from, to, Action.VISIT, Collections.singletonList(Action.VISIT));
+    }
+    
     private void updateByTypeListOrInsert(int from, int to, Action action, Collection<Action> typeList) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword())) {
             boolean putAlready;
@@ -103,21 +118,6 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
             System.err.println("Не удалось добавить лайк от пользователя с id: " + from +
                     " пользователю: " + to);
         }
-    }
-
-    @Override
-    public void like(int from, int to) {
-        updateByTypeListOrInsert(from, to, Action.LIKE, Collections.singletonList(Action.DISLIKE));
-    }
-
-    @Override
-    public void dislike(int from, int to) {
-        updateByTypeListOrInsert(from, to, Action.DISLIKE, Arrays.asList(Action.LIKE, Action.MATCH));
-    }
-
-    @Override
-    public void fixVisit(int from, int to) {
-        updateByTypeListOrInsert(from, to, Action.VISIT, Collections.singletonList(Action.VISIT));
     }
 
     private void putUpdateAction(int from, int to, Action action) {
@@ -191,37 +191,21 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
     }
 
     @Override
-    public List<LikeAction> getNActionForUserId(Action action, int id, int size) {
-        return getNMatchUserIds(id, size, action.getValue());
-    }
-
-    @Override
     public List<LikeAction> getNLikeForUserId(int id, int size) {
         return getNMatchUserIds(id, size, Action.LIKE.getValue());
     }
 
-    private List<LikeAction> getNMatchUserIds(int id, int size, String action) {
-        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION acts WHERE acts.FROM_USR = ? AND ACTION = ? ORDER BY acts.CREATION_TIME DESC LIMIT ?")) {
-            statement.setInt(1, id);
-            statement.setString(2, action);
-            statement.setInt(3, size);
-            statement.execute();
-
-            return getIds(statement, id);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return Collections.emptyList();
+    @Override
+    public List<LikeAction> getNFrom(Action action, int id, int size) {
+        return getNMatchUserIds(id, size, action.getValue());
     }
 
     @Override
-    public List<LikeAction> getNActionsUserIdsAfterSpecificId(Action action, int id, int specificId, int size) {
+    public List<LikeAction> getNFromAfterId(Action action, int id, int specificId, int size) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
              PreparedStatement statement = connection.prepareStatement(
                      "WITH lastIdTime as (SELECT acts.ID, acts.CREATION_TIME FROM matcha.LIKES_ACTION acts WHERE acts.ID = ?)" +
-                     "SELECT * FROM matcha.LIKES_ACTION acts, lastIdTime tm WHERE acts.FROM_USR = ? AND acts.ACTION = ? AND acts.CREATION_TIME < tm.CREATION_TIME " +
+                             "SELECT * FROM matcha.LIKES_ACTION acts, lastIdTime tm WHERE acts.FROM_USR = ? AND acts.ACTION = ? AND acts.CREATION_TIME < tm.CREATION_TIME " +
                              "ORDER BY acts.CREATION_TIME DESC LIMIT ?")) {
             int i = 1;
             statement.setInt(i++, specificId);
@@ -230,7 +214,24 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
             statement.setInt(i, size);
             statement.execute();
 
-            return getIds(statement, id);
+            return getIds(statement, action);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
+    }
+    
+    @Override
+    public List<LikeAction> getNTo(Action action, int to, int size) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION acts WHERE acts.TO_USR = ? ACTION = ? ORDER BY acts.CREATION_TIME DESC LIMIT ?")) {
+            statement.setInt(2, to);
+            statement.setString(3, String.valueOf(action));
+            statement.setInt(3, size);
+            statement.execute();
+
+            return getIds(statement, action);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -238,7 +239,45 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
         return Collections.emptyList();
     }
 
-    private List<LikeAction> getIds(Statement statement, int id) throws SQLException {
+    @Override
+    public List<LikeAction> getNToAfterId(Action action, int to, int specificId, int size) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement(
+                     "WITH lastIdTime as (SELECT acts.ID, acts.CREATION_TIME FROM matcha.LIKES_ACTION acts WHERE acts.ID = ?)" +
+                             "SELECT * FROM matcha.LIKES_ACTION acts, lastIdTime tm WHERE acts.TO_USR = ? AND acts.ACTION = ? AND acts.CREATION_TIME < tm.CREATION_TIME " +
+                             "ORDER BY acts.CREATION_TIME DESC LIMIT ?")) {
+            int i = 1;
+            statement.setInt(i++, specificId);
+            statement.setInt(i++, to);
+            statement.setString(i++, action.getValue());
+            statement.setInt(i, size);
+            statement.execute();
+
+            return getIds(statement, action);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
+    }
+    
+    private List<LikeAction> getNMatchUserIds(int id, int size, String action) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION acts WHERE acts.FROM_USR = ? AND ACTION = ? ORDER BY acts.CREATION_TIME DESC LIMIT ?")) {
+            statement.setInt(1, id);
+            statement.setString(2, action);
+            statement.setInt(3, size);
+            statement.execute();
+
+            return getIds(statement, Action.valueOf(action));
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
+    }
+
+    private List<LikeAction> getIds(Statement statement, Action action) throws SQLException {
         try (ResultSet rs = statement.getResultSet()) {
             List<LikeAction> ids = new LinkedList<>();
             while (rs.next()) {
@@ -247,7 +286,7 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
                 likeAction.setCreationTime(new Date(rs.getTimestamp("CREATION_TIME").getTime()));
                 likeAction.setFromUsr(rs.getInt("FROM_USR"));
                 likeAction.setToUsr(rs.getInt("TO_USR"));
-                likeAction.setAction(Action.MATCH);
+                likeAction.setAction(action);
                 ids.add(likeAction);
             }
             return ids;

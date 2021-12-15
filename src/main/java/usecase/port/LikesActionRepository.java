@@ -23,9 +23,13 @@ public interface LikesActionRepository {
 
     List<Integer> getToUserDislikesByIds(int from, List<Integer> ids);
 
-    List<LikeAction> getNActionForUserId(Action action, int id, int size);
+    List<LikeAction> getNFrom(Action action, int id, int size);
+
+    List<LikeAction> getNFromAfterId(Action action, int id, int specificId, int size);
+
+    List<LikeAction> getNTo(Action action, int to, int size);
+
+    List<LikeAction> getNToAfterId(Action action, int to, int specificId, int size);
 
     List<LikeAction> getNLikeForUserId(int id, int size); // генератор
-
-    List<LikeAction> getNActionsUserIdsAfterSpecificId(Action action, int id, int specificId, int size);
 }

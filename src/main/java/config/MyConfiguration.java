@@ -55,8 +55,8 @@ public class MyConfiguration {
         return new UploadPhotoContent();
     }
 
-    public static GetInteractionList getMatchList() {
-        return new GetInteractionList(likesActionRepository(), userCardRepository(), chatAffiliationRepository(), userRepository());
+    public static GetHistoryActionList getMatchList() {
+        return new GetHistoryActionList(likesActionRepository(), userCardRepository(), chatAffiliationRepository(), userRepository());
     }
 
     public static ChatCreate chatCreate() {

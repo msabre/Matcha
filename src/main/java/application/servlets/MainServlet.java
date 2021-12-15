@@ -7,7 +7,7 @@ import application.services.json.JsonService;
 import config.MyProperties;
 import domain.entity.FilterParams;
 import domain.entity.User;
-import domain.entity.model.UserInteraction;
+import domain.entity.model.ActionHistory;
 import domain.entity.model.types.Action;
 
 import javax.servlet.http.HttpServlet;
@@ -23,8 +23,8 @@ import static java.util.Objects.isNull;
 
 
 public class MainServlet extends HttpServlet {
-    private final String GET_LIST = "getList";
-    private final String GET_ACTIONS = "getActions";
+    private final String GET_USERS = "getList";
+    private final String GET_ACTIONS_HISTORY = "getActions";
 
     private UserController userController;
 
@@ -43,22 +43,31 @@ public class MainServlet extends HttpServlet {
 
         User user = (User) req.getSession().getAttribute("user");
         switch (act) {
-            case GET_LIST:
+            case GET_USERS:
                 List<User> usersList = userController.getRecommendUsersList(user, MyProperties.USERS_LIST_SIZE);
                 usersList.forEach(u -> userController.uploadPhotosContent(u.getCard().getPhotos()));
                 HttpService.putBody(resp, JsonService.getJsonArray(usersList));
                 break;
-            case GET_ACTIONS:
+            case GET_ACTIONS_HISTORY:
                 Action action = Action.valueOf(Optional.ofNullable(req.getParameter("action")).orElse(Action.MATCH.getValue()));
-                List<UserInteraction> userInteractions;
-
                 int afterId = Integer.parseInt(Optional.ofNullable(req.getParameter("after")).orElse("-1"));
-                if (afterId >= 0)
-                    userInteractions = userController.getUserActionListWithSizeAfterSpecificId(action, user.getId(), afterId, MyProperties.USER_MATCH_SIZE);
-                else
-                    userInteractions = userController.getUserActionListWithSize(action, user.getId(), MyProperties.USER_MATCH_SIZE);
-                userInteractions.forEach(m -> userController.uploadPhotosContent(Collections.singleton(m.getIcon())));
-                HttpService.putBody(resp, JsonService.getJsonArray(userInteractions));
+
+                List<ActionHistory> history;
+                if (action == Action.MATCH) {
+                    if (afterId >= 0)
+                        history = userController.getFromActionsAfterId(action, user.getId(), afterId, MyProperties.USER_MATCH_SIZE);
+                    else
+                        history = userController.getFromActions(action, user.getId(), MyProperties.USER_MATCH_SIZE);
+                } 
+                else {
+                    if (afterId >= 0)
+                        history = userController.getToActionsAfterId(action, user.getId(), afterId, MyProperties.USER_MATCH_SIZE);
+                    else
+                        history = userController.getToActions(action, user.getId(), MyProperties.USER_MATCH_SIZE);
+                }
+
+                history.forEach(m -> userController.uploadPhotosContent(Collections.singleton(m.getIcon())));
+                HttpService.putBody(resp, JsonService.getJsonArray(history));
                 break;
         }
     }

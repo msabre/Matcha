@@ -4,7 +4,7 @@ package adapter.controller;
 import config.MyConfiguration;
 
 import domain.entity.*;
-import domain.entity.model.UserInteraction;
+import domain.entity.model.ActionHistory;
 import domain.entity.model.types.Action;
 import usecase.*;
 import usecase.exception.EmailBusyException;
@@ -30,7 +30,7 @@ public class UserController {
     private UserNameUpdate usernameUpdate;
     private BirthDateUpdate birthDateUpdate;
     private UploadPhotoContent uploadPhotoContent;
-    private GetInteractionList getInteractionList;
+    private GetHistoryActionList getHistoryActionList;
     private ChatCreate chatCreate;
 
     private UserController() {
@@ -55,7 +55,7 @@ public class UserController {
             instance.usernameUpdate = MyConfiguration.userNameUpdate();
             instance.birthDateUpdate = MyConfiguration.birthDateUpdate();
             instance.uploadPhotoContent = MyConfiguration.uploadPhotoContent();
-            instance.getInteractionList = MyConfiguration.getMatchList();
+            instance.getHistoryActionList = MyConfiguration.getMatchList();
             instance.chatCreate = MyConfiguration.chatCreate();
         }
 
@@ -142,12 +142,20 @@ public class UserController {
         uploadPhotoContent.upload(photos);
     }
 
-    public List<UserInteraction> getUserActionListWithSize(Action action, int id, int size) {
-        return getInteractionList.getN(action, id, size);
+    public List<ActionHistory> getFromActions(Action action, int id, int size) {
+        return getHistoryActionList.getNActions(action, id, size);
     }
 
-    public List<UserInteraction> getUserActionListWithSizeAfterSpecificId(Action action, int id, int lastMatchId, int size) {
-        return getInteractionList.getNAfterSpecificId(action, id, lastMatchId, size);
+    public List<ActionHistory> getFromActionsAfterId(Action action, int id, int lastMatchId, int size) {
+        return getHistoryActionList.getNActionsAfterId(action, id, lastMatchId, size);
+    }
+
+    public List<ActionHistory> getToActions(Action action, int id, int size) {
+        return getHistoryActionList.getNtoUser(action, id, size);
+    }
+
+    public List<ActionHistory> getToActionsAfterId(Action action, int id, int lastMatchId, int size) {
+        return getHistoryActionList.getNtoUserAfterId(action, id, lastMatchId, size);
     }
 
     public int createChatBetweenTwoUsers(int fromUsr, int toUsr) {
