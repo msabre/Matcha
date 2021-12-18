@@ -104,8 +104,10 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                             photo.setMain(photo.getNumber().equals(mainPhoto));
                             photo.setUserId(userId);
                             card.getPhotos().set(Integer.parseInt(detail[0]) - 1, photo);
-                            if (photo.isMain())
+                            if (photo.isMain()) {
+                                photo.setNumber("6");
                                 card.getPhotos().set(5, photo);
+                            }
                         }
                     }
 
