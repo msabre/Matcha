@@ -138,8 +138,12 @@ public class UserController {
         birthDateUpdate.update(userId, birthDate, yearsOld);
     }
 
-    public void uploadPhotosContent(Collection<Photo> photos) {
+    public void uploadPhotosContent(List<Photo> photos) {
         uploadPhotoContent.upload(photos);
+    }
+
+    public void uploadMainPhotoContent(Photo photo) {
+        uploadPhotoContent.uploadMain(photo);
     }
 
     public List<ActionHistory> getFromActions(Action action, int id, int size) {

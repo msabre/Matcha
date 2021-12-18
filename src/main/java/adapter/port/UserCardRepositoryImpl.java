@@ -92,7 +92,7 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                     int userId = resultSet.getInt("USER_ID");
 
                     String params = resultSet.getString("PHOTOS_PARAMS");
-                    card.setPhotos(new ArrayList<>(Collections.nCopies(5, null)));
+                    card.setPhotos(new ArrayList<>(Collections.nCopies(6, null)));
                     String mainPhoto = Optional.ofNullable(getActualMain(connection, card.getId())).map(String::valueOf).orElse("");
                     if (params!= null && !params.isEmpty()) {
                         for (String photoParam : params.split(";")) {
@@ -104,8 +104,11 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                             photo.setMain(photo.getNumber().equals(mainPhoto));
                             photo.setUserId(userId);
                             card.getPhotos().set(Integer.parseInt(detail[0]) - 1, photo);
+                            if (photo.isMain())
+                                card.getPhotos().set(5, photo);
                         }
                     }
+
                     card.setUserId(resultSet.getInt("USER_ID"));
                     return card;
                 }
@@ -280,7 +283,7 @@ public class UserCardRepositoryImpl implements UserCardRepository {
     @Override
     public List<Photo> getIconsByIds(Collection<Integer> ids) {
         try(Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-            PreparedStatement statement = connection.prepareStatement("SELECT usr.PHOTOS_PARAMS, usr.MAIN_PHOTO, usr.USER_ID FROM matcha.user_card usr WHERE FIND_IN_SET(usr.ID, ?) > 0")) {
+            PreparedStatement statement = connection.prepareStatement("SELECT usr.PHOTOS_PARAMS, usr.MAIN_PHOTO, usr.USER_ID FROM matcha.user_card usr WHERE FIND_IN_SET(usr.USER_ID, ?) > 0")) {
 
             String idsLine = ids.stream().map(Object::toString).collect(Collectors.joining(","));
             statement.setString(1, idsLine);

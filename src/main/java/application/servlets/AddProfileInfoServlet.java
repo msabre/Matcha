@@ -252,7 +252,7 @@ public class AddProfileInfoServlet extends HttpServlet {
     }
 
     private String getPhotoPath(User user, String photoNum, boolean main) {
-        return String.format("%sIMG_%s%s_photo_%s.jpg", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), main ? "_MAIN" : "", user.getId(), photoNum);
+        return String.format("%sIMG_%s%s_photo_%s.jpg", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), main ? "MAIN_" : "", user.getId(), photoNum);
     }
 
     @Override

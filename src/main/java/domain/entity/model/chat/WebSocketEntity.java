@@ -55,7 +55,7 @@ public class WebSocketEntity {
             this.text = text;
         }
     }
-    
+
     public enum WebSocketType {
         CHAT,
         ACTION_NOTIFICATION
