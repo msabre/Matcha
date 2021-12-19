@@ -103,9 +103,10 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
             }
             else {
                 try (PreparedStatement update = connection.prepareStatement(
-                        "UPDATE matcha.LIKES_ACTION acts SET CREATION_TIME = NOW(), acts.ACTION = ? WHERE acts.FROM_USR = ? AND acts.TO_USR = ?")) {
+                        "UPDATE matcha.LIKES_ACTION acts SET CREATION_TIME = NOW(), acts.ACTION = ? WHERE acts.FROM_USR = ? AND acts.TO_USR = ? AND FIND_IN_SET(acts.ACTION, ?) > 0")) {
                     update.setString(i++, action.toString());
                     update.setInt(i++, from);
+                    update.setString(i++, typesLine);
                     update.setInt(i, to);
 
                     update.execute();
