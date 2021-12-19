@@ -28,6 +28,8 @@ public class UploadPhotoContent {
     }
 
     public void uploadMain(Photo photo) {
+        if (photo == null)
+            return;
         String path = String.format("%sIMG_MAIN_%s_photo_%s.%s", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), photo.getUserId(), photo.getNumber(), photo.getFormat());
         File file =  new File(path);
         writeContent(photo, file, path);
