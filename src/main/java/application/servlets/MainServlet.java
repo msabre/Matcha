@@ -9,11 +9,13 @@ import domain.entity.FilterParams;
 import domain.entity.User;
 import domain.entity.model.ActionHistory;
 import domain.entity.model.types.Action;
+import domain.entity.model.types.CityType;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,7 +47,7 @@ public class MainServlet extends HttpServlet {
             case GET_USERS:
                 List<User> usersList = userController.getRecommendUsersList(user, MyProperties.USERS_LIST_SIZE);
                 usersList.forEach(u -> userController.uploadPhotosContent(u.getCard().getPhotos()));
-                HttpService.putBody(resp, JsonService.getJsonArray(usersList));
+                HttpService.putBody(resp, JsonService.getJsonArrayWithExpose(usersList));
                 break;
             case GET_ACTIONS_HISTORY:
                 Action action = Action.valueOf(Optional.ofNullable(req.getParameter("action")).orElse(Action.MATCH.getValue()));
@@ -69,7 +71,7 @@ public class MainServlet extends HttpServlet {
                     if (m.getIcon() != null)
                         userController.uploadMainPhotoContent(m.getIcon());
                 });
-                HttpService.putBody(resp, JsonService.getJsonArray(history));
+                HttpService.putBody(resp, JsonService.getJsonArrayWithExpose(history));
                 break;
         }
     }

@@ -6,13 +6,16 @@ import usergenerator.part.MatchGenerator;
 import usergenerator.part.MessageGenerator;
 
 import java.net.URISyntaxException;
+import java.time.ZoneId;
 
 public class MainChatGenerator extends Generator {
     
     public static void main(String[] args) throws URISyntaxException {
         int userId = 182;
         int maxChatCount = 100;
-        
+
+        System.out.println(ZoneId.getAvailableZoneIds());
+
         LikeGenerator likeGenerator = new LikeGenerator();
         MatchGenerator matchGenerator = new MatchGenerator();
         MessageGenerator messageGenerator = new MessageGenerator();

@@ -8,6 +8,7 @@ import domain.entity.Photo;
 import domain.entity.model.types.GenderType;
 import domain.entity.model.types.SexualPreferenceType;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -49,11 +50,26 @@ public class JsonService {
         return gson;
     }
 
-    public static String getJsonArray(List<?> objectList) {
+    public static String getJsonArrayWithExpose(List<?> objectList) {
         if (objectList == null)
             return null;
 
         Gson gson = getGsonExpose();
+        JsonArray array = new JsonArray();
+        for (Object obj : objectList) {
+            JsonObject o = JsonParser.parseString(gson.toJson(obj)).getAsJsonObject();
+//            String json = gson.toJson(obj);
+            array.add(o);
+        }
+
+        return array.toString();
+    }
+
+    public static String getJsonArray(List<?> objectList) {
+        if (objectList == null)
+            return null;
+
+        Gson gson = getGson();
         JsonArray array = new JsonArray();
         for (Object obj : objectList) {
             JsonObject o = JsonParser.parseString(gson.toJson(obj)).getAsJsonObject();
@@ -116,6 +132,17 @@ public class JsonService {
 
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd' 'HH:mm:ss").create();
         return gson.toJson(o);
+    }
+
+    // Парсит из json'а массив по имени поля
+    public static Object[] parseArray(String source, String field, Class clazz) {
+        if (!clazz.isArray())
+            return new Object[0];
+
+        JsonObject jsonObject = getGson().fromJson(source, JsonObject.class);
+        JsonArray jsonArray = jsonObject.getAsJsonArray(field);
+
+        return (Object[]) getGson().fromJson(jsonArray, clazz);
     }
 
     public static String getParameter(String json, String paramName) {

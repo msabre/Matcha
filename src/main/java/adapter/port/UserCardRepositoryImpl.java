@@ -94,7 +94,7 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                     String params = resultSet.getString("PHOTOS_PARAMS");
                     card.setPhotos(new ArrayList<>(Collections.nCopies(6, null)));
                     String mainPhoto = Optional.ofNullable(getActualMain(connection, card.getId())).map(String::valueOf).orElse("");
-                    if (params!= null && !params.isEmpty()) {
+                    if (params != null && !params.isEmpty()) {
                         for (String photoParam : params.split(";")) {
                             String[] detail = photoParam.split("_");
 
@@ -104,9 +104,13 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                             photo.setMain(photo.getNumber().equals(mainPhoto));
                             photo.setUserId(userId);
                             card.getPhotos().set(Integer.parseInt(detail[0]) - 1, photo);
+
                             if (photo.isMain()) {
-                                photo.setNumber("6");
-                                card.getPhotos().set(5, photo);
+                                Photo main = new Photo();
+                                photo.setNumber(photo.getNumber());
+                                photo.setFormat(photo.getFormat());
+                                photo.setUserId(userId);
+                                card.getPhotos().set(5, main);
                             }
                         }
                     }

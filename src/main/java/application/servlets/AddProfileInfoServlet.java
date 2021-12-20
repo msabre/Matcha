@@ -70,7 +70,7 @@ public class AddProfileInfoServlet extends HttpServlet {
                         userController.updateMainPhoto(user.getCard().getId(), mainPhoto); 
                     }
                     userController.updatePhotoParams(user.getCard().getId(), photoParams);
-                    HttpService.putBody(resp, JsonService.getJsonArray(currentPhotoList));
+                    HttpService.putBody(resp, JsonService.getJsonArrayWithExpose(currentPhotoList));
                 }
                 break;
 

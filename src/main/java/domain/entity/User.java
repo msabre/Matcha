@@ -1,7 +1,9 @@
 package domain.entity;
 
 import com.google.gson.annotations.Expose;
+import domain.entity.model.OnlineStatus;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 public class User {
@@ -29,6 +31,10 @@ public class User {
     private String userName;
     @Expose
     private Date birthday;
+    @Expose
+    private OnlineStatus.Status status;
+    @Expose
+    private ZonedDateTime lastAction;
 
     private String password;
     private String tokenConfirm;
@@ -155,5 +161,21 @@ public class User {
 
     public void setFilter(FilterParams filter) {
         this.filter = filter;
+    }
+
+    public OnlineStatus.Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(OnlineStatus.Status status) {
+        this.status = status;
+    }
+
+    public ZonedDateTime getLastAction() {
+        return lastAction;
+    }
+
+    public void setLastAction(ZonedDateTime lastAction) {
+        this.lastAction = lastAction;
     }
 }

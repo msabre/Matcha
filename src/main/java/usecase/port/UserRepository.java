@@ -1,9 +1,11 @@
 package usecase.port;
 
 import domain.entity.User;
+import domain.entity.model.OnlineStatus;
 import usecase.exception.EmailBusyException;
 import usecase.exception.UserNameBusyException;
 
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,9 +34,13 @@ public interface UserRepository {
 
     void updateUsername(int id, String username);
 
+    void updateStatus(int id, ZoneId zoneId, OnlineStatus.Status status);
+    
     void birthDateUpdate(int id, Date birthDate, int yearsOld);
 
     List<Integer> getNUserIdsWithFreeChatByIds(String ids, int limit);
 
     Map<Integer, String> getUserNamesByIds(List<Integer> userIds);
+
+    List<OnlineStatus> getOnlineStatusByIds(Integer[] ids);
 }

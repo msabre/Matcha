@@ -1,38 +1,50 @@
 package application.filters;
 
 import adapter.controller.JwtController;
+import adapter.controller.UserController;
+import adapter.port.model.LocationTimeZoneUTC;
 import application.services.HttpService;
 import application.services.LocationService;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import domain.entity.User;
+import domain.entity.model.OnlineStatus;
+import domain.entity.model.types.CityType;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.ZoneId;
+import java.util.Optional;
 
-import static config.MyConfiguration.jwtController;
+import static config.MyConfiguration.*;
 
 public class JwtFilter implements Filter {
 
     private JwtController jwtController;
+    private UserController userController;
+    private LocationTimeZoneUTC locationTimeZoneUTC;
 
     public void destroy() {
     }
 
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
 
-        if (!jwtController.checkJwt(req, resp)) {
+        boolean success = jwtController.checkJwt(req, resp);
+        User user = (User) ((HttpServletRequest) req).getSession().getAttribute("user");
+
+        if (!success) {
+            userController.updateStatus(user.getId(), locationTimeZoneUTC.getZoneIdByCity(user.getLocation()), OnlineStatus.Status.OFFLINE);
             HttpService.putBody((HttpServletResponse) resp, "Error JWT");
             return;
         }
-        checkUserLocation((HttpServletRequest) req);
 
+        userController.updateStatus(user.getId(), locationTimeZoneUTC.getZoneIdByCity(user.getLocation()), OnlineStatus.Status.ONLINE);
+        checkUserLocation((HttpServletRequest) req, user);
         chain.doFilter(req, resp);
     }
 
-    private void checkUserLocation(HttpServletRequest request) {
-        User user = (User) request.getSession().getAttribute("user");
+    private void checkUserLocation(HttpServletRequest request, User user) {
         if (user.getLocation() != null)
             return ;
 
@@ -48,6 +60,8 @@ public class JwtFilter implements Filter {
 
     public void init(FilterConfig config) {
         jwtController = jwtController();
+        userController = userController();
+        locationTimeZoneUTC = locationTimeZoneUTC();
     }
 
 }

@@ -2,6 +2,7 @@ package config;
 
 import adapter.controller.*;
 import adapter.port.*;
+import adapter.port.model.LocationTimeZoneUTC;
 import usecase.*;
 import usecase.port.*;
 
@@ -43,7 +44,7 @@ public class MyConfiguration {
 
     public static UpdateFilter updateFilter() { return new UpdateFilter(filterParamsRepository()); }
 
-    public static UpdateEmail updateEmail() { return new UpdateEmail(userRepository()); }
+    public static UpdateUser updateEmail() { return new UpdateUser(userRepository()); }
 
     public static FioUpdate fioUpdate() { return new FioUpdate(userRepository()); }
 
@@ -62,6 +63,14 @@ public class MyConfiguration {
     public static ChatCreate chatCreate() {
         return new ChatCreate(chatAffiliationRepository());
     }
+    
+    public static GetUserFields getUserFields() {
+        return new GetUserFields(userRepository(), locationTimeZoneUTC());
+    }
+
+    public static LeadTimeToZone leadTimeToZone() {
+        return new LeadTimeToZone(locationTimeZoneUTC());
+    }
 
 
     public static OperationController operationController() {
@@ -79,7 +88,6 @@ public class MyConfiguration {
     public static ConfirmLink confirmLink() {
         return new ConfirmLink(urlRepository());
     }
-
 
 
     public static JwtController jwtController() {
@@ -158,6 +166,12 @@ public class MyConfiguration {
 
     public static ChatAffiliationRepository chatAffiliationRepository() {
         return ChatAffiliationRepositoryIml.getRepository();
+    }
+
+
+
+    public static LocationTimeZoneUTC locationTimeZoneUTC() {
+        return LocationTimeZoneUTC.getInstance();
     }
 
 }

@@ -1,10 +1,13 @@
 package adapter.port;
 
 import adapter.port.model.DBConfiguration;
+import adapter.port.model.LocationTimeZoneUTC;
 import config.MyConfiguration;
 import domain.entity.FilterParams;
 import domain.entity.User;
 import domain.entity.UserCard;
+import domain.entity.model.OnlineStatus;
+import domain.entity.model.types.CityType;
 import usecase.exception.EmailBusyException;
 import usecase.exception.UserNameBusyException;
 import usecase.port.FilterParamsRepository;
@@ -13,6 +16,7 @@ import usecase.port.UserRepository;
 
 import java.sql.*;
 import java.sql.Date;
+import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,6 +27,7 @@ public class UserRepositoryImpl implements UserRepository {
     private final DBConfiguration config = DBConfiguration.getConfig();;
     private final UserCardRepository userCardRepository = MyConfiguration.userCardRepository();
     private final FilterParamsRepository filterParamsRepository = MyConfiguration.filterParamsRepository();
+    private final LocationTimeZoneUTC locationTimeZoneUTC = MyConfiguration.locationTimeZoneUTC();
 
 
     private UserRepositoryImpl() {
@@ -214,9 +219,7 @@ public class UserRepositoryImpl implements UserRepository {
                 try {
                     resultSet = state.getResultSet();
                     User user = new User();
-                    while (resultSet.next()) {
-                        int i = 0;
-
+                    if (resultSet.next()) {
                         user.setId(resultSet.getInt("ID"));
                         user.setTokenConfirm(resultSet.getString("CONFIRM"));
                         user.setConfirm(user.getTokenConfirm() == null);
@@ -229,6 +232,15 @@ public class UserRepositoryImpl implements UserRepository {
                         user.setPassword(resultSet.getString("PASSWORD"));
                         user.setLocation(resultSet.getString("LOCATION"));
                         user.setUserName(resultSet.getString("USERNAME"));
+                        user.setLastAction(getTimeZoneFromResultSet(resultSet));
+
+                        if (user.getLastAction() == null)
+                            user.setStatus(OnlineStatus.Status.OFFLINE);
+                        else {
+                            ZonedDateTime currentTimeWithZone = ZonedDateTime.now(user.getLastAction().getZone());
+                            long deltaMinutes = currentTimeWithZone.toLocalTime().getMinute() - user.getLastAction().toLocalTime().getMinute();
+                            user.setStatus(deltaMinutes < 5 ? OnlineStatus.Status.ONLINE : OnlineStatus.Status.OFFLINE);
+                        }
 
                         UserCard userCard = userCardRepository.findById(resultSet.getInt("USER_CARD"));
                         user.setCard(userCard);
@@ -287,9 +299,6 @@ public class UserRepositoryImpl implements UserRepository {
         }
         return false;
     }
-
-
-//    "AND acts.ACTION IN ('LIKE', 'MATCH')
 
     @Override
     public LinkedList<User> getNewForActionUsersWithParams(List<Integer> currentIds, String location, int id, int age_by, int age_to, List<String> preferencesParams, int limit) {
@@ -386,6 +395,23 @@ public class UserRepositoryImpl implements UserRepository {
         } catch (SQLException e) {
             e.printStackTrace();
             System.err.println("email change error");
+        }
+    }
+
+    @Override
+    public void updateStatus(int id, ZoneId zoneId, OnlineStatus.Status status) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement("UPDATE matcha.user SET STATUS = ?, LAST_ACTION = ? where ID = ?"))
+        {
+            Timestamp current = Timestamp.valueOf(ZonedDateTime.now(zoneId).toLocalDateTime());
+            statement.setString(1, status.toString());
+            statement.setTimestamp(2, current);
+            statement.setInt(3, id);
+
+            statement.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -491,6 +517,47 @@ public class UserRepositoryImpl implements UserRepository {
             e.printStackTrace();
         }
         return Collections.emptyMap();
+    }
+
+    @Override
+    public List<OnlineStatus> getOnlineStatusByIds(Integer[] ids) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement("SELECT usr.ID, usr.STATUS, usr.LAST_ACTION, usr.LOCATION FROM matcha.user usr WHERE FIND_IN_SET(usr.ID, ?) > 0 "))
+        {
+            String idsLine = Arrays.stream(ids).map(String::valueOf).collect(Collectors.joining(","));
+            statement.setString(1, idsLine);
+            statement.execute();
+
+            try (ResultSet resultSet = statement.getResultSet()) {
+                List<OnlineStatus> result = new ArrayList<>(resultSet.getFetchSize());
+                while (resultSet.next()) {
+                    OnlineStatus onlineStatus = new OnlineStatus();
+                    onlineStatus.setLastAction(getTimeZoneFromResultSet(resultSet));
+                    onlineStatus.setStatus(OnlineStatus.Status.fromString(resultSet.getString("STATUS")));
+                    onlineStatus.setUserId(resultSet.getInt("ID"));
+                    result.add(onlineStatus);
+                }
+                return result;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
+    }
+    
+    private ZonedDateTime getTimeZoneFromResultSet(ResultSet resultSet) throws SQLException {
+        ZonedDateTime timeWithZone = null;
+        try {
+            ZoneId zoneId = locationTimeZoneUTC.getZoneIdByCity(resultSet.getString("LOCATION"));
+            LocalDateTime localDateTime = resultSet.getTimestamp("LAST_ACTION").toLocalDateTime();
+            timeWithZone = localDateTime.atZone(zoneId);
+
+        } catch (Exception e) {
+            System.err.println("Ошибка обработки временной зоны пользователя: " + resultSet.getInt("ID"));
+        }
+
+        return timeWithZone;
     }
 }
 

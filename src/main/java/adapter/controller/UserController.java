@@ -5,11 +5,13 @@ import config.MyConfiguration;
 
 import domain.entity.*;
 import domain.entity.model.ActionHistory;
+import domain.entity.model.OnlineStatus;
 import domain.entity.model.types.Action;
 import usecase.*;
 import usecase.exception.EmailBusyException;
 import usecase.exception.UserNameBusyException;
 
+import java.time.ZoneId;
 import java.util.*;
 
 public class UserController {
@@ -25,13 +27,15 @@ public class UserController {
     private PutLikeAction putLikeAction;
     private UpdatePhotoSettings updatePhotoParams;
     private UpdateFilter updateFilter;
-    private UpdateEmail updateEmail;
+    private UpdateUser updateUser;
     private FioUpdate fioUpdate;
     private UserNameUpdate usernameUpdate;
     private BirthDateUpdate birthDateUpdate;
     private UploadPhotoContent uploadPhotoContent;
     private GetHistoryActionList getHistoryActionList;
     private ChatCreate chatCreate;
+    private GetUserFields getUserFields;
+    private LeadTimeToZone leadTimeToZone;
 
     private UserController() {
     }
@@ -50,13 +54,15 @@ public class UserController {
             instance.putLikeAction = MyConfiguration.putLikeAction();
             instance.updatePhotoParams = MyConfiguration.updatePhotoParams();
             instance.updateFilter = MyConfiguration.updateFilter();
-            instance.updateEmail = MyConfiguration.updateEmail();
+            instance.updateUser = MyConfiguration.updateEmail();
             instance.fioUpdate = MyConfiguration.fioUpdate();
             instance.usernameUpdate = MyConfiguration.userNameUpdate();
             instance.birthDateUpdate = MyConfiguration.birthDateUpdate();
             instance.uploadPhotoContent = MyConfiguration.uploadPhotoContent();
             instance.getHistoryActionList = MyConfiguration.getMatchList();
             instance.chatCreate = MyConfiguration.chatCreate();
+            instance.getUserFields = MyConfiguration.getUserFields();
+            instance.leadTimeToZone = MyConfiguration.leadTimeToZone();
         }
 
         return instance;
@@ -123,7 +129,7 @@ public class UserController {
     }
 
     public void updateEmail(int id, String email) {
-        updateEmail.update(id, email);
+        updateUser.email(id, email);
     }
 
     public void fioUpdate(int userId, String[] fio) {
@@ -162,6 +168,22 @@ public class UserController {
         return getHistoryActionList.getNtoUserAfterId(action, id, lastMatchId, size);
     }
 
+    public void updateStatus(int userId, ZoneId zoneId, OnlineStatus.Status status) {
+        updateUser.status(userId, zoneId, status);
+    }
+    
+    public List<OnlineStatus> getUserStatusesByIds(Integer[] ids) {
+        return getUserFields.getStatusByIds(ids);
+    }
+
+    public void leadLastActionToLocationTimeUser(List<User> users, String location) {
+        leadTimeToZone.lastActionToLocationTimeUser(users, location);
+    }
+
+    public void leadLastActionToLocationTimeStatus(List<OnlineStatus> statusList, String location) {
+        leadTimeToZone.lastActionToLocationTimeStatus(statusList, location);
+    }
+    
     public int createChatBetweenTwoUsers(int fromUsr, int toUsr) {
         return chatCreate.create(fromUsr, toUsr);
     }
