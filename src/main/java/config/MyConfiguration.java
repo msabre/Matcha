@@ -65,7 +65,7 @@ public class MyConfiguration {
     }
     
     public static GetUserFields getUserFields() {
-        return new GetUserFields(userRepository(), locationTimeZoneUTC());
+        return new GetUserFields(userRepository());
     }
 
     public static LeadTimeToZone leadTimeToZone() {

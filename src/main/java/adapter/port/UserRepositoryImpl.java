@@ -545,7 +545,7 @@ public class UserRepositoryImpl implements UserRepository {
         }
         return Collections.emptyList();
     }
-    
+
     private ZonedDateTime getTimeZoneFromResultSet(ResultSet resultSet) throws SQLException {
         ZonedDateTime timeWithZone = null;
         try {
