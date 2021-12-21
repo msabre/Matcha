@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.util.Collections;
+
 import static config.MyConfiguration.userController;
 
 public class GetUserServlet extends HttpServlet {
@@ -32,6 +34,7 @@ public class GetUserServlet extends HttpServlet {
 
         User user = userController.findUser(id);
         userController.uploadPhotosContent(user.getCard().getPhotos());
+        userController.leadLastActionToLocationTimeUser(Collections.singletonList(user), user.getLocation());
         HttpService.putBody(resp, JsonService.getJsonWithExposeFields(user));
     }
 }

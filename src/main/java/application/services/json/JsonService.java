@@ -8,8 +8,8 @@ import domain.entity.Photo;
 import domain.entity.model.types.GenderType;
 import domain.entity.model.types.SexualPreferenceType;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Type;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 public class JsonService {
@@ -25,6 +25,7 @@ public class JsonService {
                 .registerTypeAdapter(GenderType.class, new GenderTypeDeserializer())
                 .registerTypeAdapter(SexualPreferenceType.class, new SexualPreferenceTypeSerializer())
                 .registerTypeAdapter(SexualPreferenceType.class, new SexualPreferenceTypeDeserializer())
+                .registerTypeAdapter(ZoneDateTimeTypeSerializer.class, new ZoneDateTimeTypeSerializer())
 //                .registerTypeAdapter(Date.class, new DateTypeDeserializer())
 //                .registerTypeAdapter(Date.class, new DateTypeSerializer())
                 .registerTypeAdapter(byte[].class, new ByteArrayTypeDeserializer())
@@ -42,6 +43,7 @@ public class JsonService {
                     .registerTypeAdapter(GenderType.class, new GenderTypeDeserializer())
                     .registerTypeAdapter(SexualPreferenceType.class, new SexualPreferenceTypeSerializer())
                     .registerTypeAdapter(SexualPreferenceType.class, new SexualPreferenceTypeDeserializer())
+                    .registerTypeAdapter(ZonedDateTime.class, new ZoneDateTimeTypeSerializer())
 //                    .registerTypeAdapter(Date.class, new DateTypeDeserializer())
                     .registerTypeAdapter(byte[].class, new ByteArrayTypeDeserializer())
                     .setDateFormat("dd.MM.yyyy")
