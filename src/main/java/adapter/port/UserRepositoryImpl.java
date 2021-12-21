@@ -7,7 +7,6 @@ import domain.entity.FilterParams;
 import domain.entity.User;
 import domain.entity.UserCard;
 import domain.entity.model.OnlineStatus;
-import domain.entity.model.types.CityType;
 import usecase.exception.EmailBusyException;
 import usecase.exception.UserNameBusyException;
 import usecase.port.FilterParamsRepository;
@@ -233,14 +232,7 @@ public class UserRepositoryImpl implements UserRepository {
                         user.setLocation(resultSet.getString("LOCATION"));
                         user.setUserName(resultSet.getString("USERNAME"));
                         user.setLastAction(getTimeZoneFromResultSet(resultSet));
-
-                        if (user.getLastAction() == null)
-                            user.setStatus(OnlineStatus.Status.OFFLINE);
-                        else {
-                            ZonedDateTime currentTimeWithZone = ZonedDateTime.now(user.getLastAction().getZone());
-                            long deltaMinutes = currentTimeWithZone.toLocalTime().getMinute() - user.getLastAction().toLocalTime().getMinute();
-                            user.setStatus(deltaMinutes < 5 ? OnlineStatus.Status.ONLINE : OnlineStatus.Status.OFFLINE);
-                        }
+                        user.setStatus(correctStatus(resultSet.getString("STATUS"), user.getLastAction()));
 
                         UserCard userCard = userCardRepository.findById(resultSet.getInt("USER_CARD"));
                         user.setCard(userCard);
@@ -533,12 +525,13 @@ public class UserRepositoryImpl implements UserRepository {
                 while (resultSet.next()) {
                     OnlineStatus onlineStatus = new OnlineStatus();
                     onlineStatus.setLastAction(getTimeZoneFromResultSet(resultSet));
-                    onlineStatus.setStatus(OnlineStatus.Status.fromString(resultSet.getString("STATUS")));
+                    onlineStatus.setStatus(correctStatus(resultSet.getString("STATUS"), onlineStatus.getLastAction()));
                     onlineStatus.setUserId(resultSet.getInt("ID"));
                     result.add(onlineStatus);
                 }
                 return result;
             }
+            
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -546,6 +539,20 @@ public class UserRepositoryImpl implements UserRepository {
         return Collections.emptyList();
     }
 
+    private OnlineStatus.Status correctStatus(String statusDesc, ZonedDateTime lastAction) {
+        OnlineStatus.Status status = OnlineStatus.Status.fromString(statusDesc);
+
+        if (lastAction == null || status == null)
+            return OnlineStatus.Status.OFFLINE;
+        else if (OnlineStatus.Status.ONLINE.equals(status)) {
+            ZonedDateTime currentTimeWithZone = ZonedDateTime.now(lastAction.getZone());
+            long deltaMinutes = currentTimeWithZone.toLocalTime().getMinute() - lastAction.toLocalTime().getMinute();
+            return deltaMinutes < 5 ? OnlineStatus.Status.ONLINE : OnlineStatus.Status.OFFLINE;
+        }
+
+        return OnlineStatus.Status.OFFLINE;
+    }
+    
     private ZonedDateTime getTimeZoneFromResultSet(ResultSet resultSet) throws SQLException {
         ZonedDateTime timeWithZone = null;
         try {
