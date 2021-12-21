@@ -54,13 +54,21 @@ BEGIN
                             LOCATION VARCHAR(180),
                             USER_CARD MEDIUMINT,
                             FILTER_PARAMS MEDIUMINT,
+                            STATUS VARCHAR(30),
+                            LAST_ACTION TIMESTAMP(6),
                     PRIMARY KEY (ID));'
         );
     END IF;
     IF table_exists('USER') AND NOT column_exists('USER', 'USERNAME')
         THEN CALL alert_table('USER', 'USERNAME VARCHAR(100)');
     END IF;
-    
+    IF table_exists('USER') AND NOT column_exists('USER', 'STATUS')
+        THEN CALL alert_table('USER', 'STATUS VARCHAR(30)');
+    END IF;
+    IF table_exists('USER') AND NOT column_exists('USER', 'LAST_ACTION')
+        THEN CALL alert_table('USER', 'LAST_ACTION TIMESTAMP(6)');
+    END IF;
+
     IF NOT table_exists('USER_CARD') THEN CALL execute_immediate(
             'CREATE TABLE matcha.USER_CARD(
                             ID MEDIUMINT AUTO_INCREMENT,
