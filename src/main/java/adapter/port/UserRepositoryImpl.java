@@ -300,7 +300,7 @@ public class UserRepositoryImpl implements UserRepository {
                 "SELECT DISTINCT usr.ID FROM matcha.user usr " +
                         "INNER JOIN matcha.user_card card ON card.ID = usr.USER_CARD " +
                         "WHERE FIND_IN_SET(usr.ID, ?) <= 0 " +
-                        "AND usr.BANNED = 1 " +
+                        "AND usr.BANNED = 0 " +
                         "AND usr.LOCATION = ? " +
                         "AND usr.ID != ? " +
                         "AND usr.YEARS_OLD >= ? " +
@@ -318,7 +318,7 @@ public class UserRepositoryImpl implements UserRepository {
                 "SELECT DISTINCT usr.ID FROM matcha.user usr " +
                 "INNER JOIN matcha.user_card card ON card.ID = usr.USER_CARD " +
                 "WHERE FIND_IN_SET(usr.ID, ?) <= 0 " +
-                "AND usr.BANNED = 1 " +
+                "AND usr.BANNED = 0 " +
                 "AND usr.LOCATION = ? " +
                 "AND usr.ID != ? " +
                 "AND usr.YEARS_OLD >= ? " +
