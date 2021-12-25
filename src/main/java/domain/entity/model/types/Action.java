@@ -6,7 +6,9 @@ public enum Action {
     TAKE_LIKE("TAKE_LIKE"),
     MATCH("MATCH"),
     VISIT("VISIT"),
-    BLOCK("BLOCK");
+    BLOCK("BLOCK"),
+    FAKE("FAKE"),
+    TAKE_FAKE("TAKE_FAKE");
 
     private final String value;
 

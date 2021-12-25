@@ -120,6 +120,14 @@ public class UserController {
         putLikeAction.block(likeAction);
     }
 
+    public boolean fake(LikeAction likeAction) {
+        return putLikeAction.fake(likeAction);
+    }
+
+    public void takeFake(LikeAction likeAction) {
+        putLikeAction.takeFake(likeAction);
+    }
+
     public void updatePhotoParams(int userId, String param) {
         updatePhotoParams.updateParams(userId, param);
     }

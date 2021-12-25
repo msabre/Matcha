@@ -56,6 +56,8 @@ BEGIN
                             FILTER_PARAMS MEDIUMINT,
                             STATUS VARCHAR(30),
                             LAST_ACTION TIMESTAMP(6),
+                            FAKE_POINTS MEDIUMINT default 0 null,
+                            BANNED MEDIUMINT default 0 null,
                     PRIMARY KEY (ID));'
         );
     END IF;
@@ -68,7 +70,13 @@ BEGIN
     IF table_exists('USER') AND NOT column_exists('USER', 'LAST_ACTION')
         THEN CALL alert_table('USER', 'LAST_ACTION TIMESTAMP(6)');
     END IF;
-
+    IF table_exists('USER') AND NOT column_exists('USER', 'FAKE_POINTS')
+        THEN CALL alert_table('USER', 'FAKE_POINTS MEDIUMINT default 0 null');
+    END IF;
+    IF table_exists('USER') AND NOT column_exists('USER', 'BANNED')
+        THEN CALL alert_table('USER', 'BANNED MEDIUMINT default 0 null');
+    END IF;
+    
     IF NOT table_exists('USER_CARD') THEN CALL execute_immediate(
             'CREATE TABLE matcha.USER_CARD(
                             ID MEDIUMINT AUTO_INCREMENT,

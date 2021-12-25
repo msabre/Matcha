@@ -17,6 +17,12 @@ public interface LikesActionRepository {
 
     void block(int from, int to);
 
+    void fake(int from, int to);
+
+    void takeFake(int from, int to);
+
+    void deleteAction(int from, int to, String action);
+    
     void match(int from, int to);
 
     void putDislikeForUsers(int from, List<Integer> ids, List<Integer> dislikesAlready);

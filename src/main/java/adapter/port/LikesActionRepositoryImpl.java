@@ -76,6 +76,16 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
         updateByTypeListOrInsert(from, to, Action.BLOCK, Arrays.asList(Action.LIKE, Action.DISLIKE, Action.MATCH));
     }
 
+    @Override
+    public void fake(int from, int to) {
+        updateByTypeListOrInsert(from, to, Action.FAKE, Collections.singletonList(Action.FAKE));
+    }
+
+    @Override
+    public void takeFake(int from, int to) {
+        deleteAction(from, to, Action.FAKE.getValue());
+    }
+
     private void updateByTypeListOrInsert(int from, int to, Action action, Collection<Action> typeList) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword())) {
             boolean putAlready;
@@ -171,6 +181,22 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
                     }
                 }
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void deleteAction(int from, int to, String action) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement putLikeAct = connection.prepareStatement(
+                     "DELETE FROM matcha.LIKES_ACTION act WHERE FROM_USR = ? AND TO_USR = ? AND ACTION = ?"))
+        {
+            putLikeAct.setInt(1, from);
+            putLikeAct.setInt(2, to);
+            putLikeAct.setString(3, action);
+            putLikeAct.execute();
 
         } catch (SQLException e) {
             e.printStackTrace();

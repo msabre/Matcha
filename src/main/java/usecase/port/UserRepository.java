@@ -43,4 +43,12 @@ public interface UserRepository {
     Map<Integer, String> getUserNamesByIds(List<Integer> userIds);
 
     List<OnlineStatus> getOnlineStatusByIds(Integer[] ids);
+
+    int fakeIncrease(int id);
+
+    int fakeDecrease(int id);
+
+    int getFakePoint(int id);
+
+    boolean banById(int id);
 }

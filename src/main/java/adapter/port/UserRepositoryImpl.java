@@ -233,6 +233,8 @@ public class UserRepositoryImpl implements UserRepository {
                         user.setUserName(resultSet.getString("USERNAME"));
                         user.setLastAction(getTimeZoneFromResultSet(resultSet));
                         user.setStatus(correctStatus(resultSet.getString("STATUS"), user.getLastAction()));
+                        user.setFakePoints(resultSet.getInt("FAKE_POINTS"));
+                        user.setBanned(resultSet.getBoolean("BANNED"));
 
                         UserCard userCard = userCardRepository.findById(resultSet.getInt("USER_CARD"));
                         user.setCard(userCard);
@@ -298,6 +300,7 @@ public class UserRepositoryImpl implements UserRepository {
                 "SELECT DISTINCT usr.ID FROM matcha.user usr " +
                         "INNER JOIN matcha.user_card card ON card.ID = usr.USER_CARD " +
                         "WHERE FIND_IN_SET(usr.ID, ?) <= 0 " +
+                        "AND usr.BANNED = 1 " +
                         "AND usr.LOCATION = ? " +
                         "AND usr.ID != ? " +
                         "AND usr.YEARS_OLD >= ? " +
@@ -315,6 +318,7 @@ public class UserRepositoryImpl implements UserRepository {
                 "SELECT DISTINCT usr.ID FROM matcha.user usr " +
                 "INNER JOIN matcha.user_card card ON card.ID = usr.USER_CARD " +
                 "WHERE FIND_IN_SET(usr.ID, ?) <= 0 " +
+                "AND usr.BANNED = 1 " +
                 "AND usr.LOCATION = ? " +
                 "AND usr.ID != ? " +
                 "AND usr.YEARS_OLD >= ? " +
@@ -565,6 +569,69 @@ public class UserRepositoryImpl implements UserRepository {
         }
 
         return timeWithZone;
+    }
+
+    @Override
+    public int fakeIncrease(int id) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement update = connection.prepareStatement("UPDATE matcha.USER usr SET usr.FAKE_POINTS = (CASE WHEN usr.FAKE_POINTS IS NOT NULL THEN (usr.FAKE_POINTS + 1) ELSE 1 END) WHERE usr.ID = ?"))
+        {
+            update.setInt(1, id);
+            update.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return getFakePoint(id);
+    }
+
+    @Override
+    public int fakeDecrease(int id) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement update = connection.prepareStatement("UPDATE matcha.USER usr " +
+                     "SET usr.FAKE_POINTS = (CASE WHEN usr.FAKE_POINTS IS NOT NULL AND usr.FAKE_POINTS > 0 THEN (usr.FAKE_POINTS - 1) ELSE 0 END) WHERE usr.ID = ?"))
+        {
+            update.setInt(1, id);
+            update.execute();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return getFakePoint(id);
+    }
+
+    @Override
+    public int getFakePoint(int id) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement("SELECT usr.FAKE_POINT FROM matcha.USER usr WHERE usr.ID = ?"))
+        {
+            statement.setInt(1, id);
+            statement.execute();
+
+            try (ResultSet rs = statement.getResultSet()) {
+                return rs.getInt("ID");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    @Override
+    public boolean banById(int id) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement("UPDATE matcha.USER usr SET usr.BANNED = 1 WHERE usr.ID = ?"))
+        {
+            statement.setInt(1, id);
+            statement.execute();
+
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
 

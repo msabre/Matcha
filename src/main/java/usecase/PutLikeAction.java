@@ -1,8 +1,8 @@
 package usecase;
 
 import adapter.port.model.RatingChangesDefaultValue;
+import config.MyProperties;
 import domain.entity.LikeAction;
-import usecase.port.ChatAffiliationRepository;
 import usecase.port.LikesActionRepository;
 import usecase.port.UserCardRepository;
 import usecase.port.UserRepository;
@@ -46,6 +46,24 @@ public class PutLikeAction {
     public void block(LikeAction likeAction) {
         likesActionRepository.block(likeAction.getFromUsr(), likeAction.getToUsr());
         userCardRepository.decreaseRating(likeAction.getToUsr(), RatingChangesDefaultValue.DECREASE_BLOCK);
+    }
+
+    public boolean fake(LikeAction likeAction) {
+        int toUsr = likeAction.getToUsr();
+        likesActionRepository.fake(likeAction.getFromUsr(), toUsr);
+        userCardRepository.decreaseRating(toUsr, RatingChangesDefaultValue.DECREASE_FAKE);
+
+        if (userRepository.fakeIncrease(toUsr) >= MyProperties.FAKE_COUNT) {
+            userRepository.banById(toUsr);
+            return true;
+        }
+        return false;
+    }
+
+    public void takeFake(LikeAction likeAction) {
+        likesActionRepository.takeFake(likeAction.getFromUsr(), likeAction.getToUsr());
+        userRepository.fakeDecrease(likeAction.getToUsr());
+        userCardRepository.increaseRating(likeAction.getToUsr(), RatingChangesDefaultValue.INCREASE_TAKE_FAKE);
     }
 
     public void deleteLike(LikeAction likeAction) {

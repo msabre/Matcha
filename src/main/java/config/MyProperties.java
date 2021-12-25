@@ -23,6 +23,7 @@ public class MyProperties {
     public static double RATING_FALSITY = 0.75;
     public static String CLIENT_HOST = "localhost:3000";
     public static String HTTP_PROTOCOL = "http";
+    public static int FAKE_COUNT = 3;
 
     static {
         try {
@@ -47,6 +48,8 @@ public class MyProperties {
 
             CLIENT_HOST = props.getProperty("CLIENT_HOST");
             HTTP_PROTOCOL = props.getProperty("HTTP_PROTOCOL");
+            FAKE_COUNT = Integer.parseInt(props.getProperty("FAKE_COUNT"));
+
         } catch (Exception e) {
             e.printStackTrace();
         }

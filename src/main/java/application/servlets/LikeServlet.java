@@ -39,6 +39,7 @@ public class LikeServlet extends HttpServlet {
                     return;
                 }
                 break;
+
             case DISLIKE:
                 userController.disLike(likeAction);
                 break;
@@ -48,8 +49,20 @@ public class LikeServlet extends HttpServlet {
             case VISIT:
                 userController.visit(likeAction);
                 break;
+
             case BLOCK:
                 userController.block(likeAction);
+                break;
+
+            case FAKE:
+                if (userController.fake(likeAction)) {
+                    HttpService.putBody(resp, "BANNED");
+                    return;
+                }
+                break;
+
+            case TAKE_FAKE:
+                userController.takeFake(likeAction);
                 break;
             default:
                 HttpService.putBody(resp, "UNEXPECTED ACTION PARAMETER");

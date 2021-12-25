@@ -35,7 +35,11 @@ public class User {
     private OnlineStatus.Status status;
     @Expose
     private ZonedDateTime lastAction;
-
+    
+    @Expose
+    private boolean banned;
+    
+    private int fakePoints;
     private String password;
     private String tokenConfirm;
     private boolean confirm;
@@ -177,5 +181,21 @@ public class User {
 
     public void setLastAction(ZonedDateTime lastAction) {
         this.lastAction = lastAction;
+    }
+
+    public boolean isBanned() {
+        return banned;
+    }
+
+    public void setBanned(boolean banned) {
+        this.banned = banned;
+    }
+
+    public int isFakePoints() {
+        return fakePoints;
+    }
+
+    public void setFakePoints(int fakePoints) {
+        this.fakePoints = fakePoints;
     }
 }
