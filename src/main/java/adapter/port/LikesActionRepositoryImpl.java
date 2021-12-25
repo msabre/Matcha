@@ -328,7 +328,7 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
     public List<LikeAction> getByFromUsrOrToUsrAndAction(int id, String action) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
              PreparedStatement statement = connection.prepareStatement(
-                     "SELECT * FROM matcha.LIKES_ACTION acts WHERE acts.FROM_USR = ? OR acts.TO_USR AND acts.ACTION = ?")) {
+                     "SELECT * FROM matcha.LIKES_ACTION acts WHERE acts.FROM_USR = ? OR acts.TO_USR = ? AND acts.ACTION = ?")) {
             int i = 1;
             statement.setInt(i++, id);
             statement.setInt(i++, id);
