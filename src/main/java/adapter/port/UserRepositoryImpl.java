@@ -552,7 +552,7 @@ public class UserRepositoryImpl implements UserRepository {
 
         return OnlineStatus.Status.OFFLINE;
     }
-    
+
     private ZonedDateTime getTimeZoneFromResultSet(ResultSet resultSet) throws SQLException {
         ZonedDateTime timeWithZone = null;
         try {

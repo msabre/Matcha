@@ -70,7 +70,12 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
     public void fixVisit(int from, int to) {
         updateByTypeListOrInsert(from, to, Action.VISIT, Collections.singletonList(Action.VISIT));
     }
-    
+
+    @Override
+    public void block(int from, int to) {
+        updateByTypeListOrInsert(from, to, Action.BLOCK, Arrays.asList(Action.LIKE, Action.DISLIKE, Action.MATCH));
+    }
+
     private void updateByTypeListOrInsert(int from, int to, Action action, Collection<Action> typeList) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword())) {
             boolean putAlready;
@@ -292,6 +297,39 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
             }
             return ids;
         }
+    }
+
+    public List<LikeAction> getByFromUsrOrToUsrAndAction(int id, String action) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement(
+                     "SELECT * FROM matcha.LIKES_ACTION acts WHERE acts.FROM_USR = ? OR acts.TO_USR AND acts.ACTION = ?")) {
+            int i = 1;
+            statement.setInt(i++, id);
+            statement.setInt(i++, id);
+            statement.setString(i, action);
+            statement.execute();
+
+            try (ResultSet resultSet = statement.getResultSet()) {
+                List<LikeAction> acts = new ArrayList<>(resultSet.getFetchSize());
+                while (resultSet.next())
+                    acts.add(fromResultSet(resultSet));
+                return acts;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
+    }
+
+    private LikeAction fromResultSet(ResultSet resultSet) throws SQLException {
+        LikeAction likeAction = new LikeAction();
+        likeAction.setFromUsr(resultSet.getInt("FROM_USR"));
+        likeAction.setToUsr(resultSet.getInt("TO_USR"));
+        likeAction.setAction(Action.valueOf(resultSet.getString("ACTION")));
+        likeAction.setId(resultSet.getInt("ID"));
+        likeAction.setCreationTime(new Date(resultSet.getTimestamp("CREATION_TIME").getTime()));
+        return likeAction;
     }
 
     public List<Integer> getToUserDislikesByIds(int from, List<Integer> ids) {

@@ -43,6 +43,11 @@ public class PutLikeAction {
         likesActionRepository.fixVisit(likeAction.getFromUsr(), likeAction.getToUsr());
     }
 
+    public void block(LikeAction likeAction) {
+        likesActionRepository.block(likeAction.getFromUsr(), likeAction.getToUsr());
+        userCardRepository.decreaseRating(likeAction.getToUsr(), RatingChangesDefaultValue.DECREASE_BLOCK);
+    }
+
     public void deleteLike(LikeAction likeAction) {
         likesActionRepository.deleteLike(likeAction.getFromUsr(), likeAction.getToUsr());
         userCardRepository.decreaseRating(likeAction.getToUsr(), RatingChangesDefaultValue.DECREASE_TAKE_LIKE);

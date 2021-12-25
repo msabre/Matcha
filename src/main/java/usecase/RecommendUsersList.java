@@ -3,6 +3,7 @@ package usecase;
 import config.MyProperties;
 import domain.entity.User;
 
+import domain.entity.model.types.Action;
 import usecase.port.LikesActionRepository;
 import usecase.port.UserRepository;
 
@@ -52,7 +53,9 @@ public class RecommendUsersList {
 
         alreadyFind.addAll(newUserList);
 
+        newUserList = blockFilter(newUserList, user.getId());
         newUserList = customFilter(newUserList);
+
         resultList.addAll(newUserList);
         if (resultList.size() < userListSize)
             return get(resultList, alreadyFind, user, userListSize);
@@ -61,6 +64,15 @@ public class RecommendUsersList {
         sortUserList(resultList);
 
         return resultList;
+    }
+
+    private List<User> blockFilter(List<User> userList, int userId) {
+        List<Integer> actions = likesActionRepository.getByFromUsrOrToUsrAndAction(userId, Action.BLOCK.getValue())
+                .stream()
+                .map(act -> (act.getFromUsr() != userId) ? act.getFromUsr() : act.getToUsr())
+                .collect(Collectors.toList());
+
+        return userList.stream().filter(usr -> !actions.contains(usr.getId())).collect(Collectors.toList());
     }
 
     private List<User> customFilter(List<User> userList) {

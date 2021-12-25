@@ -9,13 +9,11 @@ import domain.entity.FilterParams;
 import domain.entity.User;
 import domain.entity.model.ActionHistory;
 import domain.entity.model.types.Action;
-import domain.entity.model.types.CityType;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 

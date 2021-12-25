@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
-import java.util.Optional;
 
 
 public class LikeServlet extends HttpServlet {
@@ -44,10 +43,13 @@ public class LikeServlet extends HttpServlet {
                 userController.disLike(likeAction);
                 break;
             case TAKE_LIKE:
-                userController.deleteLike(likeAction);
+                userController.takeLike(likeAction);
                 break;
             case VISIT:
-                userController.fixVisit(likeAction);
+                userController.visit(likeAction);
+                break;
+            case BLOCK:
+                userController.block(likeAction);
                 break;
             default:
                 HttpService.putBody(resp, "UNEXPECTED ACTION PARAMETER");

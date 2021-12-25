@@ -104,7 +104,7 @@ public class UserController {
         return putLikeAction.putMatchOrLike(likeAction);
     }
 
-    public void deleteLike(LikeAction likeAction) {
+    public void takeLike(LikeAction likeAction) {
         putLikeAction.deleteLike(likeAction);
     }
 
@@ -112,8 +112,12 @@ public class UserController {
         putLikeAction.disLike(likeAction);
     }
 
-    public void fixVisit(LikeAction likeAction) {
+    public void visit(LikeAction likeAction) {
         putLikeAction.fixVisit(likeAction);
+    }
+
+    public void block(LikeAction likeAction) {
+        putLikeAction.block(likeAction);
     }
 
     public void updatePhotoParams(int userId, String param) {

@@ -1,23 +1,16 @@
 package application.servlets;
 
 import adapter.controller.UserController;
-import adapter.port.model.LocationTimeZoneUTC;
 import application.services.HttpService;
 import application.services.json.JsonService;
 import domain.entity.User;
 import domain.entity.model.OnlineStatus;
-import domain.entity.model.types.CityType;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.UnsupportedEncodingException;
-import java.time.ZoneId;
 import java.util.List;
-import java.util.Optional;
-
-import static config.MyConfiguration.locationTimeZoneUTC;
 import static config.MyConfiguration.userController;
 
 public class GetOnlineStatusServlet extends HttpServlet {

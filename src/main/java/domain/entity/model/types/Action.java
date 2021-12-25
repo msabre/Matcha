@@ -5,7 +5,8 @@ public enum Action {
     DISLIKE("DISLIKE"),
     TAKE_LIKE("TAKE_LIKE"),
     MATCH("MATCH"),
-    VISIT("VISIT");
+    VISIT("VISIT"),
+    BLOCK("BLOCK");
 
     private final String value;
 

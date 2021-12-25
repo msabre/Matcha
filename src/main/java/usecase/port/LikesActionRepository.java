@@ -15,6 +15,8 @@ public interface LikesActionRepository {
     
     void fixVisit(int from, int to);
 
+    void block(int from, int to);
+
     void match(int from, int to);
 
     void putDislikeForUsers(int from, List<Integer> ids, List<Integer> dislikesAlready);
@@ -30,6 +32,8 @@ public interface LikesActionRepository {
     List<LikeAction> getNTo(Action action, int to, int size);
 
     List<LikeAction> getNToAfterId(Action action, int to, int specificId, int size);
+
+    List<LikeAction> getByFromUsrOrToUsrAndAction(int id, String action);
 
     List<LikeAction> getNLikeForUserId(int id, int size); // генератор
 }
