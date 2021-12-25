@@ -17,6 +17,7 @@ import java.sql.*;
 import java.sql.Date;
 import java.time.*;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class UserRepositoryImpl implements UserRepository {
@@ -550,8 +551,8 @@ public class UserRepositoryImpl implements UserRepository {
             return OnlineStatus.Status.OFFLINE;
         else if (OnlineStatus.Status.ONLINE.equals(status)) {
             ZonedDateTime currentTimeWithZone = ZonedDateTime.now(lastAction.getZone());
-            long deltaMinutes = currentTimeWithZone.toLocalTime().getMinute() - lastAction.toLocalTime().getMinute();
-            return deltaMinutes < 5 ? OnlineStatus.Status.ONLINE : OnlineStatus.Status.OFFLINE;
+            long deltaMinutes = currentTimeWithZone.toInstant().toEpochMilli() - lastAction.toInstant().toEpochMilli();
+            return TimeUnit.MILLISECONDS.toMinutes(deltaMinutes) < 5 ? OnlineStatus.Status.ONLINE : OnlineStatus.Status.OFFLINE;
         }
 
         return OnlineStatus.Status.OFFLINE;
