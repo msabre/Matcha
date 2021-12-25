@@ -34,7 +34,9 @@ public class GetUserServlet extends HttpServlet {
 
         User user = userController.findUser(id);
         userController.uploadPhotosContent(user.getCard().getPhotos());
-        userController.leadLastActionToLocationTimeUser(Collections.singletonList(user), user.getLocation());
+        
+        User me = (User) req.getSession().getAttribute("user");
+        userController.leadLastActionToLocationTimeUser(Collections.singletonList(user), me.getLocation());
         HttpService.putBody(resp, JsonService.getJsonWithExposeFields(user));
     }
 }
