@@ -25,7 +25,7 @@ public class JsonService {
                 .registerTypeAdapter(GenderType.class, new GenderTypeDeserializer())
                 .registerTypeAdapter(SexualPreferenceType.class, new SexualPreferenceTypeSerializer())
                 .registerTypeAdapter(SexualPreferenceType.class, new SexualPreferenceTypeDeserializer())
-                .registerTypeAdapter(ZoneDateTimeTypeSerializer.class, new ZoneDateTimeTypeSerializer())
+                .registerTypeAdapter(ZonedDateTime.class, new ZoneDateTimeTypeSerializer())
 //                .registerTypeAdapter(Date.class, new DateTypeDeserializer())
 //                .registerTypeAdapter(Date.class, new DateTypeSerializer())
                 .registerTypeAdapter(byte[].class, new ByteArrayTypeDeserializer())
