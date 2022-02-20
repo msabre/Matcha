@@ -47,6 +47,9 @@
     <url-pattern>/main/*</url-pattern>
   </filter-mapping>
 
+  <listener>
+    <listener-class>application.listener.MyHttpSessionListener</listener-class>
+  </listener>
 
   <servlet>
     <servlet-name>RegistrationFormServlet</servlet-name>
@@ -114,8 +117,8 @@
   </servlet>
 
   <servlet>
-    <servlet-name>ChatDeleteServlet</servlet-name>
-    <servlet-class>application.servlets.ChatDeleteServlet</servlet-class>
+    <servlet-name>GetOnlineStatusServlet</servlet-name>
+    <servlet-class>application.servlets.GetOnlineStatusServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
@@ -180,13 +183,13 @@
   </servlet-mapping>
 
   <servlet-mapping>
-    <servlet-name>ChatDeleteServlet</servlet-name>
-    <url-pattern>/main/chatdelete</url-pattern>
+    <servlet-name>WebSocketGetAccessServlet</servlet-name>
+    <url-pattern>/main/token</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
-    <servlet-name>WebSocketGetAccessServlet</servlet-name>
-    <url-pattern>/main/token</url-pattern>
+    <servlet-name>GetOnlineStatusServlet</servlet-name>
+    <url-pattern>/main/getstatus</url-pattern>
   </servlet-mapping>
 
 </web-app>
