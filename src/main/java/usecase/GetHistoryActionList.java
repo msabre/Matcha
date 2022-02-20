@@ -61,6 +61,7 @@ public class GetHistoryActionList {
             int userId = toMe ? action.getFromUsr() : action.getToUsr();
 
             ActionHistory history = new ActionHistory();
+            history.setId(action.getId());
             history.setUserId(userId);
             history.setFirstName(userNames.get(userId));
             history.setAction(action.getAction());

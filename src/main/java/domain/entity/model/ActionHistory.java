@@ -5,11 +5,20 @@ import domain.entity.Photo;
 import domain.entity.model.types.Action;
 
 public class ActionHistory {
+    @Expose private int id;
     @Expose private int userId;
     @Expose private Integer chatId;
     @Expose private Photo icon;
     @Expose private String firstName;
     @Expose private Action action;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public Action getAction() {
         return action;
