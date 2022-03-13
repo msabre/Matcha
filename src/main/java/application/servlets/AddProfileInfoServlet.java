@@ -167,7 +167,7 @@ public class AddProfileInfoServlet extends HttpServlet {
         ImageWriteParam param = writer.getDefaultWriteParam();
 
         param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-        param.setCompressionQuality(0.08f);
+        param.setCompressionQuality(0.80f);
         writer.write( null , new IIOImage(img, null , null ), param);
 
         os.close();
