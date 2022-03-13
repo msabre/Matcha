@@ -8,14 +8,11 @@ import application.services.LocationService;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import domain.entity.User;
 import domain.entity.model.OnlineStatus;
-import domain.entity.model.types.CityType;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.ZoneId;
-import java.util.Optional;
 
 import static config.MyConfiguration.*;
 

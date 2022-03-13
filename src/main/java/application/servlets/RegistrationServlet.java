@@ -10,6 +10,7 @@ import application.services.MailService;
 import application.services.MatchUtils;
 import application.services.json.JsonService;
 
+
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import config.MyProperties;
 import domain.entity.User;
@@ -64,12 +65,13 @@ public class RegistrationServlet extends HttpServlet {
          user.setTokenConfirm(passwordEncoder.getToken(MatchUtils.generateRqUid()));
 
         String location = null;
-//        try {
-////            location = LocationService.getPosition("188.255.7.63");
-//        } catch (GeoIp2Exception e) {
-//            e.printStackTrace();
-//        }
-        location = "Samara";
+        try {
+            String ip = HttpService.getClientIpAddress(req);
+            location = LocationService.getPosition(ip);// "188.255.7.63"
+        } catch (GeoIp2Exception e) {
+            e.printStackTrace();
+        }
+        // location = "Samara";
 
         user.setLocation(location);
 

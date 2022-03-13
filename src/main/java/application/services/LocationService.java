@@ -12,7 +12,7 @@ public class LocationService {
 
     public static String getPosition(String ip) throws IOException, GeoIp2Exception {
 
-        String path = LocationService.class.getResource("/GeoLite2-City_20210427/GeoLite2-City.mmdb").getPath();
+        String path = LocationService.class.getResource("/GeoLite2-City/GeoLite2-City.mmdb").getPath();
         File database = new File(path);
 
         if (!database.exists())

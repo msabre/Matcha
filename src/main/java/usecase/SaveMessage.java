@@ -17,8 +17,6 @@ import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.sun.imageio.plugins.jpeg.JPEG.JPG;
-
 public class SaveMessage {
     private static final List<String> compressRequiredFormats = Arrays.asList("png", "tiff", "psd", "bmp", "hdr", "jpeg", "tga", "webp", "sgi");
 
