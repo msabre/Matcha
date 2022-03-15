@@ -9,7 +9,7 @@ public class Photo {
     @Expose private String format;
     private String action;
     @Expose private String number;
-    @Expose private boolean main;
+    private boolean main;
 
     public int getUserId() {
         return userId;

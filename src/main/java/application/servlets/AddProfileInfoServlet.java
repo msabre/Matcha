@@ -70,6 +70,7 @@ public class AddProfileInfoServlet extends HttpServlet {
                         userController.updateMainPhoto(user.getCard().getId(), mainPhoto); 
                     }
                     userController.updatePhotoParams(user.getCard().getId(), photoParams);
+                    req.getSession().setAttribute("user", user);
                     HttpService.putBody(resp, JsonService.getJsonArrayWithExpose(currentPhotoList));
                 }
                 break;
@@ -83,8 +84,8 @@ public class AddProfileInfoServlet extends HttpServlet {
         boolean mainPhotoHasBeenChange = false;
         String mainNumber = photos.stream().filter(Objects::nonNull).findFirst().map(Photo::getNumber).orElse(null);
 
-        List<Photo> current = Optional.ofNullable(user.getCard().getPhotos()).orElse(new ArrayList<>(Collections.nCopies(5, null)));
-        current.stream().filter(Objects::nonNull).filter(Photo::isMain).findFirst().ifPresent(photo -> photo.setMain(false));
+        List<Photo> current = Optional.ofNullable(user.getCard().getPhotos()).orElse(new ArrayList<>(Collections.nCopies(6, null)));
+        // current.stream().filter(Objects::nonNull).filter(Photo::isMain).findFirst().ifPresent(photo -> photo.setMain(false));
 
         for (Photo photo : photos) {
             String path = getPhotoPath(user, photo.getNumber(), false);
@@ -95,10 +96,10 @@ public class AddProfileInfoServlet extends HttpServlet {
             switch (photo.getAction()) {
                 case "save":
                     try {
-                        if (checkAndDeleteIfMain(user, photo, mainNumber)) {
-                            mainPhotoHasBeenChange = true;
-                            mainNumber = photo.getNumber();
-                        }
+//                        if (checkAndDeleteIfMain(user, photo, mainNumber)) {
+//                            mainPhotoHasBeenChange = true;
+//                            mainNumber = photo.getNumber();
+//                        }
 
                         byte[] byteContent = photo.getContent().getBytes();
                         if (JPG.equals(photo.getFormat())) {
@@ -139,13 +140,18 @@ public class AddProfileInfoServlet extends HttpServlet {
         Optional<Photo> mainPhoto = current.stream().filter(Objects::nonNull).filter(Photo::isMain).findFirst();
         if (!mainPhoto.isPresent()) {
             mainPhoto = current.stream().filter(Objects::nonNull).findFirst();
-            if (mainPhoto.isPresent())
+            if (mainPhoto.isPresent()) {
+//                mainPhoto.get().setMain(true);
                 mainNumber = mainPhoto.get().getNumber();
+                mainPhotoHasBeenChange = true;
+            }
         }
 
-        if (mainPhotoHasBeenChange)
+        if (mainPhotoHasBeenChange) {
             doNewMainPhoto(user, mainNumber);
+        }
 
+        user.getCard().setPhotos(current);
         return true;
     }
 

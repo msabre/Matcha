@@ -101,15 +101,16 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                             Photo photo = new Photo();
                             photo.setNumber(detail[0]);
                             photo.setFormat(detail[1]);
-                            photo.setMain(photo.getNumber().equals(mainPhoto));
+//                            photo.setMain(photo.getNumber().equals(mainPhoto));
                             photo.setUserId(userId);
                             card.getPhotos().set(Integer.parseInt(detail[0]) - 1, photo);
 
                             if (photo.isMain()) {
                                 Photo main = new Photo();
-                                photo.setNumber(photo.getNumber());
-                                photo.setFormat(photo.getFormat());
-                                photo.setUserId(userId);
+//                                main.setMain(true);
+                                main.setNumber(photo.getNumber());
+                                main.setFormat(photo.getFormat());
+                                main.setUserId(userId);
                                 card.getPhotos().set(5, main);
                             }
                         }
