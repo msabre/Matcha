@@ -149,6 +149,7 @@ public class AddProfileInfoServlet extends HttpServlet {
 
         if (mainPhotoHasBeenChange) {
             doNewMainPhoto(user, mainNumber);
+            current.add(5, mainPhoto.get());
         }
 
         user.getCard().setPhotos(current);
