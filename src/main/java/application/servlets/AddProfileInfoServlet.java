@@ -148,8 +148,12 @@ public class AddProfileInfoServlet extends HttpServlet {
         }
 
         if (mainPhotoHasBeenChange) {
-            doNewMainPhoto(user, mainNumber);
-            current.add(5, mainPhoto.get());
+            byte[] shortContent = doNewMainPhoto(user, mainNumber);
+            Photo avatar = new Photo();
+            avatar.setContent(new String(shortContent));
+            avatar.setNumber("6");
+            avatar.setUserId(user.getId());
+            current.add(5, avatar);
         }
 
         user.getCard().setPhotos(current);
@@ -211,7 +215,7 @@ public class AddProfileInfoServlet extends HttpServlet {
         return false;
     }
 
-    private void doNewMainPhoto(User user, String newMainNum) {
+    private byte[] doNewMainPhoto(User user, String newMainNum) {
         String photoPath =  getPhotoPath(user, newMainNum, false);
         String newMainPath = getPhotoPath(user, newMainNum, true);
 
@@ -230,10 +234,12 @@ public class AddProfileInfoServlet extends HttpServlet {
             img = img.getSubimage(x, y, onePart, onePart);
 
             ImageIO.write(img, "jpg", new File(newMainPath));
-
+            return imageToByteArray(img);
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return new byte[20];
     }
  
     private int getOnePart(int height, int width, int heightParts, int widthParts) {
