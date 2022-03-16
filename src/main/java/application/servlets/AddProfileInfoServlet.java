@@ -141,7 +141,7 @@ public class AddProfileInfoServlet extends HttpServlet {
         if (!mainPhoto.isPresent()) {
             mainPhoto = current.stream().filter(Objects::nonNull).findFirst();
             if (mainPhoto.isPresent()) {
-//                mainPhoto.get().setMain(true);
+                mainPhoto.get().setMain(true);
                 mainNumber = mainPhoto.get().getNumber();
                 mainPhotoHasBeenChange = true;
             }
