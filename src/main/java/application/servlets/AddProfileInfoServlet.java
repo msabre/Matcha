@@ -63,7 +63,7 @@ public class AddProfileInfoServlet extends HttpServlet {
                         return;
                     }
                     List<Photo> currentPhotoList = user.getCard().getPhotos().stream().filter(Objects::nonNull).collect(Collectors.toList());
-                    String photoParams = currentPhotoList.stream().map(ph -> String.format("%s_%s", ph.getNumber(), ph.getFormat())).collect(Collectors.joining(";"));
+                    String photoParams = currentPhotoList.subList(0, 5).stream().map(ph -> String.format("%s_%s", ph.getNumber(), ph.getFormat())).collect(Collectors.joining(";"));
                     Integer mainPhoto = currentPhotoList.stream().filter(Photo::isMain).findFirst().map(ph -> Integer.parseInt(ph.getNumber())).orElse(null);
 
                     if (mainPhoto != null || currentPhotoList.isEmpty()) {
