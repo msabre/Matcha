@@ -202,7 +202,7 @@ public class AddProfileInfoServlet extends HttpServlet {
         ImageIO.write(img, JPG, baos);
         return baos.toByteArray();
     }
-    
+
     private boolean checkAndDeleteIfMain(User user, Photo photo, String oldMain) {
         if (photo.isMain() && photo.getNumber().equals(oldMain)) {
             String mainPhotoPath = getPhotoPath(user, photo.getNumber(), true);

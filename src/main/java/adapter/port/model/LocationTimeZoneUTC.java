@@ -43,8 +43,8 @@ public class LocationTimeZoneUTC {
     public ZonedDateTime leadToZoneId(ZonedDateTime zonedDateTime, ZoneId zoneId) {
         try {
             return zonedDateTime.withZoneSameInstant(zoneId);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignore) {
+//            e.printStackTrace();
         }
         return zonedDateTime;
     }

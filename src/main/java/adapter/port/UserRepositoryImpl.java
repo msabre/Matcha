@@ -604,7 +604,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public int getFakePoint(int id) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
-             PreparedStatement statement = connection.prepareStatement("SELECT usr.FAKE_POINT FROM matcha.USER usr WHERE usr.ID = ?"))
+             PreparedStatement statement = connection.prepareStatement("SELECT usr.FAKE_POINTS FROM matcha.USER usr WHERE usr.ID = ?"))
         {
             statement.setInt(1, id);
             statement.execute();
