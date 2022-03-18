@@ -54,10 +54,7 @@ public class AddProfileInfoServlet extends HttpServlet {
             case "photo":
                 List<Photo> photos = JsonService.getPhotoList(HttpService.getBody(req));
                 if (photos != null && !photos.isEmpty()) {
-                    if (photos.stream().filter(Photo::isMain).count() > 1) {
-                        HttpService.putBody(resp, "EXPECTED ONLY 1 MAIN PHOTO");
-                        return;
-                    }
+                    photos.forEach(p -> p.setMain(false));
                     if (!processActionPhoto(photos, user)) {
                         HttpService.putBody(resp, "UNEXPECTED PHOTO FORMAT");
                         return;
@@ -81,14 +78,11 @@ public class AddProfileInfoServlet extends HttpServlet {
     }
 
     private boolean processActionPhoto(List<Photo> photos, User user) {
-        boolean mainPhotoHasBeenChange = false;
+        List<Photo> current = Optional.ofNullable(user.getCard().getPhotos()).orElse(new ArrayList<>(Collections.nCopies(6, null)));
         String mainNumber = photos.stream().filter(Objects::nonNull).findFirst().map(Photo::getNumber).orElse(null);
 
-        List<Photo> current = Optional.ofNullable(user.getCard().getPhotos()).orElse(new ArrayList<>(Collections.nCopies(6, null)));
-        // current.stream().filter(Objects::nonNull).filter(Photo::isMain).findFirst().ifPresent(photo -> photo.setMain(false));
-
         for (Photo photo : photos) {
-            String path = getPhotoPath(user, photo.getNumber(), false);
+            String path = getPhotoPath(user.getId(), photo.getNumber());
             int index = Optional.ofNullable(photo.getNumber()).map(Integer::parseInt).orElse(0) - 1;
             if (index < 0)
                 continue;
@@ -96,10 +90,6 @@ public class AddProfileInfoServlet extends HttpServlet {
             switch (photo.getAction()) {
                 case "save":
                     try {
-//                        if (checkAndDeleteIfMain(user, photo, mainNumber)) {
-//                            mainPhotoHasBeenChange = true;
-//                            mainNumber = photo.getNumber();
-//                        }
 
                         byte[] byteContent = photo.getContent().getBytes();
                         if (JPG.equals(photo.getFormat())) {
@@ -124,10 +114,9 @@ public class AddProfileInfoServlet extends HttpServlet {
                     }
                     break;
                 case "delete":
-                    if (checkAndDeleteIfMain(user, photo, mainNumber)) {
-                        mainPhotoHasBeenChange = true;
-                        mainNumber = photo.getNumber();
-                    }
+                    if (checkAndDeleteIfMain(user, photo, mainNumber))
+                        current.set(5, null);
+
                     File file = new File(path);
                     if (file.exists() && file.delete()) {
                         current.set(index, null);
@@ -142,18 +131,13 @@ public class AddProfileInfoServlet extends HttpServlet {
             mainPhoto = current.stream().filter(Objects::nonNull).findFirst();
             if (mainPhoto.isPresent()) {
                 mainPhoto.get().setMain(true);
-                mainNumber = mainPhoto.get().getNumber();
-                mainPhotoHasBeenChange = true;
+                byte[] shortContent = doNewMainPhoto(user, mainPhoto.get().getNumber());
+                Photo avatar = new Photo();
+                avatar.setContent(new String(shortContent));
+                avatar.setNumber("6");
+                avatar.setUserId(user.getId());
+                current.set(5, avatar);
             }
-        }
-
-        if (mainPhotoHasBeenChange) {
-            byte[] shortContent = doNewMainPhoto(user, mainNumber);
-            Photo avatar = new Photo();
-            avatar.setContent(new String(shortContent));
-            avatar.setNumber("6");
-            avatar.setUserId(user.getId());
-            current.add(5, avatar);
         }
 
         user.getCard().setPhotos(current);
@@ -204,8 +188,8 @@ public class AddProfileInfoServlet extends HttpServlet {
     }
 
     private boolean checkAndDeleteIfMain(User user, Photo photo, String oldMain) {
-        if (photo.isMain() && photo.getNumber().equals(oldMain)) {
-            String mainPhotoPath = getPhotoPath(user, photo.getNumber(), true);
+        if (photo.getNumber().equals(oldMain)) {
+            String mainPhotoPath = getPhotoPath(user.getId(), photo.getNumber());
             File oldMainFile = new File(mainPhotoPath);
             if (oldMainFile.exists() && oldMainFile.delete()) {
                 System.out.println("Файл " + mainPhotoPath + " был удален");
@@ -216,8 +200,8 @@ public class AddProfileInfoServlet extends HttpServlet {
     }
 
     private byte[] doNewMainPhoto(User user, String newMainNum) {
-        String photoPath =  getPhotoPath(user, newMainNum, false);
-        String newMainPath = getPhotoPath(user, newMainNum, true);
+        String photoPath =  getPhotoPath(user.getId(), newMainNum);
+        String newMainPath = getMainPhotoPath(user.getId());
 
         File file = new File(photoPath);
         try {
@@ -264,8 +248,12 @@ public class AddProfileInfoServlet extends HttpServlet {
         return onePart;
     }
 
-    private String getPhotoPath(User user, String photoNum, boolean main) {
-        return String.format("%sIMG_%s%s_photo_%s.jpg", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), main ? "MAIN_" : "", user.getId(), photoNum);
+    private String getPhotoPath(int userId, String photoNum) {
+        return String.format("%sIMG_%s_photo_%s.jpg", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), userId, photoNum);
+    }
+
+    private String getMainPhotoPath(int userId) {
+        return String.format("%sIMG_MAIN_%s_photo.jpg", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), userId);
     }
 
     @Override

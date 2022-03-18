@@ -107,8 +107,7 @@ public class UserCardRepositoryImpl implements UserCardRepository {
 
                             if (photo.isMain()) {
                                 Photo main = new Photo();
-//                                main.setMain(true);
-                                main.setNumber(photo.getNumber());
+                                main.setNumber("6");
                                 main.setFormat(photo.getFormat());
                                 main.setUserId(userId);
                                 card.getPhotos().set(5, main);
@@ -304,7 +303,7 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                     continue;
 
                 Photo photo = new Photo();
-                photo.setNumber(mainPhotoNum);
+                photo.setNumber("6");
 
                 String[] photosParams = Optional.ofNullable(resultSet.getString("PHOTOS_PARAMS")).orElse("").split(";");
                 String format = null;
@@ -317,7 +316,6 @@ public class UserCardRepositoryImpl implements UserCardRepository {
                 }
                 photo.setUserId(resultSet.getInt("USER_ID"));
                 photo.setFormat(format);
-                photo.setMain(true);
                 photoList.add(photo);
             }
             return photoList;

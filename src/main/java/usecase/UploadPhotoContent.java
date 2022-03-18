@@ -14,7 +14,7 @@ import java.util.List;
 
 public class UploadPhotoContent {
     public void upload(List<Photo> photos) {
-        for (Photo photo : photos) {
+        for (Photo photo : photos.subList(0, 5)) {
             if (photo == null)
                 continue;
 
@@ -30,7 +30,7 @@ public class UploadPhotoContent {
     public void uploadMain(Photo photo) {
         if (photo == null)
             return;
-        String path = String.format("%sIMG_MAIN_%s_photo_%s.%s", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), photo.getUserId(), photo.getNumber(), photo.getFormat());
+        String path = String.format("%sIMG_MAIN_%s_photo.jpg", MyProperties.IMAGES_PATH + MatchUtils.getSlash(), photo.getUserId());
         File file =  new File(path);
         writeContent(photo, file, path);
     }
