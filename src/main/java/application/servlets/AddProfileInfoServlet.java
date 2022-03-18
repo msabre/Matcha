@@ -84,7 +84,7 @@ public class AddProfileInfoServlet extends HttpServlet {
         for (Photo photo : photos) {
             String path = getPhotoPath(user.getId(), photo.getNumber());
             int index = Optional.ofNullable(photo.getNumber()).map(Integer::parseInt).orElse(0) - 1;
-            if (index < 0)
+            if (index < 0 || index > 4)
                 continue;
 
             switch (photo.getAction()) {

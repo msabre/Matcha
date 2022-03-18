@@ -6,11 +6,10 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class HttpService {
@@ -34,7 +33,12 @@ public class HttpService {
     public static String getClientIpAddress(HttpServletRequest request) {
         String xForwardedForHeader = request.getHeader("X-Forwarded-For");
         if (xForwardedForHeader == null) {
-            return request.getRemoteAddr();
+            String ip = request.getRemoteAddr();
+            try {
+                return "0:0:0:0:0:0:0:1".equals(ip) ? InetAddress.getByName(request.getLocalAddr()).getHostAddress() : ip;
+            } catch (UnknownHostException e) {
+                return "0:0:0:0:0:0:0:1";
+            }
         } else {
             // As of https://en.wikipedia.org/wiki/X-Forwarded-For
             // The general format of the field is: X-Forwarded-For: client, proxy1, proxy2 ...

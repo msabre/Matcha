@@ -61,17 +61,15 @@ public class RegistrationServlet extends HttpServlet {
         String hashPassword = passwordEncoder.encrypt(user.getPassword(), null);
         user.setPassword(hashPassword);
         user.setConfirm(false);
-        // user.setTokenConfirm(null);
-         user.setTokenConfirm(passwordEncoder.getToken(MatchUtils.generateRqUid()));
+        user.setTokenConfirm(passwordEncoder.getToken(MatchUtils.generateRqUid()));
 
         String location = null;
         try {
             String ip = HttpService.getClientIpAddress(req);
             location = LocationService.getPosition(ip);// "188.255.7.63"
         } catch (GeoIp2Exception e) {
-            e.printStackTrace();
+            location = "Moscow";
         }
-        // location = "Samara";
 
         user.setLocation(location);
 
