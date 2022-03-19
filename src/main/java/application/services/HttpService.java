@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.*;
+
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,43 +49,6 @@ public class HttpService {
         } catch (Exception e) {
             return null;
         }
-//        String result = null;
-//        try {
-//            BufferedReader reader = null;
-//            try {
-//                URL url = new URL("https://myip.by/");
-//                InputStream inputStream = url.openStream();
-//                reader = new BufferedReader(new InputStreamReader(inputStream));
-//                StringBuilder allText = new StringBuilder();
-//                char[] buff = new char[1024];
-//
-//                int count = 0;
-//                while ((count = reader.read(buff)) != -1)
-//                    allText.append(buff, 0, count);
-//
-//                int indStart = allText.indexOf("\">whois ");
-//                int indEnd = allText.indexOf("</a>", indStart);
-//
-//                String ipAddress = new String(allText.substring(indStart + 8, indEnd));
-//                if (ipAddress.split("\\.").length == 4) {
-//                    result = ipAddress;
-//                }
-//            } catch (IOException ex) {
-//                ex.printStackTrace();
-//            } finally {
-//                if (reader != null) {
-//                    try {
-//                        reader.close();
-//                    } catch (Exception ex) {
-//                        ex.printStackTrace();
-//                    }
-//                }
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        return result;
     }
     
     public static String getBody(HttpServletRequest request) throws UnsupportedEncodingException {
@@ -123,6 +87,7 @@ public class HttpService {
         if (body == null)
             return ;
 
+        body = new String(StandardCharsets.UTF_8.encode(body).array());
         response.setHeader("Content-Type","text/html; charset=utf-8");
 
         BufferedWriter bufferedWriter = null;
