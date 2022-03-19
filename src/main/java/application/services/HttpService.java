@@ -6,8 +6,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,19 +33,60 @@ public class HttpService {
         String xForwardedForHeader = request.getHeader("X-Forwarded-For");
         if (xForwardedForHeader == null) {
             String ip = request.getRemoteAddr();
-            try {
-                return "0:0:0:0:0:0:0:1".equals(ip) ? InetAddress.getByName(request.getLocalAddr()).getHostAddress() : ip;
-            } catch (UnknownHostException e) {
-                return "0:0:0:0:0:0:0:1";
-            }
+            if ("0:0:0:0:0:0:0:1".equals(ip))
+                return getCurrentIP();
+            return ip;
+
         } else {
-            // As of https://en.wikipedia.org/wiki/X-Forwarded-For
-            // The general format of the field is: X-Forwarded-For: client, proxy1, proxy2 ...
-            // we only want the client
             return new StringTokenizer(xForwardedForHeader, ",").nextToken().trim();
         }
     }
 
+    private static String getCurrentIP() {
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(new URL("http://checkip.amazonaws.com").openStream()))) {
+            return in.readLine();
+        } catch (Exception e) {
+            return null;
+        }
+//        String result = null;
+//        try {
+//            BufferedReader reader = null;
+//            try {
+//                URL url = new URL("https://myip.by/");
+//                InputStream inputStream = url.openStream();
+//                reader = new BufferedReader(new InputStreamReader(inputStream));
+//                StringBuilder allText = new StringBuilder();
+//                char[] buff = new char[1024];
+//
+//                int count = 0;
+//                while ((count = reader.read(buff)) != -1)
+//                    allText.append(buff, 0, count);
+//
+//                int indStart = allText.indexOf("\">whois ");
+//                int indEnd = allText.indexOf("</a>", indStart);
+//
+//                String ipAddress = new String(allText.substring(indStart + 8, indEnd));
+//                if (ipAddress.split("\\.").length == 4) {
+//                    result = ipAddress;
+//                }
+//            } catch (IOException ex) {
+//                ex.printStackTrace();
+//            } finally {
+//                if (reader != null) {
+//                    try {
+//                        reader.close();
+//                    } catch (Exception ex) {
+//                        ex.printStackTrace();
+//                    }
+//                }
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        return result;
+    }
+    
     public static String getBody(HttpServletRequest request) throws UnsupportedEncodingException {
         String body = null;
         StringBuilder stringBuilder = new StringBuilder();

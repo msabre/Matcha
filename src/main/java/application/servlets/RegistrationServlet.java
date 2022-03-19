@@ -63,15 +63,16 @@ public class RegistrationServlet extends HttpServlet {
         user.setConfirm(false);
         user.setTokenConfirm(passwordEncoder.getToken(MatchUtils.generateRqUid()));
 
-        String location = null;
+        String location;
         try {
             String ip = HttpService.getClientIpAddress(req);
-            location = LocationService.getPosition(ip);// "188.255.7.63"
+            location = LocationService.getPosition(ip);
         } catch (GeoIp2Exception e) {
-            location = "Moscow";
+            e.printStackTrace();
+            location = null;
         }
 
-        user.setLocation(location);
+        user.setLocation(MatchUtils.getCityNameByGeoLiteCityName(location));
 
         UserCard userCard = (UserCard) JsonService.getObjectByExposeFields(UserCard.class, json);
         user.setCard(userCard);

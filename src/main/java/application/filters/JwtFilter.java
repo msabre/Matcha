@@ -5,6 +5,7 @@ import adapter.controller.UserController;
 import adapter.port.model.LocationTimeZoneUTC;
 import application.services.HttpService;
 import application.services.LocationService;
+import application.services.MatchUtils;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import domain.entity.User;
 import domain.entity.model.OnlineStatus;
@@ -47,7 +48,7 @@ public class JwtFilter implements Filter {
 
         String ip = HttpService.getClientIpAddress(request);
         try {
-            String location = LocationService.getPosition("188.255.7.63");
+            String location = MatchUtils.getCityNameByGeoLiteCityName(LocationService.getPosition(ip));
             user.setLocation(location);
 
         } catch (IOException | GeoIp2Exception e) {

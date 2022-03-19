@@ -1,5 +1,6 @@
 package application.services;
 
+import domain.entity.model.types.CityType;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -10,11 +11,21 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.Properties;
-import java.util.UUID;
+import java.util.*;
 
 public class MatchUtils {
+    private static final Map<String, String> geoLiteCitiesNameDictionary;
+    
+    static {
+        geoLiteCitiesNameDictionary = new HashMap<>();
+        geoLiteCitiesNameDictionary.put("St Petersburg", CityType.SAINT_PETERSBURG.getValue());
+        geoLiteCitiesNameDictionary.put("Moscow", CityType.MOSCOW.getValue());
+        geoLiteCitiesNameDictionary.put("Kazan’", CityType.KAZAN.getValue());
+        geoLiteCitiesNameDictionary.put("Ufa", CityType.UFA.getValue());
+        geoLiteCitiesNameDictionary.put("Yekaterinburg", CityType.YEKATERINBURG.getValue());
+        geoLiteCitiesNameDictionary.put("Samara", CityType.SAMARA.getValue());
+    }
+    
     public static Properties getProps(String path) {
         Properties prop = new Properties();
 
@@ -42,6 +53,11 @@ public class MatchUtils {
         return StringEscapeUtils.unescapeJava(result.toString());
     }
 
+    public static String getCityNameByGeoLiteCityName(String name) {
+        String cityName = geoLiteCitiesNameDictionary.get(name);
+        return cityName != null ? cityName : name; 
+    }
+    
     public static String getSlash() {
         String os = System.getProperty("os.name");
         return os.contains("Windows") ? "\\" : "/";
