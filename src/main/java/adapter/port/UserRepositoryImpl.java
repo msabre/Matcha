@@ -610,7 +610,8 @@ public class UserRepositoryImpl implements UserRepository {
             statement.execute();
 
             try (ResultSet rs = statement.getResultSet()) {
-                return rs.getInt("ID");
+                if (rs.next())
+                    return rs.getInt("FAKE_POINTS");
             }
 
         } catch (SQLException e) {
