@@ -67,6 +67,7 @@ public class MessageGenerator extends Generator {
 
             Date creationTime = new Date(new Date().getTime() - (long) 60 * 60 * 24 * 365 * 1000); // минус год
             chatAffiliationRepository.create(userId, toUsr, ++maxChatId);
+            chatAffiliationRepository.create(toUsr, userId, maxChatId);
 
             for (String content : dialog) {
                 if (content.equals(TOPIC_DELIMITER)) {
