@@ -12,6 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class HttpService {
 
     public static Cookie getCookie(ServletRequest req, String name) {
@@ -50,7 +52,7 @@ public class HttpService {
             return null;
         }
     }
-    
+
     public static String getBody(HttpServletRequest request) throws UnsupportedEncodingException {
         String body = null;
         StringBuilder stringBuilder = new StringBuilder();
@@ -59,7 +61,7 @@ public class HttpService {
         try {
             InputStream inputStream = request.getInputStream();
             if (inputStream != null) {
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+                bufferedReader = new BufferedReader(new InputStreamReader(inputStream, UTF_8));
                 char[] charBuffer = new char[128];
                 int bytesRead = -1;
                 while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
@@ -87,7 +89,8 @@ public class HttpService {
         if (body == null)
             return ;
 
-        body = new String(StandardCharsets.UTF_8.encode(body).array());
+//        body = new String(UTF_8.encode(body).array(), UTF_8);
+        //response.setCharacterEncoding("UTF-8");
         response.setHeader("Content-Type","text/html; charset=utf-8");
 
         BufferedWriter bufferedWriter = null;
@@ -95,7 +98,7 @@ public class HttpService {
         try {
             OutputStream outputStream = response.getOutputStream();
             if (outputStream != null) {
-                bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream));
+                bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, UTF_8));
                 bufferedWriter.write(body, 0, body.length());
             }
         } catch (IOException ex) {
