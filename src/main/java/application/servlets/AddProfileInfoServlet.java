@@ -79,8 +79,8 @@ public class AddProfileInfoServlet extends HttpServlet {
 
     private boolean processActionPhoto(List<Photo> photos, User user) {
         List<Photo> current = Optional.ofNullable(user.getCard().getPhotos()).orElse(new ArrayList<>(Collections.nCopies(6, null)));
-        String mainNumber = photos.stream().filter(Objects::nonNull).findFirst().map(Photo::getNumber).orElse(null);
-
+        String mainNumber = current.stream().filter(Objects::nonNull).findFirst().map(Photo::getNumber).orElse(null);
+        
         for (Photo photo : photos) {
             String path = getPhotoPath(user.getId(), photo.getNumber());
             int index = Optional.ofNullable(photo.getNumber()).map(Integer::parseInt).orElse(0) - 1;
@@ -126,6 +126,8 @@ public class AddProfileInfoServlet extends HttpServlet {
             }
         }
 
+        alightPhotoListIndexes(current);
+
         Optional<Photo> mainPhoto = current.stream().filter(Objects::nonNull).filter(Photo::isMain).findFirst();
         if (!mainPhoto.isPresent()) {
             mainPhoto = current.stream().filter(Objects::nonNull).findFirst();
@@ -142,6 +144,18 @@ public class AddProfileInfoServlet extends HttpServlet {
 
         user.getCard().setPhotos(current);
         return true;
+    }
+
+    private void alightPhotoListIndexes(List<Photo> photos) {
+        List<Photo> withoutNulls = photos.subList(0, 5).stream().filter(Objects::nonNull).collect(Collectors.toList());
+        for (int i = 0; i < 5; i++)
+            photos.set(i, null);
+
+        int i = 0;
+        for (Photo a : withoutNulls) {
+            a.setNumber(Integer.toString(i + 1));
+            photos.set(i++, a);
+        }
     }
 
     private byte[] compressImage(byte[] content, String destinationPath) throws IOException {
@@ -189,12 +203,12 @@ public class AddProfileInfoServlet extends HttpServlet {
 
     private boolean checkAndDeleteIfMain(User user, Photo photo, String oldMain) {
         if (photo.getNumber().equals(oldMain)) {
-            String mainPhotoPath = getPhotoPath(user.getId(), photo.getNumber());
+            String mainPhotoPath = getMainPhotoPath(user.getId());
             File oldMainFile = new File(mainPhotoPath);
             if (oldMainFile.exists() && oldMainFile.delete()) {
                 System.out.println("Файл " + mainPhotoPath + " был удален");
+                return true;
             }
-            return true;
         }
         return false;
     }
