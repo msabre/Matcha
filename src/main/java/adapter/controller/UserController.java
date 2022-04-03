@@ -164,6 +164,14 @@ public class UserController {
         uploadPhotoContent.uploadMain(photo);
     }
 
+    public List<ActionHistory> getNMatchesWithoutDialogs(int id, int size) {
+        return getHistoryActionList.getNMatchesWithoutDialogs(id, size);
+    }
+
+    public List<ActionHistory> getNMatchesWithoutDialogsAfterId(int id, int lastMatchId, int size) {
+        return getHistoryActionList.getNMatchesWithoutDialogsAfterId(id, lastMatchId, size);
+    }
+
     public List<ActionHistory> getFromActions(Action action, int id, int size) {
         return getHistoryActionList.getNActions(action, id, size);
     }

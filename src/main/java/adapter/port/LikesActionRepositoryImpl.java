@@ -292,7 +292,58 @@ public class LikesActionRepositoryImpl implements LikesActionRepository {
         }
         return Collections.emptyList();
     }
-    
+
+    @Override
+    public List<LikeAction> getNMatchUserIdsWithoutDialogsAfterId(int id, int specificId, int size) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement(
+                     "WITH lastIdTime as (SELECT acts.ID, acts.CREATION_TIME FROM matcha.LIKES_ACTION acts WHERE acts.ID = ?)" +
+                             "SELECT * FROM matcha.LIKES_ACTION acts, lastIdTime tm " +
+                             "WHERE acts.FROM_USR = ? AND acts.ACTION = 'MATCH' " +
+                                 "AND acts.TO_USR NOT IN (SELECT TO_USR FROM matcha.chat_affiliation chat WHERE " +
+                                    "(chat.FROM_USR = ? AND chat.TO_USR = acts.TO_USR) OR (chat.FROM_USR = acts.TO_USR AND chat.TO_USR = ?)) " +
+                             "AND acts.CREATION_TIME < tm.CREATION_TIME " +
+                             "ORDER BY acts.CREATION_TIME DESC LIMIT ?")) {
+            int i = 1;
+            statement.setInt(i++, specificId);
+            statement.setInt(i++, id);
+            statement.setInt(i++, id);
+            statement.setInt(i++, id);
+            statement.setInt(i, size);
+            statement.execute();
+
+            return getIds(statement, Action.PAIR);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<LikeAction> getNMatchUserIdsWithoutDialogs(int id, int size) {
+        try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
+             PreparedStatement statement = connection.prepareStatement(
+                     "SELECT * FROM matcha.LIKES_ACTION acts " +
+                     "WHERE acts.FROM_USR = ? " +
+                        "AND acts.ACTION = 'MATCH' " +
+                        "AND acts.TO_USR NOT IN (SELECT TO_USR FROM matcha.chat_affiliation chat WHERE " +
+                                "(chat.FROM_USR = ? AND chat.TO_USR = acts.TO_USR) OR (chat.FROM_USR = acts.TO_USR AND chat.TO_USR = ?))" +
+                     "ORDER BY acts.CREATION_TIME DESC LIMIT ?")) {
+            statement.setInt(1, id);
+            statement.setInt(2, id);
+            statement.setInt(3, id);
+            statement.setInt(4, size);
+            statement.execute();
+
+            return getIds(statement, Action.PAIR);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
+    }
+
     private List<LikeAction> getNMatchUserIds(int id, int size, String action) {
         try (Connection connection = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getPassword());
              PreparedStatement statement = connection.prepareStatement("SELECT * FROM matcha.LIKES_ACTION acts WHERE acts.FROM_USR = ? AND ACTION = ? ORDER BY acts.CREATION_TIME DESC LIMIT ?")) {

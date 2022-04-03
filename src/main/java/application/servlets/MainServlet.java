@@ -52,12 +52,18 @@ public class MainServlet extends HttpServlet {
                 int afterId = Integer.parseInt(Optional.ofNullable(req.getParameter("after")).orElse("-1"));
 
                 List<ActionHistory> history;
-                if (action == Action.MATCH) {
+                if (action == Action.PAIR) {
+                    if (afterId >= 0)
+                        history = userController.getNMatchesWithoutDialogsAfterId(user.getId(), afterId, MyProperties.USER_MATCH_SIZE);
+                    else
+                        history = userController.getNMatchesWithoutDialogs(user.getId(), MyProperties.USER_MATCH_SIZE);
+                }
+                else if (action == Action.MATCH) {
                     if (afterId >= 0)
                         history = userController.getFromActionsAfterId(action, user.getId(), afterId, MyProperties.USER_MATCH_SIZE);
                     else
                         history = userController.getFromActions(action, user.getId(), MyProperties.USER_MATCH_SIZE);
-                } 
+                }
                 else {
                     if (afterId >= 0)
                         history = userController.getToActionsAfterId(action, user.getId(), afterId, MyProperties.USER_MATCH_SIZE);

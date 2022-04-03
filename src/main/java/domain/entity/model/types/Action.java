@@ -5,6 +5,7 @@ public enum Action {
     DISLIKE("DISLIKE"),
     TAKE_LIKE("TAKE_LIKE"),
     MATCH("MATCH"),
+    PAIR("PAIR"),
     VISIT("VISIT"),
     BLOCK("BLOCK"),
     FAKE("FAKE"),

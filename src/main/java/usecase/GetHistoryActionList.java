@@ -26,6 +26,18 @@ public class GetHistoryActionList {
         this.userRepository = userRepository;
     }
 
+    // Запрос для получения матчей без диалогов - ПАРЫ
+    public List<ActionHistory> getNMatchesWithoutDialogs(int from, int size) {
+        List<LikeAction> actions = likesActionRepository.getNMatchUserIdsWithoutDialogs(from, size);
+        return formHistory(from, actions, false);
+    }
+
+    public List<ActionHistory> getNMatchesWithoutDialogsAfterId(int from, int lastMatchId, int size) {
+        List<LikeAction> actions = likesActionRepository.getNMatchUserIdsWithoutDialogsAfterId(from, lastMatchId, size);
+        return formHistory(from, actions, false);
+    }
+
+
     // От пользователя
     public List<ActionHistory> getNActions(Action action, int from, int size) {
         List<LikeAction> actions = likesActionRepository.getNFrom(action, from, size);

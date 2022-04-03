@@ -31,6 +31,10 @@ public interface LikesActionRepository {
 
     List<Integer> getToUserDislikesByIds(int from, List<Integer> ids);
 
+    List<LikeAction> getNMatchUserIdsWithoutDialogs(int id, int size);
+
+    List<LikeAction> getNMatchUserIdsWithoutDialogsAfterId(int id, int specificId, int size);
+
     List<LikeAction> getNFrom(Action action, int id, int size);
 
     List<LikeAction> getNFromAfterId(Action action, int id, int specificId, int size);
