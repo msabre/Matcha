@@ -31,25 +31,25 @@ public class SaveMessage {
             byte[] byteContent = msg.getContent().getBytes();
             if (compressRequiredFormats.contains(msg.getTypeInfo())) {
                 try {
-                    ByteArrayInputStream bufferedInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(byteContent));
-                    BufferedImage img = ImageIO.read(bufferedInputStream);
+                    try (ByteArrayInputStream bufferedInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(byteContent))) {
+                        BufferedImage img = ImageIO.read(bufferedInputStream);
 
-                    final ByteArrayOutputStream os = new ByteArrayOutputStream();
-                    ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(os);
+                        try (final ByteArrayOutputStream os = new ByteArrayOutputStream();
+                             ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(os)) {
 
-                    Iterator<ImageWriter> writers =  ImageIO.getImageWritersByFormatName("jpg");
-                    ImageWriter writer = writers.next();
-                    ImageWriteParam param = writer.getDefaultWriteParam();
-                    writer.setOutput(imageOutputStream);
+                            Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("jpg");
+                            ImageWriter writer = writers.next();
+                            ImageWriteParam param = writer.getDefaultWriteParam();
+                            writer.setOutput(imageOutputStream);
 
-                    param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-                    param.setCompressionQuality(0.05f);
-                    writer.write( null , new IIOImage(img, null , null ), param);
-                    msg.setContent(Base64.getEncoder().encodeToString(os.toByteArray()));
+                            param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                            param.setCompressionQuality(0.90f);
+                            writer.write(null, new IIOImage(img, null, null), param);
+                            msg.setContent(Base64.getEncoder().encodeToString(os.toByteArray()));
 
-                    os.close();
-                    writer.dispose();
-                    imageOutputStream.close();
+                            writer.dispose();
+                        }
+                    }
                 }
                 catch (final IOException ioe) {
                     ioe.printStackTrace();

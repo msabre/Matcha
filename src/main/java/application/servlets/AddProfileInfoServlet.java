@@ -125,8 +125,8 @@ public class AddProfileInfoServlet extends HttpServlet {
                         try {
                             Files.delete(Paths.get(path));
                             current.set(index, null);
-                        } catch (Exception ignore) {
-                            System.out.println(ignore);
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }
                 default:
