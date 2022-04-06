@@ -20,6 +20,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.*;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -93,12 +95,13 @@ public class AddProfileInfoServlet extends HttpServlet {
 
                         byte[] byteContent = photo.getContent().getBytes();
                         if (JPG.equals(photo.getFormat())) {
-                            ByteArrayInputStream bufferedInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(byteContent));
-                            BufferedImage img = ImageIO.read(bufferedInputStream);
-                            img = cutRegularPhoto(img);
+                            try (ByteArrayInputStream bufferedInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(byteContent))) {
+                                BufferedImage img = ImageIO.read(bufferedInputStream);
+                                img = cutRegularPhoto(img);
 
-                            ImageIO.write(img, photo.getFormat(), new File(path));
-                            byteContent = imageToByteArray(img);
+                                ImageIO.write(img, photo.getFormat(), new File(path));
+                                byteContent = imageToByteArray(img);
+                            }
                         }
                         else if (compressRequiredFormats.contains(photo.getFormat()))
                             byteContent = compressImage(byteContent, path);
@@ -118,15 +121,20 @@ public class AddProfileInfoServlet extends HttpServlet {
                         current.set(5, null);
 
                     File file = new File(path);
-                    if (file.exists() && file.delete()) {
-                        current.set(index, null);
+                    if (file.exists()) {
+                        try {
+                            Files.delete(Paths.get(path));
+                            current.set(index, null);
+                        } catch (Exception ignore) {
+                            System.out.println(ignore);
+                        }
                     }
                 default:
                     break;
             }
         }
 
-        alightPhotoListIndexes(current);
+        alightPhotoListIndexes(current, user.getId());
 
         Optional<Photo> mainPhoto = current.stream().filter(Objects::nonNull).filter(Photo::isMain).findFirst();
         if (!mainPhoto.isPresent()) {
@@ -146,44 +154,56 @@ public class AddProfileInfoServlet extends HttpServlet {
         return true;
     }
 
-    private void alightPhotoListIndexes(List<Photo> photos) {
+    private void alightPhotoListIndexes(List<Photo> photos, int userId) {
         List<Photo> withoutNulls = photos.subList(0, 5).stream().filter(Objects::nonNull).collect(Collectors.toList());
+        
         for (int i = 0; i < 5; i++)
             photos.set(i, null);
 
         int i = 0;
         for (Photo a : withoutNulls) {
+            String currentPath = getPhotoPath(userId, a.getNumber());
+            String newPath = getPhotoPath(userId, String.valueOf(i + 1));
+            
+            if (!currentPath.equals(newPath)) {
+                File currentFile = new File(currentPath);
+                File newFile = new File(newPath);
+
+                if (currentFile.renameTo(newFile))
+                    System.out.println("file " + currentPath + " was renamed to: " + newPath);
+            }
             a.setNumber(Integer.toString(i + 1));
             photos.set(i++, a);
         }
     }
 
     private byte[] compressImage(byte[] content, String destinationPath) throws IOException {
-        ByteArrayInputStream bufferedInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(content));
-        BufferedImage img = ImageIO.read(bufferedInputStream);
+        try (ByteArrayInputStream bufferedInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(content))) {
+            BufferedImage img = ImageIO.read(bufferedInputStream);
 
-        img = cutRegularPhoto(img);
-        
-        File compressedImageFile = new File(destinationPath);
-        OutputStream os = new FileOutputStream(compressedImageFile);
+            img = cutRegularPhoto(img);
 
-        Iterator<ImageWriter> writers =  ImageIO.getImageWritersByFormatName("jpg");
-        ImageWriter writer = writers.next();
+            File compressedImageFile = new File(destinationPath);
+            try (OutputStream os = new FileOutputStream(compressedImageFile)) {
 
-        ImageOutputStream ios = ImageIO.createImageOutputStream(os);
-        writer.setOutput(ios);
+                Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("jpg");
+                ImageWriter writer = writers.next();
 
-        ImageWriteParam param = writer.getDefaultWriteParam();
+                try (ImageOutputStream ios = ImageIO.createImageOutputStream(os)) {
+                    writer.setOutput(ios);
 
-        param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-        param.setCompressionQuality(0.80f);
-        writer.write( null , new IIOImage(img, null , null ), param);
+                    ImageWriteParam param = writer.getDefaultWriteParam();
 
-        os.close();
-        ios.close();
-        writer.dispose();
+                    param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                    param.setCompressionQuality(0.80f);
+                    writer.write(null, new IIOImage(img, null, null), param);
 
-        return imageToByteArray(img);
+                    writer.dispose();
+
+                    return imageToByteArray(img);
+                }
+            }
+        }
     }
 
     private BufferedImage cutRegularPhoto(BufferedImage img) {
@@ -196,9 +216,10 @@ public class AddProfileInfoServlet extends HttpServlet {
     }
 
     private byte[] imageToByteArray(BufferedImage img) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(img, JPG, baos);
-        return baos.toByteArray();
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            ImageIO.write(img, JPG, baos);
+            return baos.toByteArray();
+        }
     }
 
     private boolean checkAndDeleteIfMain(User user, Photo photo, String oldMain) {
@@ -220,26 +241,28 @@ public class AddProfileInfoServlet extends HttpServlet {
         File file = new File(photoPath);
         try {
             byte[] fileInArray = new byte[(int) file.length()];
-            FileInputStream fis = new FileInputStream(photoPath);
-            fis.read(fileInArray);
+            try (FileInputStream fis = new FileInputStream(photoPath)) {
+                fis.read(fileInArray);
 
-            ByteArrayInputStream bufferedInputStream = new ByteArrayInputStream(fileInArray);
-            BufferedImage img = ImageIO.read(bufferedInputStream);
+                try (ByteArrayInputStream bufferedInputStream = new ByteArrayInputStream(fileInArray)) {
+                    BufferedImage img = ImageIO.read(bufferedInputStream);
 
-            int onePart = getOnePart(img.getHeight(), img.getWidth(), 1, 1);
-            int x = (img.getWidth() - onePart) / 2;
-            int y = (img.getHeight() - onePart) / 2;
-            img = img.getSubimage(x, y, onePart, onePart);
+                    int onePart = getOnePart(img.getHeight(), img.getWidth(), 1, 1);
+                    int x = (img.getWidth() - onePart) / 2;
+                    int y = (img.getHeight() - onePart) / 2;
+                    img = img.getSubimage(x, y, onePart, onePart);
 
-            ImageIO.write(img, "jpg", new File(newMainPath));
-            return imageToByteArray(img);
+                    ImageIO.write(img, "jpg", new File(newMainPath));
+                    return imageToByteArray(img);
+                }
+            }
             
         } catch (Exception e) {
             e.printStackTrace();
         }
         return new byte[20];
     }
- 
+
     private int getOnePart(int height, int width, int heightParts, int widthParts) {
         if (height < 3)
             return -1;

@@ -565,8 +565,7 @@ public class UserRepositoryImpl implements UserRepository {
             LocalDateTime localDateTime = resultSet.getTimestamp("LAST_ACTION").toLocalDateTime();
             timeWithZone = localDateTime.atZone(zoneId);
 
-        } catch (Exception e) {
-            System.err.println("Ошибка обработки временной зоны пользователя: " + resultSet.getInt("ID"));
+        } catch (Exception ignore) {
         }
 
         return timeWithZone;
