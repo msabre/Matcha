@@ -67,7 +67,8 @@ public class RecommendUsersList {
     }
 
     private List<User> blockFilter(List<User> userList, int userId) {
-        List<Integer> actions = likesActionRepository.getByFromUsrOrToUsrAndAction(userId, Action.BLOCK.getValue())
+        List<Integer> actions = likesActionRepository
+                .getByFromUsrOrToUsrAndAction(userId, Action.BLOCK.getValue())
                 .stream()
                 .map(act -> (act.getFromUsr() != userId) ? act.getFromUsr() : act.getToUsr())
                 .collect(Collectors.toList());
