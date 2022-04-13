@@ -4,10 +4,13 @@ import adapter.port.model.DBConfiguration;
 import domain.entity.Message;
 import domain.entity.model.types.MessageStatus;
 import domain.entity.model.types.MessageType;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.CharEncoding;
 import usecase.port.MessageRepository;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.*;
@@ -45,7 +48,7 @@ public class MessageRepositoryImpl implements MessageRepository {
             state.setString(i++, msg.getType().getValue());
             state.setString(i++, msg.getTypeInfo());
             state.setString(i++, msg.getStatus().getValue());
-            bos = new ByteArrayInputStream(msg.getContent().getBytes());
+            bos = new ByteArrayInputStream(msg.getContent().getBytes(StandardCharsets.UTF_8));
             state.setBlob(i, bos);
             
 
@@ -256,7 +259,12 @@ public class MessageRepositoryImpl implements MessageRepository {
         msg.setStatus(MessageStatus.fromStr(resultSet.getString("STATUS")));
 
         Blob content = resultSet.getBlob("CONTENT");
-        msg.setContent(new String(content.getBytes(1, (int) content.length()), StandardCharsets.UTF_8));
+        try {
+            String str = IOUtils.toString(content.getBinaryStream(), CharEncoding.UTF_8);
+            msg.setContent(str);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return msg;
     }
 }
