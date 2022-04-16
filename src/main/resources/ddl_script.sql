@@ -112,7 +112,7 @@ BEGIN
                             ID MEDIUMINT AUTO_INCREMENT,
                             USER_ID MEDIUMINT,
                             TOKEN VARCHAR(400),
-                            TYPE VARCHAR(30)
+                            TYPE VARCHAR(30),
                     PRIMARY KEY (ID));'
         );
     END IF;
@@ -120,7 +120,7 @@ BEGIN
     IF NOT table_exists('LIKES_ACTION') THEN CALL execute_immediate(
             'CREATE TABLE matcha.LIKES_ACTION(
                             ID MEDIUMINT AUTO_INCREMENT,
-                            CREATION_TIME timestamp(6) DEFAULT CURRENT_TIMESTAMP,
+                            CREATION_TIME timestamp(6) DEFAULT CURRENT_TIMESTAMP(6),
                             FROM_USR MEDIUMINT,
                             TO_USR MEDIUMINT,
                             ACTION VARCHAR(30),
