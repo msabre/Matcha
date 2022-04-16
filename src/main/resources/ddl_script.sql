@@ -155,7 +155,7 @@ BEGIN
                             RECEIPT_AVAIL MEDIUMINT,
                             TYPE_INFO VARCHAR(30),
                             STATUS VARCHAR(30),
-                            CONTENT BLOB,
+                            CONTENT longblob,
                     PRIMARY KEY (ID));'
         );
     END IF;
